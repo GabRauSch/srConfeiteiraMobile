@@ -9,16 +9,19 @@ import { OrdersScreen } from '../screens/Orders';
 import { PurchasesScreen } from '../screens/Purchases';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Text } from 'react-native';
+import { Header } from '../components/Header';
+import { ProductsScreen } from '../screens/Products';
 
 const Tab = createBottomTabNavigator();
 
 const AppNavigator = () => {
   return (
       <Tab.Navigator
-        
         screenOptions={({route})=>({
+          header: ()=><Header></Header>,
           tabBarStyle: {
-            backgroundColor: '#F9507E'
+            backgroundColor: '#F9507E',
+            height: 60
           },
           tabBarIcon: ({focused})=>{
             let icon: string;
@@ -28,25 +31,21 @@ const AppNavigator = () => {
                 icon = 'home';
                 label = 'Home';
                 break;
-              case "Receipts":
-                icon = 'file-text';
-                label = 'Receitas';
-                break;
+              case "Products":
+                icon = 'shopping-bag';
+                label = 'Produtos';
+              break;
               case "Clients":
                 icon = 'users';
                 label = 'Clientes'
-                break;
-              case "Itens":
-                icon = 'list';
-                label = "Itens"
-                break;
+                break
               case "Orders":
                 icon = 'shopping-cart';
                 label =  'Pedidos'
                 break;
-              case "Purchases":
-                icon ='shopping-basket';
-                label = 'Vendas'
+              case "More":
+                icon ='ellipsis-h';
+                label = 'Mais'
                 break;
               default:
                 icon = '';
@@ -55,30 +54,26 @@ const AppNavigator = () => {
             }
             return(
               <>
-              <Icon name={icon} size={15} color={!focused ? '#FADFE6' : '#848'} />
-              <Text style={{color: '#fff', fontSize: 10}} >{label}</Text>
+              <Icon name={icon} size={18} color={!focused ? '#FADFE6' : '#faf'} />
+              <Text style={{color: `${!focused ? '#FADFE6' : '#faf'}`, fontSize: 14}}>{label}</Text>
             </>
             ) 
           }
         })}
       >
         <Tab.Screen name="Home" component={HomeScreen} 
-          options={{ tabBarShowLabel: false, headerShown: false}}
-        />
-          <Tab.Screen name="Receipts" component={ReceiptsScreen} 
-            options={{ tabBarShowLabel: false, headerShown: false}}
-          />
-        <Tab.Screen name="Clients" component={ClientsScreen} 
-          options={{ tabBarShowLabel: false, headerShown: false}}
-        />
-        <Tab.Screen name="Itens" component={ItensScreen} 
-          options={{ tabBarShowLabel: false, headerShown: false}}
+          options={{ tabBarShowLabel: false}}
         />
         <Tab.Screen name="Orders" component={OrdersScreen} 
-          options={{ tabBarShowLabel: false, headerShown: false}}
+          options={{ tabBarShowLabel: false}}
         />
-        <Tab.Screen name="Purchases" component={PurchasesScreen} 
-          options={{ tabBarShowLabel: false, headerShown: false}}
+        <Tab.Screen name="Products" component={ProductsScreen} 
+          options={{tabBarShowLabel: false}}/>
+        <Tab.Screen name="Clients" component={ClientsScreen} 
+          options={{ tabBarShowLabel: false}}
+        />
+        <Tab.Screen name="More" component={PurchasesScreen} 
+          options={{ tabBarShowLabel: false}}
         />
       </Tab.Navigator>
   );

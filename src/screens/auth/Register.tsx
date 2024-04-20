@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, TextInput, TouchableOpacity, Text, StyleSheet, Image } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import {styles} from '../../assets/styles/screen.auth.Register'
+import {styles} from '../../styles/screen.auth.Register'
 
 type LoginNavigationProp = StackNavigationProp<RootStackParamList, 'Register'>;
 
