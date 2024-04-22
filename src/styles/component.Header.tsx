@@ -3,7 +3,7 @@ import { COLORS } from "./global";
 
 export const styles = StyleSheet.create({
     safeArea: {
-        backgroundColor: COLORS.primary,
+        backgroundColor: COLORS.secondary,
         marginTop: 0
       },
       header: {
@@ -19,20 +19,22 @@ export const styles = StyleSheet.create({
         alignItems: 'flex-start',
       },
       headerTitle: {
-        color: '#fff',
+        color: COLORS.primary,
         fontSize: 18,
         flex: 1,
         textAlign: 'center'
       },
       profile: {
         width: 100,
-        alignItems: 'flex-end',
-        tintColor: 'white'
+        justifyContent: 'flex-end',
+        tintColor: 'white',
+        flexDirection: 'row',
+        gap: 20
       },
       profileImage: { 
         width: 20,
         height: 20,
-        tintColor: '#fff'
+        tintColor: COLORS.primary
       }
 });
 

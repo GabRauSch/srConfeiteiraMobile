@@ -16,7 +16,7 @@ export const styles = StyleSheet.create({
         gap: 10
     },
     day: {
-        width: 70,
+        width: 100,
         height: 100,
         backgroundColor: '#fbfbfb', 
         borderRadius: 10,
@@ -25,21 +25,37 @@ export const styles = StyleSheet.create({
         shadowOpacity: 0.6, 
         shadowRadius: 4,
         elevation: 3, 
-        position: 'relative',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',  
+        justifyContent: 'space-between',
+        padding: 10,
         margin: 10
     },
     dayName: {
         textAlign: 'center',
         fontSize: 12,
-        position: 'absolute',
         bottom: 0,
         width: '100%'
     },
-    horizontalLine: {
-        height: 1,
-        width: '80%',
-        backgroundColor: COLORS.grayScalePrimary,
-        margin: 10,
-        alignSelf: 'center'
+    ordersArea: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        padding: 5,
+        gap: 5
+    },
+    order: {
+        width: 10,
+        height: 10,
+        borderRadius: 2
+    },
+    finished:{
+        backgroundColor: "#090"
+    },
+    pendent: {
+        backgroundColor: '#fc0'
+    },
+    cardsDisplay: {
+        flexDirection: 'row',
     }
 })

@@ -11,6 +11,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { Text } from 'react-native';
 import { Header } from '../components/Header';
 import { ProductsScreen } from '../screens/Products';
+import {COLORS} from '../styles/global'
 
 const Tab = createBottomTabNavigator();
 
@@ -20,7 +21,7 @@ const AppNavigator = () => {
         screenOptions={({route})=>({
           header: ()=><Header></Header>,
           tabBarStyle: {
-            backgroundColor: '#F9507E',
+            backgroundColor: COLORS.secondary,
             height: 60
           },
           tabBarIcon: ({focused})=>{
@@ -54,21 +55,21 @@ const AppNavigator = () => {
             }
             return(
               <>
-              <Icon name={icon} size={18} color={!focused ? '#FADFE6' : '#faf'} />
-              <Text style={{color: `${!focused ? '#FADFE6' : '#faf'}`, fontSize: 14}}>{label}</Text>
+              <Icon name={icon} size={18} color={!focused ? COLORS.primary : '#faf'} />
+              <Text style={{color: `${!focused ? COLORS.primary  : '#faf'}`, fontSize: 14}}>{label}</Text>
             </>
             ) 
           }
         })}
       >
+        <Tab.Screen name="Products" component={ProductsScreen} 
+          options={{tabBarShowLabel: false}}/>
         <Tab.Screen name="Home" component={HomeScreen} 
           options={{ tabBarShowLabel: false}}
         />
         <Tab.Screen name="Orders" component={OrdersScreen} 
           options={{ tabBarShowLabel: false}}
         />
-        <Tab.Screen name="Products" component={ProductsScreen} 
-          options={{tabBarShowLabel: false}}/>
         <Tab.Screen name="Clients" component={ClientsScreen} 
           options={{ tabBarShowLabel: false}}
         />
