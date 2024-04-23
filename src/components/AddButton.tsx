@@ -1,12 +1,18 @@
-import { View } from 'react-native'
+import { Touchable, TouchableOpacity, View } from 'react-native'
 import {styles} from '../styles/component.AddButton'
 import { Text } from 'react-native'
+import { TouchableHighlight } from 'react-native-gesture-handler'
+import { COLORS } from '../styles/global'
 
-const AddButton = ()=>{
+type Props = {
+    onClick: ()=>void
+}
+
+const AddButton = ({onClick}: Props)=>{
     return (
-        <View style={styles.button}>
+        <TouchableHighlight style={styles.button} onPress={onClick} underlayColor={COLORS.primaryPressed}>
             <Text style={styles.plus}>+</Text>
-        </View>
+        </TouchableHighlight>
     )
 }
 

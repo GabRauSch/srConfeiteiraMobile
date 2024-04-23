@@ -1,7 +1,7 @@
 import { SafeAreaView, Text, View } from "react-native";
 import {styles} from '../styles/screen.Orders'
 import SearchInput from "../components/SearchInput";
-import OptionsList from "../components/OptionsList";
+import OptionsList from "../components/OptionItem";
 
 export const OrdersScreen = ()=>(
     <SafeAreaView style={styles.page}>

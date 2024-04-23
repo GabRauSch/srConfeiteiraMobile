@@ -6,5 +6,6 @@ export type Product = {
     cost: number,
     photo: string,
     size: number,
-    format: string
+    format: string,
+    category: string
 }

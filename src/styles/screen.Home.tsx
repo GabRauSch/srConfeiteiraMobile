@@ -12,8 +12,11 @@ export const styles = StyleSheet.create({
         marginTop: 10,
         display: 'flex',
         flexDirection: 'row',
-        padding: 5,
-        gap: 10
+    },
+    daysView: {
+        flexDirection: 'row',
+        gap: 5,
+        padding: 3
     },
     day: {
         width: 100,
@@ -30,7 +33,7 @@ export const styles = StyleSheet.create({
         alignItems: 'center',  
         justifyContent: 'space-between',
         padding: 10,
-        margin: 10
+        marginBottom: 10
     },
     dayName: {
         textAlign: 'center',

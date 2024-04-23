@@ -12,6 +12,7 @@ import { Text } from 'react-native';
 import { Header } from '../components/Header';
 import { ProductsScreen } from '../screens/Products';
 import {COLORS} from '../styles/global'
+import ProductsStack from './ProductsStack';
 
 const Tab = createBottomTabNavigator();
 
@@ -55,18 +56,18 @@ const AppNavigator = () => {
             }
             return(
               <>
-              <Icon name={icon} size={18} color={!focused ? COLORS.primary : '#faf'} />
-              <Text style={{color: `${!focused ? COLORS.primary  : '#faf'}`, fontSize: 14}}>{label}</Text>
+              <Icon name={icon} size={18} color={!focused ? COLORS.primary : COLORS.primaryPressed} />
+              <Text style={{color: `${!focused ? COLORS.primary  : COLORS.primaryPressed}`, fontSize: 14}}>{label}</Text>
             </>
             ) 
           }
         })}
       >
-        <Tab.Screen name="Products" component={ProductsScreen} 
-          options={{tabBarShowLabel: false}}/>
         <Tab.Screen name="Home" component={HomeScreen} 
           options={{ tabBarShowLabel: false}}
         />
+        <Tab.Screen  name="Products" component={ProductsStack} 
+          options={{tabBarShowLabel: false}}/>
         <Tab.Screen name="Orders" component={OrdersScreen} 
           options={{ tabBarShowLabel: false}}
         />
