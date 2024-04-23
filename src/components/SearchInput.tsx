@@ -5,11 +5,14 @@ import { COLORS } from "../styles/global";
 
 const SearchInput = ()=>{
     return (
-        <View style={styles.inputArea}>
-            <TextInput style={styles.input}>
+        <View style={styles.searchInput}>
+            <View style={styles.inputArea}>
+                <Icon style={styles.icon} name="exchange" size={18} color={COLORS.primary} />
+                <TextInput style={styles.input}>
 
-            </TextInput>
-            <Icon name="search" size={15} color={COLORS.primary} />
+                </TextInput>
+                <Icon style={styles.icon} name="search" size={15} color={COLORS.primary} />
+            </View>
         </View>
     )
 }

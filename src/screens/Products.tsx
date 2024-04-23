@@ -43,44 +43,29 @@ export const ProductsScreen = () => {
     }
 
     return (
-        <View style={styles.page}>
-            <SearchInput />
-            <View style={styles.options}>
-                {options.map((option, key)=>(
-                    <OptionItem  key={key} option={option} handleActive={()=>{handleCategorySelect(option, key)}} active={activeKey == key}/>
-                ))}
-            </View>
-            <HorizontalLine />
-            <ScrollView style={styles.scroll}>
-                {filteredCategories.map((category: any, catKey) => (
-                    <View key={catKey} style={styles.categoryDivision}>
-                        <Text style={styles.separator} onPress={()=>{handleToggleCategory(catKey)}}>{category}</Text>
-                        <View style={styles.products}>
-                            {products.filter(product => product.category === category).slice(0, categoriesCollapseMap[catKey] ? products.length : 2).map((product, key) => (
-                                <ProductItem
-                                    key={key}
-                                    image={product.photo}
-                                    value={product.value}
-                                    name={product.name}
-                                    description={product.description}
-                                    onPress={()=>{handleRedirect(`product`, product.id)}}
-                                />
-                            ))}
-                        </View>
-                        {products.filter(product => product.category === category).length > 2 && (
-                            <Text style={styles.expandButton} onPress={()=>{handleToggleCategory(catKey)}}>
-                                {categoriesCollapseMap[catKey] ? ("Menos") : ("Mais")}
-                            </Text>
-                        )}
+        <ScrollView style={styles.scroll}>
+            {filteredCategories.map((category: any, catKey) => (
+                <View key={catKey} style={styles.categoryDivision}>
+                    <Text style={styles.separator} onPress={()=>{handleToggleCategory(catKey)}}>{category}</Text>
+                    <View style={styles.products}>
+                        {products.filter(product => product.category === category).slice(0, categoriesCollapseMap[catKey] ? products.length : 2).map((product, key) => (
+                            <ProductItem
+                                key={key}
+                                image={product.photo}
+                                value={product.value}
+                                name={product.name}
+                                description={product.description}
+                                onPress={()=>{handleRedirect(`product`, product.id)}}
+                            />
+                        ))}
                     </View>
-                ))}
-            </ScrollView>
-            <View style={styles.addButonArea}>
-                {createOptionsDisplay && (
-                    <CreateOptions />
-                )}
-                <AddButton onClick={()=>{setCreateOptionsDisplay(!createOptionsDisplay)}}></AddButton>
-            </View>
-        </View>
+                    {products.filter(product => product.category === category).length > 2 && (
+                        <Text style={styles.expandButton} onPress={()=>{handleToggleCategory(catKey)}}>
+                            {categoriesCollapseMap[catKey] ? ("Menos") : ("Mais")}
+                        </Text>
+                    )}
+                </View>
+            ))}
+        </ScrollView>
     );
 };

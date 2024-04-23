@@ -13,12 +13,15 @@ import { Header } from '../components/Header';
 import { ProductsScreen } from '../screens/Products';
 import {COLORS} from '../styles/global'
 import ProductsStack from './ProductsStack';
+import OrdersStack from './OrdersStack';
+import ClientsStack from './ClientsStack';
 
 const Tab = createBottomTabNavigator();
 
 const AppNavigator = () => {
   return (
       <Tab.Navigator
+        initialRouteName='Orders'
         screenOptions={({route})=>({
           header: ()=><Header></Header>,
           tabBarStyle: {
@@ -66,12 +69,12 @@ const AppNavigator = () => {
         <Tab.Screen name="Home" component={HomeScreen} 
           options={{ tabBarShowLabel: false}}
         />
-        <Tab.Screen  name="Products" component={ProductsStack} 
-          options={{tabBarShowLabel: false}}/>
-        <Tab.Screen name="Orders" component={OrdersScreen} 
+        <Tab.Screen name="Orders" component={OrdersStack} 
           options={{ tabBarShowLabel: false}}
         />
-        <Tab.Screen name="Clients" component={ClientsScreen} 
+        <Tab.Screen  name="Products" component={ProductsStack} 
+          options={{tabBarShowLabel: false}}/>
+        <Tab.Screen name="Clients" component={ClientsStack} 
           options={{ tabBarShowLabel: false}}
         />
         <Tab.Screen name="More" component={PurchasesScreen} 

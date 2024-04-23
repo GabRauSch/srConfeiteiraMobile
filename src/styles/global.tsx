@@ -6,3 +6,10 @@ export const COLORS = {
     grayScaleSecondary: '#c2c2c2',
     textColor: '#a78384'
 }
+export const SHADOW = {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6, 
+    shadowRadius: 4,
+    elevation: 3, 
+}
