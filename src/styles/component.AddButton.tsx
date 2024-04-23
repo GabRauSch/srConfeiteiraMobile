@@ -8,7 +8,8 @@ export const styles = StyleSheet.create({
         width: 85,
         aspectRatio: 2/1,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        zIndex: 999
     },
     plus: {
         color: '#fff',

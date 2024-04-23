@@ -10,9 +10,7 @@ export const Header = () => {
     const {isSecret, toggleSecret} = useSecret()
 
     const logo = require('../assets/images/logoMOCK.png');
-    const profile = require('../assets/images/user.png');
-
-    
+    const profile = require('../assets/images/user.png');    
     return (
         <SafeAreaView style={styles.safeArea}> 
             <View style={styles.header}>

@@ -2,6 +2,7 @@ import { SafeAreaView, ScrollView, Text, View } from "react-native";
 import {styles} from '../styles/screen.Home'
 import Card from "../components/Card";
 import { HorizontalLine } from "../components/HorizontalLine";
+import AddButton from "../components/AddButton";
 
 export const HomeScreen = ()=>(
     <SafeAreaView style={styles.page}>

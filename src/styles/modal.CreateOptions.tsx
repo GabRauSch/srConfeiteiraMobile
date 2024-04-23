@@ -2,7 +2,7 @@ import { StyleSheet } from "react-native";
 import { COLORS } from "./global";
 
 export const styles = StyleSheet.create({
-    modal: {
+    cardList: {
         backgroundColor: '#fff',
         borderRadius: 10,
         width: 150,
