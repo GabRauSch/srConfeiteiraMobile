@@ -5,7 +5,7 @@ import { ReactNode } from "react";
 import InputEdit from "../components/InputEdit";
 import InputPicker from "../components/InputPicker";
 
-export const ProductItem = () => {
+const OrdersByProductCategory = () => {
     const bolo = require('../assets/images/bolo.png');
 
     return (
@@ -29,3 +29,5 @@ export const ProductItem = () => {
         </View>
     );
 };
+
+export default OrdersByProductCategory

@@ -1,4 +1,4 @@
-import { Touchable, TouchableOpacity, View } from 'react-native'
+import { Modal, Touchable, TouchableOpacity, View } from 'react-native'
 import {styles} from '../styles/component.AddButton'
 import { Text } from 'react-native'
 import { TouchableHighlight } from 'react-native-gesture-handler'

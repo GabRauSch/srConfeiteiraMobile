@@ -1,16 +1,9 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { NavigationContainer } from '@react-navigation/native';
 import { HomeScreen } from '../screens/Home';
-import { useState } from 'react';
-import { ReceiptsScreen } from '../screens/Receipts';
-import { ClientsScreen } from '../screens/Clients';
-import { ItensScreen } from '../screens/Itens';
-import { OrdersScreen } from '../screens/Orders';
 import { PurchasesScreen } from '../screens/Purchases';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Text } from 'react-native';
 import { Header } from '../components/Header';
-import { ProductsScreen } from '../screens/Products';
 import {COLORS} from '../styles/global'
 import ProductsStack from './ProductsStack';
 import OrdersStack from './OrdersStack';

@@ -34,4 +34,4 @@ export const ordersList: Order[] = [
 
 // aberto, entregue, recebido
 export const statusList = [1, 2, 3];
-type status = 1 | 2 | 3
+export type status = 1 | 2 | 3

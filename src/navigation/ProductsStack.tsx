@@ -11,7 +11,6 @@ export default ()=>(
             headerShown: false
         }}
     >
-        <Stack.Screen name="product" component={ProductItem}></Stack.Screen>
         <Stack.Screen name="products">
             {()=>(
                 <CommonAssets>
@@ -19,5 +18,6 @@ export default ()=>(
                 </CommonAssets>
             )}
         </Stack.Screen>
+        <Stack.Screen name="product" component={ProductItem}></Stack.Screen>
     </Stack.Navigator>
 )

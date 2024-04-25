@@ -11,6 +11,14 @@ export const styles = StyleSheet.create({
         padding: 10,
         flex: 1,
     },
+    modalBackground: {
+        position: "absolute",
+        top: 0,
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: "rgba(0, 0, 0, 0)",
+    },
     clientInfo: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -31,6 +39,11 @@ export const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
         color: COLORS.primary
+    },
+    dots: {
+        paddingVertical: 25,
+        paddingLeft: 20,
+        paddingRight: 10
     },
     time: {
         fontStyle: 'italic',
@@ -61,5 +74,19 @@ export const styles = StyleSheet.create({
     listItemText: {
         color: '#999',
         fontSize: 12
+    },
+    clientModal: {
+        position: 'absolute',
+        bottom: 40,
+        right: 20,
+        width: 100,
+        backgroundColor: '#fff',
+        zIndex: 10,
+        ...SHADOW,
+        borderRadius: 5,
+        overflow: 'hidden'
+    },
+    clientModalText: {
+        padding: 10,
     }
 })

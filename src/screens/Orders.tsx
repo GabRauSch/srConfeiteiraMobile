@@ -1,79 +1,72 @@
-import { SafeAreaView, Text, View, ScrollView } from "react-native";
+import { SafeAreaView, Text, View, ScrollView, TouchableOpacity } from "react-native";
 import { styles } from "../styles/screen.Orders";
-import SearchInput from "../components/SearchInput";
-import OptionItem from "../components/OptionItem";
 import { HorizontalLine } from "../components/HorizontalLine";
 import React, { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { CreateOptions } from "../modals/CreateOptions";
-import ChangeVisionButton from "../components/ChangeVisionButton";
 import { ordersList, statusList } from "../types/Order";
 import { getUniqueCategories, getUniqueData } from "../util/transform";
-import useVision from "../hooks/useVision";
+import { orderAggregated } from "../types/OrderAgreggated";
+import { RootState } from "../store";
+import { Dispatch } from "redux";
+import { toggleVision } from "../reducers/visionReducer";
+import { connect } from 'react-redux';
 
-export const OrdersScreen = ()=>{
+
+type Props = {
+    vision: boolean
+}
+
+const OrdersScreen = ({vision}: Props)=>{
     const status = ["Abertos", "Entregues", "Recebidos"]
     const options = ["Todas", ...status, 'mais'];
     const [selectedStatus, setSelectedCategory] = useState<number>(1); 
     const [activeKey, setActiveKey] = useState(0);
     const [createOptionsDisplay, setCreateOptionsDisplay] = useState(false);
-    const {vision, toggleVision} = useVision();
+
+    useEffect(()=>{
+        console.log(vision)
+    }, [vision])
     
     const days = getUniqueData(ordersList, 'deliveryString');
-    const navigate = useNavigation();
+    const navigate = useNavigation() as any;
 
     const filteredStatus = selectedStatus 
         ? statusList.filter(status => status === selectedStatus) 
         : statusList;
-    
-
 
     const handleStatusSelect = (option: string, key: number)=>{
         // if(option === 'mais') return navigate.navigate('listCategories')
         setSelectedCategory(option === "Todas" ? 0 : key -1);
         setActiveKey(key);
     }
+
+    const handleNavigate = (url: string)=>{
+        navigate.navigate(url) 
+    }
+
+    
     return (
         <ScrollView>
             {days.map((day: any, Dkey)=>(
                 <React.Fragment key={Dkey}>
-                <Text style={styles.separator}>{day}</Text>
-                <View style={styles.ordersDisplay}>
-                    {ordersList.filter(order=> order.deliveryString == day).slice(0, 2)
-                        .map((item, key)=>(
-                           <React.Fragment key={key}>
-                                {vision ? (
-                                <>
-                                    <View style={styles.order}>
-                                        <View style={[styles.openOrder, styles.labelOrder]}></View>
-                                        <Text style={styles.name}>Docinhos</Text>
-                                        <View style={styles.unitsDisplay}>
-                                            <View style={styles.listItem}>
-                                                <Text style={styles.listItemText}>50 unidades</Text>
-                                            </View>
+                    <Text style={styles.separator}>{day}</Text>
+                    <View style={styles.ordersDisplay}>
+                        {vision ? (
+                            orderAggregated.filter(order=>order.deliveryString == day).map((agg, Akey)=>(
+                                <TouchableOpacity style={styles.order} key={Akey} onPress={()=>handleNavigate('order')}>
+                                    <View style={[styles.labelOrder, agg.status != 1 ? styles.closedOrder : styles.openOrder]}></View>
+                                    <Text style={styles.name} onPress={()=>{console.log(vision)}}>{agg.productCategory}</Text>
+                                    <View style={styles.unitsDisplay}>
+                                        <View style={styles.listItem}>
+                                            <Text style={styles.listItemText}>{agg.amount} unidades</Text>
                                         </View>
                                     </View>
-                                    <View style={styles.order}>
-                                        <View style={[styles.openOrder, styles.labelOrder]}></View>
-                                        <Text style={styles.name}>Bolos</Text>
-                                        <View style={styles.unitsDisplay}>
-                                            <View style={styles.listItem}>
-                                                <Text style={styles.listItemText}>50 unidades</Text>
-                                            </View>
-                                        </View>
-                                    </View>
-                                    <View style={styles.order}>
-                                        <View style={[styles.closedOrder, styles.labelOrder]}></View>
-                                        <Text style={styles.name}>Pastéis</Text>
-                                        <View style={styles.unitsDisplay}>
-                                            <View style={styles.listItem}>
-                                                <Text style={styles.listItemText}>50 unidades</Text>
-                                            </View>
-                                        </View>
-                                    </View>
-                                </>    
-                            ) : (
-                                <View style={styles.order} key={key}>
+                                </TouchableOpacity>  
+                            ))) : (
+                                ordersList.filter(order=> order.deliveryString == day).slice(0, 2)
+                                    .map((item, key)=>(
+
+                                <TouchableOpacity style={styles.order} key={key} onPress={()=>handleNavigate('ordersByProductCategory')}>
                                     <View style={[styles.labelOrder, item.status != 1 ? styles.closedOrder : styles.openOrder]}></View>
                                     <Text style={styles.name}>{item.client}</Text>
                                     <View style={styles.orderList}>
@@ -92,13 +85,18 @@ export const OrdersScreen = ()=>{
                                     <Text style={styles.time}>Entregue em 12 horas</Text>
                                     <HorizontalLine />
                                     <Text style={styles.price}>R${item.value.toFixed(2).replace('.',',')}</Text>
-                                </View>
-                            )}
-                           </React.Fragment> 
-                        ))}
-                </View>
+                                </TouchableOpacity>
+                            )))}
+                    </View>
                 </React.Fragment>
                 ))}
         </ScrollView>
     )
 }
+
+const mapStateToProps = (state: RootState) => ({
+    vision: state.visionReducer.vision
+  });
+  
+  
+export default connect(mapStateToProps)(OrdersScreen);

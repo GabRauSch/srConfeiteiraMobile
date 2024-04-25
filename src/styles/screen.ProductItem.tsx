@@ -41,30 +41,4 @@ export const styles = StyleSheet.create({
     productInfo: {
         gap: 30
     },
-    productInfoItem: {
-    },
-    productInfoText: {
-        color: COLORS.primary
-    },
-    productInput: {
-        borderBottomColor: COLORS.primary,
-        borderBottomWidth: 1,
-        padding: 0,
-    },
-    productPicker: {
-        borderWidth: 1,
-        borderColor: COLORS.primary,
-        borderRadius: 10,
-        marginVertical: 5
-    },
-    name: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: '#555',
-        paddingHorizontal: 10
-    },
-    productName: {
-        flexDirection: 'row',
-        justifyContent: 'center'
-    }
 })

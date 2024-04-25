@@ -1,9 +1,8 @@
 import { createStackNavigator } from "@react-navigation/stack";
-import { ProductItem } from "../screens/ProductItem";
-import { ProductsScreen } from "../screens/Products";
 import CommonAssets from "../screens/CommonAssets";
-import { OrdersScreen } from "../screens/Orders";
-import { ClientsScreen } from "../screens/Clients";
+import ClientsScreen  from "../screens/Clients";
+import { EditItem } from "../screens/EditItem";
+import InputEdit from "../components/InputEdit";
 
 const Stack = createStackNavigator();
 
@@ -13,6 +12,11 @@ export default ()=>(
             headerShown: false
         }}
     >
+        <Stack.Screen name="client">
+            {()=>(
+                <EditItem/>
+            )}
+        </Stack.Screen>
         <Stack.Screen name="clients">
             {()=>(
                 <CommonAssets>
@@ -20,6 +24,5 @@ export default ()=>(
                 </CommonAssets>
             )}
         </Stack.Screen>
-        {/* <Stack.Screen name="client" component={ProductItem}></Stack.Screen> */}
     </Stack.Navigator>
 )
