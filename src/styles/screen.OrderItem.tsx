@@ -19,6 +19,21 @@ export const styles = StyleSheet.create({
     },
     orderInfoText: {
     },
+    finishOrder: {
+        color: '#fff', 
+        fontWeight: 'bold', 
+        backgroundColor: COLORS.primary,
+        borderRadius: 10,
+        padding: 5,
+        width: 150,
+        textAlign: 'center',
+        alignSelf: 'flex-end'
+    }, 
+    finishOrderArea: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 10
+    },
     orderInfoStatus: {
         fontStyle: 'italic',
         alignSelf: 'flex-end',

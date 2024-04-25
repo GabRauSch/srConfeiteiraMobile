@@ -4,13 +4,14 @@ import AppNavigator from './src/navigation/AppNavigation';
 import AuthNavigator from './src/navigation/AuthNavigation';
 import { Provider } from 'react-redux';
 import store from './src/store';
+import MainNavigation from './src/navigation/MainNavigation';
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(true);
   return (
     <Provider store={store}>
       <NavigationContainer>
-        {isLoggedIn ? <AppNavigator /> : <AuthNavigator />}
+        {isLoggedIn ? <MainNavigation /> : <AuthNavigator />}
       </NavigationContainer>
     </Provider>
   );

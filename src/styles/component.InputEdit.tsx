@@ -28,4 +28,8 @@ export const styles = StyleSheet.create({
         borderRadius: 10,
         marginVertical: 5
     },
+    notEditable: {
+        color: COLORS.unactive,
+        borderColor: COLORS.unactive
+    }
 })

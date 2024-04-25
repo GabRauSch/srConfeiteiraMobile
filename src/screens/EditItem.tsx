@@ -22,9 +22,9 @@ export const EditItem = () => {
                 <Image source={person} style={styles.itemImage}/>
             </View>
             <View style={styles.productInfo}>
-                    <InputEdit label="Nome" value="Igor Ramos Ribas" main={true}/>
-                    <InputEdit label="Telefone" value="48984116469"/>
-                    <InputEdit label="Endereço" value="Rua dos anzóis pretos"/>
+                <InputEdit label="Nome" value="Igor Ramos Ribas" main={true}/>
+                <InputEdit label="Telefone" value="48984116469"/>
+                <InputEdit label="Endereço" value="Rua dos anzóis pretos"/>
             </View>
         </View>
     );

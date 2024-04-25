@@ -29,7 +29,10 @@ const OrderItem = () => {
                 <Text style={styles.orderInfoText}>Cliente: Gláucio Barbosa</Text>
                 <Text>Progresso: {percentage*100}% ({status.filter(status=>status == 1).length}/{status.length})</Text>
                 <ProgressBar progress={percentage} color={COLORS.primary} style={{borderRadius: 10, height: 7}}/>
-                <Text style={{...styles.orderInfoStatus, color: COLORS.primary}}>Status: Aberto</Text>
+                <View style={styles.finishOrderArea}>
+                    <Text style={{...styles.orderInfoStatus, color: COLORS.primary}}>Status: Aberto</Text>
+                    <Text style={styles.finishOrder}>Concluir pedido</Text>
+                </View>
             </View>
             <HorizontalLine />
             {['Pendentes', 'Concluídos'].map((section, key)=>(

@@ -1,6 +1,5 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { HomeScreen } from '../screens/Home';
-import { PurchasesScreen } from '../screens/Purchases';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Text } from 'react-native';
 import { Header } from '../components/Header';
@@ -8,13 +7,14 @@ import {COLORS} from '../styles/global'
 import ProductsStack from './ProductsStack';
 import OrdersStack from './OrdersStack';
 import ClientsStack from './ClientsStack';
+import MoreStack from './MoreStack';
 
 const Tab = createBottomTabNavigator();
 
 const AppNavigator = () => {
   return (
       <Tab.Navigator
-        initialRouteName='Orders'
+        initialRouteName='More'
         screenOptions={({route})=>({
           header: ()=><Header></Header>,
           tabBarStyle: {
@@ -70,7 +70,7 @@ const AppNavigator = () => {
         <Tab.Screen name="Clients" component={ClientsStack} 
           options={{ tabBarShowLabel: false}}
         />
-        <Tab.Screen name="More" component={PurchasesScreen} 
+        <Tab.Screen name="More" component={MoreStack} 
           options={{ tabBarShowLabel: false}}
         />
       </Tab.Navigator>

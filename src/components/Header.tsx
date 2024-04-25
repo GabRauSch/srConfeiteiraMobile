@@ -4,6 +4,8 @@ import { styles } from '../styles/component.Header';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { COLORS } from '../styles/global';
 import useSecret from '../hooks/useSecret';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { useNavigation } from '@react-navigation/native';
 
 
 export const Header = () => {
@@ -11,6 +13,12 @@ export const Header = () => {
 
     const logo = require('../assets/images/logoMOCK.png');
     const profile = require('../assets/images/user.png');    
+
+    const navigate = useNavigation() as any
+    const handleNavigate = (url: string)=>{
+        navigate.navigate(url)
+    }
+
     return (
         <SafeAreaView style={styles.safeArea}> 
             <View style={styles.header}>
@@ -24,7 +32,9 @@ export const Header = () => {
                     ) : (
                         <Icon name="eye" size={20} color={COLORS.primary} onPress={toggleSecret}/>
                     )}
-                    <Image source={profile} style={styles.profileImage}/>
+                    <TouchableOpacity activeOpacity={1} onPress={()=>handleNavigate('profile')}>
+                        <Image source={profile} style={styles.profileImage} />
+                    </TouchableOpacity>
                 </View>
             </View>
         </SafeAreaView>
