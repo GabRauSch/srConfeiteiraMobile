@@ -10,17 +10,41 @@ import Collapsible from "react-native-collapsible";
 import { useEffect, useState } from "react";
 import { getUniqueCategories } from "../util/transform";
 import { useNavigation } from "@react-navigation/native";
-import { products } from "../services/products";
 import { CreateOptions } from "../modals/CreateOptions";
+import { getAllByUserId } from "../services/Products";
+import { User } from "../types/User";
+import { connect } from "react-redux";
+import { RootState } from "../store";
+import { Dispatch } from "redux";
+import { setProductInfo, setProducts } from "../reducers/productsReducer";
 
-export const ProductsScreen = () => {
+type Props = {
+    user: User,
+    setProductsAction: (payload: any)=>void
+}
+
+const ProductsScreen = ({user, setProductsAction}: Props) => {
     const [activeKey, setActiveKey] = useState(0);
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null); 
     const [createOptionsDisplay, setCreateOptionsDisplay] = useState(false)
-    const navigate = useNavigation() as any
+    const navigate = useNavigation() as any;
+    const [products, setProducts] = useState<Product[]>([]);
+    const [categories, setCategories] = useState<string[]>([]);
+    const [filteredCategories, setFilteredCategories] = useState<any[]>([]);
+
+    useEffect(()=>{
+        const handleGetData = async ()=>{
+            const products = await getAllByUserId(user.id as number);
+            setProducts(products);
+            const uniqueCategories = getUniqueCategories(products) as string[];
+            setCategories(uniqueCategories);
+            setSelectedCategory(null);
+            setFilteredCategories(uniqueCategories);
+            setProductsAction(products)
+        }
+        handleGetData()
+    }, [user.id]); 
     
-    const categories = getUniqueCategories(products) as string[];
-    const options = ["Todas", ...categories.slice(0, 3), 'mais']
     const [categoriesCollapseMap, setCategoriesCollapseMap] = useState(Array.from({length: categories.length}, () => false));
 
     const handleToggleCategory = (catKey: number)=>{
@@ -28,10 +52,7 @@ export const ProductsScreen = () => {
         updatedCollapseMap[catKey] = !updatedCollapseMap[catKey];
         setCategoriesCollapseMap(updatedCollapseMap);
     }
-    const filteredCategories = selectedCategory 
-        ? categories.filter(category => category === selectedCategory) 
-        : categories;
-
+   
     const handleCategorySelect = (category: string, key: number) => {
         if(category === 'mais') return navigate.navigate('listCategories')
         setSelectedCategory(category === "Todas" ? null : category);
@@ -69,3 +90,12 @@ export const ProductsScreen = () => {
         </ScrollView>
     );
 };
+
+const mapStateToProps = (state: RootState)=>({
+    user: state.userReducer.user
+})
+const mapDispatchToProps = (dispatch: Dispatch)=>({
+    setProductsAction: (payload: any)=>{dispatch(setProducts(payload))}
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(ProductsScreen)

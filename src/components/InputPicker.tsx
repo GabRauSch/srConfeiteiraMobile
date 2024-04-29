@@ -4,15 +4,17 @@ import { Picker } from '@react-native-picker/picker'
 
 type Props = {
     label: string,
-    values: string[]
+    values: string[],
+    selected: any,
+    onSelect: (value: string)=>void
 }  
 
-const InputPicker = ({label, values}: Props)=>{
+const InputPicker = ({label, values, selected}: Props)=>{
     return (
         <View style={styles.productInfoItem}>
             <Text style={styles.productInfoText}>{label}</Text>
             <View style={styles.productPicker}>
-                <Picker >
+                <Picker selectedValue={selected} >
                     {values.map((el, key)=>(
                         <Picker.Item key={key} label={el} value={el}/>
                     ))}

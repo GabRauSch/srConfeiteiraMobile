@@ -14,7 +14,6 @@ export default ()=>(
             headerShown: false
         }}
     >
-        <Stack.Screen name="order" component={OrderItem}></Stack.Screen>
         <Stack.Screen name="orders">
             {()=>(
                 <CommonAssets>
@@ -23,5 +22,6 @@ export default ()=>(
             )}
         </Stack.Screen>
         <Stack.Screen name="ordersByProductCategory" component={OrdersByProductCategory}></Stack.Screen>
+        <Stack.Screen name="order" component={OrderItem}></Stack.Screen>
     </Stack.Navigator>
 )

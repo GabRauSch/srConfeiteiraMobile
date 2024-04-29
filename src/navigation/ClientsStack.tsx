@@ -12,16 +12,16 @@ export default ()=>(
             headerShown: false
         }}
     >
-        <Stack.Screen name="client">
-            {()=>(
-                <EditItem/>
-            )}
-        </Stack.Screen>
         <Stack.Screen name="clients">
             {()=>(
                 <CommonAssets>
                     <ClientsScreen />
                 </CommonAssets>
+            )}
+        </Stack.Screen>
+        <Stack.Screen name="client">
+            {()=>(
+                <EditItem/>
             )}
         </Stack.Screen>
     </Stack.Navigator>
