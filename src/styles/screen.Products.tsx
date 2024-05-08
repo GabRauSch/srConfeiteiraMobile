@@ -10,6 +10,10 @@ export const styles = StyleSheet.create({
         gap: 10,
         padding: 5
     },
+    messageNoRegister: {
+        color: '#777',
+        textAlign: 'center'
+    },
     addButonArea: {
         position: 'absolute',
         right: 20,

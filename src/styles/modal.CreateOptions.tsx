@@ -19,7 +19,8 @@ export const styles = StyleSheet.create({
         shadowOpacity: 0.6, 
         shadowRadius: 4,
         elevation: 3, 
-        zIndex: 999
+        zIndex: 999,
+        overflow: 'hidden'
     },
     modalItem: {
         padding: 15,

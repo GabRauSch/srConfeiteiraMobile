@@ -11,12 +11,18 @@ export const styles = StyleSheet.create({
         borderBottomColor: COLORS.primary,
         borderBottomWidth: 1,
         padding: 0,
+        width: '100%',
     },
     name: {
         fontSize: 20,
         fontWeight: 'bold',
         color: '#555',
-        paddingHorizontal: 10
+        paddingHorizontal: 10,
+        width: 'auto',
+
+    },
+    beforeHolder:{
+        color: '#999',
     },
     productName: {
         flexDirection: 'row',
@@ -31,5 +37,15 @@ export const styles = StyleSheet.create({
     notEditable: {
         color: COLORS.unactive,
         borderColor: COLORS.unactive
+    },
+    inputArea: {
+        flexDirection: 'row',
+        width: '100%',
+        alignItems: 'center',
+    },
+    input: {
+        flex: 1,
+        backgroundColor: 'red',
+
     }
 })

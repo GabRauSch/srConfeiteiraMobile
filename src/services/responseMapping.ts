@@ -44,8 +44,8 @@ const getSuccessMessageFromResponse = (code: SuccessCode)=>{
 
 export const handleResponse = (response: any)=>{
     const error = getErrorMessageFromResponse(response.code); 
-    if(error) return error
+    if(error) return {message: error, type: 'error'}
 
     const success = getSuccessMessageFromResponse(response.code) 
-    return success
+    return {message: success, type: 'success'}
 }

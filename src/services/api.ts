@@ -1,6 +1,7 @@
 import axios, { AxiosError } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system'
+import { RefreshControlComponent } from 'react-native';
 
 const backendAdress = 'http://192.168.15.154:3001'
 
@@ -30,7 +31,7 @@ const getTokenFromState = async () => {
 
 export const callPostFormData = async (url: string, body: { image: string; userId: string }) => {
     try {
-        const finalUrl = `${backendAdress}/${url}`;
+        const finalUrl = `${backendAdress}${url}`;
         const token = await getTokenFromState();
         
         const imageUri = body.image;
@@ -62,17 +63,13 @@ export const callPostFormData = async (url: string, body: { image: string; userI
     }
 };
 
-export const callPostEndpoint = async (url: string, body: object, queries?: string)=>{
+export const callPostEndpoint = async (url: string, body: any, queries?: string)=>{
     try {
-        const finalUrl = `${backendAdress}/${url}`
-        const token = await getTokenFromState();
-        const response = await axios.post(finalUrl, body, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
-        return response;
+        const finalUrl = `${backendAdress}${url}`
+        const response = await axios.post(finalUrl, body);  
+        return response
     } catch (error) {
+        console.error(error)
         if (axios.isAxiosError(error)) {
             if (error.response && error.response.data) {
                 return error.response;

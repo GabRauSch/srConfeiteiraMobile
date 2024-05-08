@@ -22,7 +22,7 @@ const reducer = (state: State = initialState, action: Action): State => {
         case 'SET_MESSAGE':
                 return {
                     ...state,
-                    vision: !state.vision
+                    message: action.payload
                 };
             break;
         default: break;

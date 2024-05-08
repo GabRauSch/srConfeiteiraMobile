@@ -12,12 +12,16 @@ export const styles = StyleSheet.create({
         top: 200,
         zIndex: 991
     },
+    profitChange: {
+
+    },
     save: {
         position: 'absolute',
         right: 0,
         padding: 20,
         color: COLORS.primary,
-        fontWeight: 'bold'
+        fontWeight: 'bold',
+        zIndex: 998
     },
     profitDisplay: {
         backgroundColor: COLORS.primary,
@@ -25,6 +29,8 @@ export const styles = StyleSheet.create({
         borderBottomLeftRadius: 10,
         borderTopLeftRadius: 10,
         padding: 10,
+        flexDirection: 'row',
+        alignItems: 'center'
     },
     profitText: {
         fontSize: 17,

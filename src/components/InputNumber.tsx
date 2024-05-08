@@ -10,7 +10,7 @@ type Props = {
     beforeHolder?: string
 }  
 
-const InputEdit = ({label, value, main, lockEdit,onChange, beforeHolder}: Props)=>{
+const InputNumber = ({label, value, main, lockEdit,onChange, beforeHolder}: Props)=>{
 
     const handleMessage = ()=>{
         if (lockEdit) console.log('erro')
@@ -25,14 +25,16 @@ const InputEdit = ({label, value, main, lockEdit,onChange, beforeHolder}: Props)
                 {beforeHolder &&
                     <Text style={styles.beforeHolder}>{beforeHolder}</Text>
                 }
-                <TextInput editable={!lockEdit} onChangeText={(value)=>{onChange(value)}}
+                <TextInput 
+                    editable={!lockEdit}
                     style={[styles.productInput, main ? styles.name : null, lockEdit ? styles.notEditable : null ]}
                     value={value}
-                >
-                </TextInput>
+                    keyboardType="decimal-pad"
+                    onChangeText={(value)=>{onChange(value)}}
+                />
             </View>
         </TouchableOpacity>
     )
 }
 
-export default InputEdit
+export default InputNumber

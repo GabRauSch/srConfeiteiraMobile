@@ -40,10 +40,14 @@ const reducer = (state: State = initialState, action: Action): State => {
                 }
             });
 
-            return {
+            
+            const returner =  {
                 ...state,
                 products: updatedProducts
             };
+
+            console.log(returner)
+            return returner
         case 'SET_PRODUCTS': 
             return {
                 ...state,

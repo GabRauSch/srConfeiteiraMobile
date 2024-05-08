@@ -1,27 +1,25 @@
 import { StyleSheet } from "react-native";
-import { COLORS } from "./global";
+import { COLORS, SHADOW } from "./global";
 
 export const styles = StyleSheet.create({
-    modal: {
-        position: 'relative',
-        height: '100%',
-        zIndex: 999
-    },
-    cardList: {
+    cardArea: {
         position: 'absolute',
-        backgroundColor: '#fff',
+        alignItems: 'center',
         borderRadius: 10,
-        width: 150,
-        bottom: 130,
-        right: 20,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: 0.6, 
-        shadowRadius: 4,
-        elevation: 3, 
-        zIndex: 999
+        width: '100%',
+        elevation: 1,
+        top: 10,
+        shadowColor: 'transparent',
+        zIndex: 9999999,
+        
+    },
+    card: {
+        padding: 10,
+        paddingHorizontal: 40,
+        borderRadius: 10,
+        maxWidth: 300,
     },
     message: {
-        fontSize: 20
+        color: '#fff'
     }
 })
