@@ -4,7 +4,6 @@ import { COLORS } from "./global";
 export const styles = StyleSheet.create({
     page: {
         padding: 20,
-        flex: 1
     }, 
     profit: {
         position: 'absolute',

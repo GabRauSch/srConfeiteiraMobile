@@ -20,6 +20,15 @@ export const setProducts = (payload: any) =>({
     payload
 })
 
+export const newProduct = (payload: any)=>({
+    type: 'NEW_PRODUCT',
+    payload
+})
+
+export const removeProduct = (payload: any)=>({
+    type: 'DELETE_PRODUCT',
+    payload
+})
 
 const initialState: State = {
     products: []
@@ -39,20 +48,31 @@ const reducer = (state: State = initialState, action: Action): State => {
                     return product
                 }
             });
-
-            
             const returner =  {
                 ...state,
                 products: updatedProducts
             };
 
-            console.log(returner)
             return returner
         case 'SET_PRODUCTS': 
             return {
                 ...state,
                 products: action.payload
             }
+
+        case 'NEW_PRODUCT': 
+            const newProducts = [...state.products, action.payload]
+            const newState = {
+                ...state,
+                products: newProducts
+            }
+            return newState
+        case 'DELETE_PRODUCT': 
+            console.log(action.payload)
+            return {
+                ...state,
+                products: state.products.filter(product => product.id !== action.payload)
+            };
         default: break;
     }
     return state;

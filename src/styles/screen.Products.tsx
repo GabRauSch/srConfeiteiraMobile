@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import { COLORS } from "./global";
+import { COLORS, SHADOW } from "./global";
 
 export const styles = StyleSheet.create({
     page: {
@@ -13,6 +13,14 @@ export const styles = StyleSheet.create({
     messageNoRegister: {
         color: '#777',
         textAlign: 'center'
+    },
+    modalBackground: {
+        position: "absolute",
+        top: 0,
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: "rgba(0, 0, 0, 0)",
     },
     addButonArea: {
         position: 'absolute',
@@ -39,4 +47,5 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         padding: 5
     },
+    
 })

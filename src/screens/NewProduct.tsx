@@ -15,14 +15,16 @@ import { RootState } from "../store"
 import { User } from "../types/User"
 import { connect } from "react-redux"
 import { useNavigation } from "@react-navigation/native"
-import { setProductInfo } from "../reducers/productsReducer"
+import { Dispatch } from "redux"
+import { newProduct, setProductInfo } from "../reducers/productsReducer"
 
 type Props = {
     user: User,
-    products: Product[]
+    products: Product[],
+    newProductAction: (payload: any)=>void
 }
 
-const NewProduct = ({user, products}: Props)=>{
+const NewProduct = ({user, products, newProductAction}: Props)=>{
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [productValue, setProductValue] = useState('0,00');
@@ -38,6 +40,8 @@ const NewProduct = ({user, products}: Props)=>{
         const categories = await findCategories(1)
         if(!categories) return false
 
+        setCategory(categories[0].id)
+
         setCategories(categories)
     }
 
@@ -48,11 +52,14 @@ const NewProduct = ({user, products}: Props)=>{
     const validateProduct = (product: any)=>{
         let error;
 
-        const foundCategory = categories.find((el: any)=>el.description == product.categoryData.description)
+        if(product.categoryData){
+            const foundCategory = categories.find((el: any)=>el.description == product.categoryData.description)
+            if(product.categoryData && product.categoryData.description.length <= 3) 
+                return "Categoria deve ter mais que  caractéres"
+            if(foundCategory) return 'Categoria com esse nome já existe'
+        }
         const foundProduct  = products.find((el: any)=>el.name == product.name)
         if(foundProduct) return "Produto com esse nome já existe"
-        if(product.categoryData.description.length <= 3) return "Categoria deve ter mais que  caractéres"
-        if(foundCategory) return 'Categoria com esse nome já existe'
         if(product.name.length <= 3) return 'Nome deve ter mais que 3 caractéres'
         if(product.description.length <= 3) return 'Descrição deve ter mais que 3 caractéres';
         if(product.value < product.productionCost) return  'Valor deve ser maior que o custo de produção';
@@ -69,19 +76,32 @@ const NewProduct = ({user, products}: Props)=>{
         }
 
         if(category == '+ Nova categoria') productData.categoryData = {description: newCategory}
-        else productData.categoryId = category
+        else {
+            productData.categoryId = category
+        }
 
         const validation = validateProduct(productData);
         if(validation) return setMessageWithTimer(validation, 'error')
 
-        const creation = await createProduct(productData);
-        console.log(creation)
+        const creation: any = await createProduct(productData);
         if(creation.status !== 200){
-            console.log('rei')
             return setMessageWithTimer(creation.data.message, 'error')
         } 
 
-        setProductInfo(creation.data)
+        if(!productData.categoryData){
+            productData.categoryData = categories.find((el: any)=>el.id === creation.data.categoryId)
+        }
+        const newProduct: any = {
+            categoryId: creation.categoryId,
+            category: productData.categoryData.description,
+            description: productData.description,
+            id: creation.data.id,
+            name: creation.data.name,
+            productionCost: creation.data.productionCost,
+            value: creation.data.value,
+        }
+        
+        newProductAction(newProduct);
         navigate.navigate('products')
     }
 
@@ -144,4 +164,8 @@ const mapStateToProps = (state: RootState)=>({
     products: state.productsReducer.products
 }) 
 
-export default connect(mapStateToProps)(NewProduct)
+const mapDispatchToProps = (dispatch: Dispatch)=>({
+    newProductAction: (payload: any)=> dispatch(newProduct(payload))
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(NewProduct)

@@ -120,3 +120,23 @@ export const callPutEndpoint = async (url: string, body: object, queries?: strin
         throw error;
     }
 }
+
+export const callDeleteEndpoint = async (url: string)=>{
+    try {
+        const finalUrl = `${backendAdress}${url}`
+        // const token = await getTokenFromState() 
+        const response = await axios.delete(finalUrl, {
+            // headers: {
+                // Authorization: `Bearer ${token}`
+            // }
+        })
+        return response
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            if (error.response && error.response.data) {
+                return error.response;
+            }
+        }
+        throw error;
+    }
+}

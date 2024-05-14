@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import { COLORS } from "./global";
+import { COLORS, SHADOW } from "./global";
 
 export const styles = StyleSheet.create({
     productItem: {
@@ -15,11 +15,18 @@ export const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center'
     },
+    modal: {
+        position: 'relative',
+        height: '100%',
+        zIndex: 999
+    },
     productMainInfo: {
         fontSize: 20,
         gap: 10
     },
     productDisplay: {
+        flex: 1,
+        padding: 5
     },
     productName: {
         fontWeight: '500',
@@ -39,6 +46,30 @@ export const styles = StyleSheet.create({
     value: {
         fontWeight: '500',
         fontSize: 17
+    },
+    modalArea: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        backgroundColor: 'red',
+        height: 100,
+        width: 100,
+        zIndex: 999
+    },
+    productModal: {
+        position: 'absolute',
+        width: 100,
+        backgroundColor: '#fff',
+        zIndex: 999,
+        ...SHADOW,
+        borderRadius: 5,
+        overflow: 'hidden'
+    },
+    productModalText: {
+        padding: 10,
+    },
+    modalBackground: {
+        
     }
 });
 
