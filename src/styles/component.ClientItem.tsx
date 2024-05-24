@@ -13,12 +13,31 @@ export const styles = StyleSheet.create({
     options: {
         flexDirection: 'row'
     },
+    modal: {
+        position: 'relative',
+        height: '100%',
+        zIndex: 999
+    },
+    
+    clientModal: {
+        position: 'absolute',
+        width: 100,
+        backgroundColor: '#fff',
+        zIndex: 999,
+        ...SHADOW,
+        borderRadius: 5,
+        overflow: 'hidden'
+    },
+    clientModalText: {
+        padding: 10,
+    },
     scroll: {
         gap: 10,
+        padding: 5
     },
     scrollView: {
         gap: 10,
-        padding: 10
+        padding: 5
     },
     messageNoRegister: {
         color: '#777',
@@ -61,8 +80,7 @@ export const styles = StyleSheet.create({
     time: {
         fontStyle: 'italic',
         fontSize: 13,
-        textAlign: 'center',
-        color: COLORS.primary
+        textAlign: 'center'
     },
     clientList: {
         padding: 5,
@@ -87,19 +105,5 @@ export const styles = StyleSheet.create({
     listItemText: {
         color: '#999',
         fontSize: 12
-    },
-    clientModal: {
-        position: 'absolute',
-        bottom: 40,
-        right: 20,
-        width: 100,
-        backgroundColor: '#fff',
-        zIndex: 10,
-        ...SHADOW,
-        borderRadius: 5,
-        overflow: 'hidden'
-    },
-    clientModalText: {
-        padding: 10,
     }
 })

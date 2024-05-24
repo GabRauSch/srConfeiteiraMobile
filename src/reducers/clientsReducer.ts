@@ -1,0 +1,84 @@
+import { Client } from "../types/Client";
+import { User } from "../types/User";
+
+interface State {
+    clients: Client[]
+}
+
+interface Action {
+    type: string; 
+    payload?: any; 
+}
+
+export const setClientInfo = (payload: any) => ({
+    type: 'SET_CLIENT_INFO',
+    payload
+});
+
+export const setClients = (payload: any) =>({
+    type: 'SET_CLIENTS',
+    payload
+})
+
+export const newClient = (payload: any)=>({
+    type: 'NEW_CLIENT',
+    payload
+})
+
+export const removeClient = (payload: any)=>({
+    type: 'DELETE_CLIENT',
+    payload
+})
+
+const initialState: State = {
+    clients: []
+}
+
+const reducer = (state: State = initialState, action: Action): State => {
+    switch (action.type) {
+        case 'SET_CLIENT_INFO':
+            console.log(action.payload)
+            const {id, ...rest} = action.payload;
+            const updatedClients = state.clients.map(client=>{
+                if(client.id === id){
+                    return {
+                        ...client,
+                        ...rest
+                    }
+                } else{
+                    return client
+                }
+            });
+
+            const returner =  {
+                ...state,
+                clients: updatedClients
+            };
+
+            return returner
+        case 'SET_CLIENTS': 
+            return {
+                ...state,
+                clients: action.payload
+            }
+
+        case 'NEW_CLIENT': 
+            console.log(action.payload)
+            const newClients = [...state.clients, action.payload]
+            const newState = {
+                ...state,
+                clients: newClients
+            }
+            return newState
+        case 'DELETE_CLIENT': 
+            console.log(action.payload)
+            return {
+                ...state,
+                clients: state.clients.filter(client => client.id !== action.payload)
+            };
+        default: break;
+    }
+    return state;
+}
+
+export default reducer;

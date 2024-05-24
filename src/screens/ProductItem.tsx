@@ -1,4 +1,4 @@
-import { Image, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Image, SafeAreaView, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { styles } from "../styles/screen.ProductItem";
 import { Picker } from "@react-native-picker/picker";
 import { useEffect, useState, useCallback, useMemo } from "react";
@@ -17,6 +17,7 @@ import useMessage from "../hooks/useMessage";
 import { handleSetNumericValue } from "../util/numeric";
 import { findCategories } from "../services/Categories";
 import InputNumber from "../components/InputNumber";
+import { validateProductEdit } from "../util/validation";
 
 type Props = {
     user: User,
@@ -68,33 +69,52 @@ const ProductItem = ({ user, products, setProductInfo }: Props) => {
     }, [id, products, findProduct, handleCategories]);
 
     const validateProduct = useCallback((product: any) => {
-        let error;
-        if (product.name.length <= 3) return 'Nome deve ter mais que 3 caractéres';
-        if (product.description.length <= 3) return 'Descrição deve ter mais que 3 caractéres';
-        if (product.value < product.productionCost) return 'Valor deve ser maior que o custo de produção';
-        if (product.productionCost == 0) return 'Custo de produção não pode ser igual a 0';
-        if (product.value == 0) return 'Valor de venda não pode ser igual a 0';
-        return error;
+        return validateProductEdit(product, categories, products)
     }, []);
 
     const handleSave = async () => {
         if (!dataUpdate) return setMessageWithTimer('Nenhum dado foi alterado', 'error');
 
-        const categoryItem = categories.find((el: any) => el.id == category);
+        let categoryItem = categories.find((el: any) => el.id == category);
         const updateData: any = {
             name, description, productionCost: parseFloat(productionCost.replace(',', '.')),
             value: parseFloat(productValue.replace(',', '.')),
         };
 
-        if (category) updateData.categoryId = category;
+        let categoryId; 
+        let categoryDescription;       
+        if(category == '+ Nova categoria') {
+            updateData.categoryData = {description: newCategory};
+        } else if (category) {
+            updateData.categoryId = category;
+            categoryDescription = categoryItem.description;
+            categoryId = category
+        }
+
         const validation = validateProduct(updateData);
         if (validation) return setMessageWithTimer(validation, 'error');
 
         const update = await updateProduct(id, updateData);
-        const responseMapping = handleResponse(update.code);
-        if (update.status != 200) { return setMessageWithTimer(responseMapping.message, 'error') }
+        
+        if (update.status != 200) { 
+            const responseMapping = handleResponse(update.data.code);
+            return setMessageWithTimer(responseMapping.message, 'error') 
+        }
+
+        if(update.data.category.id){
+            categoryId = update.data.category.id;
+            categoryDescription = update.data.category.description
+        };
+        console.log(categoryId)
+
+        const productInfo = { 
+            id, 
+            ...updateData, 
+            category: categoryDescription 
+        }
+        console.log(productInfo)
+        setProductInfo(productInfo);
         setMessageWithTimer('Produto alterado', 'success');
-        setProductInfo({ id, ...updateData, category: categoryItem.description });
     };
 
     const handleProfitChange = (value: string) => {
@@ -116,7 +136,7 @@ const ProductItem = ({ user, products, setProductInfo }: Props) => {
 
     return (
         <>
-            <View>
+            <SafeAreaView>
                 <MessageDisplay />
                 <>
                     <Text style={styles.save} onPress={handleSave}>Salvar</Text>
@@ -133,7 +153,7 @@ const ProductItem = ({ user, products, setProductInfo }: Props) => {
                             <Text style={styles.profitText}>%</Text>
                         </View>
                     </View>
-                    <ScrollView style={styles.page}>
+                    <ScrollView style={styles.page} contentContainerStyle={{ paddingBottom: 100 }}>
                         <>
                             <View style={styles.imageDisplay}>
                                 <Image source={bolo} style={styles.itemImage} />
@@ -187,7 +207,7 @@ const ProductItem = ({ user, products, setProductInfo }: Props) => {
                                     }}
                                 />
                                 {category === '+ Nova categoria' && (
-                                    <View>
+                                    <View style={styles.newCategoryContainer}>
                                         <InputEdit
                                             label={'Nova categoria'}
                                             value={newCategory}
@@ -199,7 +219,7 @@ const ProductItem = ({ user, products, setProductInfo }: Props) => {
                         </>
                     </ScrollView>
                 </>
-            </View>
+            </SafeAreaView>
         </>
     );
 };

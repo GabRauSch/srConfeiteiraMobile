@@ -14,11 +14,14 @@ export const CreateOptions = ({onClose}: Props)=>{
     const handleCreateAction = (option: string)=>{
         switch(option){
             case 'Novo Pedido': 
-            break;
+                navigate.navigate('Orders', {screen: 'newOrder'})
+                
+                break;
             case 'Novo Produto': 
-                navigate.navigate('newProduct')
+                navigate.navigate('Products', {screen: 'newProduct'})
                 break;
             case 'Novo Cliente': 
+                navigate.navigate('Clients', {screen: 'newClient'})
                 break;
             default: return
         }

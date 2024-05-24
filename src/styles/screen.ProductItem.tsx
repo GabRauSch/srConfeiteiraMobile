@@ -4,7 +4,7 @@ import { COLORS } from "./global";
 export const styles = StyleSheet.create({
     page: {
         padding: 20,
-    }, 
+    },
     profit: {
         position: 'absolute',
         right: 0,
@@ -46,4 +46,7 @@ export const styles = StyleSheet.create({
     productInfo: {
         gap: 30
     },
-})
+    newCategoryContainer: {
+        paddingBottom: 20
+    }
+});

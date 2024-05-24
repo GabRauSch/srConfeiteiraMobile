@@ -1,8 +1,9 @@
 import { createStackNavigator } from "@react-navigation/stack";
 import CommonAssets from "../screens/CommonAssets";
 import ClientsScreen  from "../screens/Clients";
-import { EditItem } from "../screens/EditItem";
+import ClientItem  from "../screens/ClientItem";
 import InputEdit from "../components/InputEdit";
+import NewClient from "../screens/NewClient";
 
 const Stack = createStackNavigator();
 
@@ -21,7 +22,12 @@ export default ()=>(
         </Stack.Screen>
         <Stack.Screen name="client">
             {()=>(
-                <EditItem/>
+                <ClientItem/>
+            )}
+        </Stack.Screen>
+        <Stack.Screen name="newClient">
+            {()=>(
+                <NewClient/>
             )}
         </Stack.Screen>
     </Stack.Navigator>

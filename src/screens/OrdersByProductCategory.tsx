@@ -20,11 +20,11 @@ const OrdersByProductCategory = () => {
                 <Image source={bolo} style={styles.itemImage}/>
             </View>
             <View style={styles.productInfo}>
-                <InputEdit label="Nome" value="Bolo de batata" main={true}/>
+                {/* <InputEdit label="Nome" value="Bolo de batata" main={true}/>
                 <InputEdit label="Descrição" value="Um delicioso bolo delicioso" />
                 <InputEdit label="Custo de produção" value="R$12,00" />
                 <InputEdit label="Valor de venda" value="R$15,00" />
-                <InputPicker label="Categoria" values={["Bolos", "Doces", "Pastéis"]} />
+                <InputPicker label="Categoria" values={["Bolos", "Doces", "Pastéis"]} /> */}
             </View>
         </View>
     );

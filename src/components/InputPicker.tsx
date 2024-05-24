@@ -5,7 +5,7 @@ import { COLORS } from '../styles/global'
 
 type Props = {
     label: string,
-    values: string[],
+    values: any[],
     selected: any,
     onSelect: (value: string)=>void,
     createOption?: string

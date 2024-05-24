@@ -6,7 +6,13 @@ export const styles = StyleSheet.create({
         backgroundColor: COLORS.primary,
         borderRadius: 10,
         padding: 10,
-        width: 'auto'
+        width: 'auto',
+        zIndex: 9999
+    },
+    inverted: {
+        borderWidth: 2,
+        borderColor: COLORS.primary,
+        backgroundColor: 'transparent',
     },
     buttonText: {
         color: '#fff',

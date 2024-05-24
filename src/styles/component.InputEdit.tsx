@@ -13,6 +13,9 @@ export const styles = StyleSheet.create({
         padding: 0,
         width: '100%',
     },
+    optional: {
+        color: COLORS.primaryBlur
+    },
     name: {
         fontSize: 20,
         fontWeight: 'bold',

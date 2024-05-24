@@ -1,6 +1,5 @@
 import React, { ReactNode, useEffect, useState } from "react";
 import { View } from "react-native";
-import SearchInput from "../components/SearchInput";
 import { useNavigation } from "@react-navigation/native";
 import OptionItem from "../components/OptionItem";
 import { HorizontalLine } from "../components/HorizontalLine";
@@ -29,21 +28,6 @@ const CommonAssets = ({ children }: Props) => {
 
   return (
     <View style={styles.page}>
-      <SearchInput />
-      <View style={styles.options}>
-        {options.map((option, key) => (
-          <OptionItem
-            key={key}
-            option={option}
-            handleActive={() => {
-              handleStatusSelect(option, key);
-            }}
-            active={activeKey == key}
-          />
-        ))}
-      </View>
-      <HorizontalLine />
-
       {children}
 
       <View style={styles.addButonArea}>

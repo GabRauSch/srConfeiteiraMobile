@@ -8,18 +8,23 @@ import { Dispatch } from "redux";
 import { RootState } from "../store";
 
 type Props = {
-    toggleVision: ()=>void
+    toggleVision: ()=>void,
+    onChange: (value: string)=>void,
+    onSearch: ()=>void,
+    allowToggleVision?: boolean
 }
 
-const SearchInput = ({toggleVision}: Props)=>{
+const SearchInput = ({toggleVision, onChange, onSearch, 
+    allowToggleVision}: Props)=>{
     return (
         <View style={styles.searchInput}>
             <View style={styles.inputArea}>
-                <Icon style={styles.icon} name="exchange" size={18} color={COLORS.primary} onPress={toggleVision} />
-                <TextInput style={styles.input}>
-
-                </TextInput>
-                <Icon style={styles.icon} name="search" size={15} color={COLORS.primary} />
+                {allowToggleVision &&
+                    <Icon style={styles.icon} name="exchange" size={18} color={COLORS.primary} onPress={toggleVision} />
+                }
+                <TextInput style={styles.input} onChangeText={onChange} />
+                <Icon style={styles.icon} name="search" size={15} 
+                    color={COLORS.primary} onPress={onSearch}/>
             </View>
         </View>
     )

@@ -1,10 +1,9 @@
 import { createStackNavigator } from "@react-navigation/stack";
-import { ProductItem } from "../screens/ProductItem";
-import { ProductsScreen } from "../screens/Products";
 import CommonAssets from "../screens/CommonAssets";
 import OrdersScreen  from "../screens/Orders";
 import OrderItem from "../screens/OrderItem";
 import OrdersByProductCategory from "../screens/OrdersByProductCategory";
+import NewOrder from "../screens/NewOrder";
 
 const Stack = createStackNavigator();
 
@@ -13,7 +12,8 @@ export default ()=>(
         screenOptions={{
             headerShown: false
         }}
-    >
+        >
+        <Stack.Screen name="newOrder" component={NewOrder}></Stack.Screen>
         <Stack.Screen name="orders">
             {()=>(
                 <CommonAssets>

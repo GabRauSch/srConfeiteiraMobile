@@ -1,11 +1,12 @@
 export const COLORS = {
-    primary: '#f9507e',
-    primaryPressed: '#9f204f',
-    secondary: '#fadfe6',
+    primary: '#C7827D',
+    primaryBlur: '#B7827D',
+    primaryPressed: '#A7827D',
+    secondary: '#ECCEC3',
     grayScalePrimary: '#d9d9d9',
     grayScaleSecondary: '#c2c2c2',
-    textColor: '#a78384',
-    unactive: '#888'
+    textColor: '#512115',
+    unactive: '#888',
 }
 export const SHADOW = {
     shadowColor: '#000',
@@ -13,4 +14,9 @@ export const SHADOW = {
     shadowOpacity: 0.6, 
     shadowRadius: 4,
     elevation: 3, 
+}
+export const MODAL = {
+    position: 'relative',
+    height: '100%',
+    zIndex: 999
 }

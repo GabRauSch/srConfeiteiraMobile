@@ -3,31 +3,52 @@ import { styles } from "../styles/screen.Orders";
 import { HorizontalLine } from "../components/HorizontalLine";
 import React, { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { ordersList, statusList } from "../types/Order";
-import { getUniqueCategories, getUniqueData } from "../util/transform";
+import { Order, statusList } from "../types/Order";
+import { formatDate, getTimeStringFromDate, getUniqueCategories, getUniqueData, getUniqueDaysFrom } from "../util/transform";
 import { orderAggregated } from "../types/OrderAgreggated";
 import { RootState } from "../store";
 import { Dispatch } from "redux";
 import { toggleVision } from "../reducers/visionReducer";
 import { connect } from 'react-redux';
+import { User } from "../types/User";
+import { setOrders } from "../reducers/ordersReducer";
+import { getAllOrdersByUserId } from "../services/Orders";
+import { Product } from "../types/Product";
+import { COLORS } from "../styles/global";
 
 
 type Props = {
-    vision: boolean
+    vision: boolean,
+    user: User,
+    orders: Order[],
+    setOrdersAction: (payload: any)=>void
 }
 
-const OrdersScreen = ({vision}: Props)=>{
+const OrdersScreen = ({vision, user, orders, setOrdersAction}: Props)=>{
     const status = ["Abertos", "Entregues", "Recebidos"]
     const options = ["Todas", ...status, 'mais'];
     const [selectedStatus, setSelectedCategory] = useState<number>(1); 
     const [activeKey, setActiveKey] = useState(0);
     const [createOptionsDisplay, setCreateOptionsDisplay] = useState(false);
+    const [ordersList, setOrdersList] = useState<Order[]>([]);
+    const [days, setDays] = useState<any[]>([])
 
     useEffect(()=>{
-        console.log(vision)
-    }, [vision])
+        const handleGetData = async ()=>{
+            const orders = await getAllOrdersByUserId(user.id as number);
+            console.log(orders)
+            setDays(getUniqueDaysFrom(orders, 'deliveryDay'));
+            setOrdersList(orders);
+
+            setOrdersAction(orders);            
+        };
+        handleGetData();
+    }, [user.id])
+
+    useEffect(()=>{
+        setOrdersList(orders);
+    }, [orders])
     
-    const days = getUniqueData(ordersList, 'deliveryString');
     const navigate = useNavigation() as any;
 
     const filteredStatus = selectedStatus 
@@ -49,7 +70,9 @@ const OrdersScreen = ({vision}: Props)=>{
         <ScrollView>
             {days.map((day: any, Dkey)=>(
                 <React.Fragment key={Dkey}>
-                    <Text style={styles.separator}>{day}</Text>
+                    <Text style={{...styles.separator, 
+                        color: day == 'em atraso' ? 'red' : COLORS.primary 
+                    }}>Entrega {day}:</Text>
                     <View style={styles.ordersDisplay}>
                         {vision ? (
                             orderAggregated.filter(order=>order.deliveryString == day).map((agg, Akey)=>(
@@ -63,12 +86,15 @@ const OrdersScreen = ({vision}: Props)=>{
                                     </View>
                                 </TouchableOpacity>  
                             ))) : (
-                                ordersList.filter(order=> order.deliveryString == day).slice(0, 2)
+                                ordersList.filter(order=> formatDate(order.deliveryDay) == day).slice(0, 2)
                                     .map((item, key)=>(
 
-                                <TouchableOpacity style={styles.order} key={key} onPress={()=>handleNavigate('ordersByProductCategory')}>
+                                <TouchableOpacity 
+                                    style={{...styles.order, backgroundColor: item.delay ? '#b00' : 'white'}} key={key} 
+                                    onPress={()=>handleNavigate('ordersByProductCategory')}
+                                >
                                     <View style={[styles.labelOrder, item.status != 1 ? styles.closedOrder : styles.openOrder]}></View>
-                                    <Text style={styles.name}>{item.client}</Text>
+                                    <Text style={{...styles.name, color: item.delay ? 'white' : 'black'}}>{item.client}</Text>
                                     <View style={styles.orderList}>
                                         {item.products.slice(0,3).map((product, Pkey)=>(
                                             <View style={styles.listItem} key={Pkey}>
@@ -82,9 +108,9 @@ const OrdersScreen = ({vision}: Props)=>{
                                             </View>
                                         ) : null}
                                     </View>
-                                    <Text style={styles.time}>Entregue em 12 horas</Text>
+                                    <Text style={{...styles.time, color: item.delay ? 'white' : 'black'}}>Entrega {getTimeStringFromDate(item.deliveryDay)}</Text>
                                     <HorizontalLine />
-                                    <Text style={styles.price}>R${item.value.toFixed(2).replace('.',',')}</Text>
+                                    <Text style={{...styles.price, color: item.delay ? 'white' : 'black'}}>R${item.value.toFixed(2).replace('.',',')}</Text>
                                 </TouchableOpacity>
                             )))}
                     </View>
@@ -95,8 +121,13 @@ const OrdersScreen = ({vision}: Props)=>{
 }
 
 const mapStateToProps = (state: RootState) => ({
-    vision: state.visionReducer.vision
+    vision: state.visionReducer.vision,
+    user: state.userReducer.user,
+    orders: state.ordersReducer.orders
   });
   
-  
-export default connect(mapStateToProps)(OrdersScreen);
+const mapDispatchToProps = (dispatch: Dispatch)=>({
+    setOrdersAction: (payload: any)=>dispatch(setOrders(payload))
+})  
+
+export default connect(mapStateToProps, mapDispatchToProps)(OrdersScreen);

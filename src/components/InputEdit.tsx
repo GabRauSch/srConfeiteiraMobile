@@ -1,5 +1,6 @@
 import { Text, TextInput, TouchableOpacity, View } from 'react-native'
 import {styles} from '../styles/component.InputEdit'
+import { optional } from 'joi'
 
 type Props = {
     label: string,
@@ -7,10 +8,11 @@ type Props = {
     onChange: (value: any)=>void,
     main?: boolean,
     lockEdit?: boolean,
-    beforeHolder?: string
+    beforeHolder?: string,
+    optional?: boolean
 }  
 
-const InputEdit = ({label, value, main, lockEdit,onChange, beforeHolder}: Props)=>{
+const InputEdit = ({label, value, main, lockEdit,onChange, beforeHolder, optional}: Props)=>{
 
     const handleMessage = ()=>{
         if (lockEdit) console.log('erro')
@@ -19,7 +21,12 @@ const InputEdit = ({label, value, main, lockEdit,onChange, beforeHolder}: Props)
     return (
         <TouchableOpacity style={main ? styles.productName : styles.productInfoItem} activeOpacity={1} onPress={handleMessage}>
             {!main &&  
-                <Text style={[styles.productInfoText, lockEdit ? styles.notEditable : null ]}>{label}</Text>
+                <Text style={[styles.productInfoText, lockEdit ? styles.notEditable : null ]}>
+                    {label}
+                    {optional && 
+                        <Text style={styles.optional}> (opcional)</Text>
+                    }
+                </Text>
             }
             <View style={{...styles.inputArea, justifyContent: beforeHolder ? 'flex-start' : 'center'}} >
                 {beforeHolder &&

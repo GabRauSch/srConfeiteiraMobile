@@ -12,22 +12,16 @@ import { connect } from "react-redux";
 type Props = {
     id: number,
     name: string,
-    image: string,
-    description: string,
+    objectType: string,
+    warning?: string, 
     onClose: ()=>void,
-    removeProductAction: (payload: any)=>void
+    confirmExclude: ()=>void
 };
 
-const ExcludeModal = ({ id, name, image, description, onClose, removeProductAction}: Props) => {
+const ExcludeModal = ({ id, name, objectType, warning, onClose, confirmExclude}: Props) => {
     const navigate = useNavigation() as any;
 
-    const excludeItem = async ()=>{
-        const deletion = await deleteProduct(id);
-        if(deletion.status !== 200) return 
-
-        console.log(deletion.data);
-        removeProductAction(id)
-    }
+    
 
     return (
         <Modal
@@ -38,7 +32,7 @@ const ExcludeModal = ({ id, name, image, description, onClose, removeProductActi
             <TouchableWithoutFeedback onPress={onClose}>
                 <View style={styles.modalBackground}>
                     <View style={styles.modalContent}>
-                        <Text style={styles.modalText}>Confirmar exclusão do item:</Text>
+                        <Text style={styles.modalText}>Confirmar exclusão do {objectType}:</Text>
                         <Text style={styles.modalItemName}>{name}</Text>
                         <View style={styles.buttons}>
                             <TouchableHighlight 
@@ -50,7 +44,7 @@ const ExcludeModal = ({ id, name, image, description, onClose, removeProductActi
                             </TouchableHighlight>
                             <TouchableHighlight 
                                 style={styles.confirmButton} 
-                                onPress={()=>{excludeItem(); onClose()}}
+                                onPress={()=>{confirmExclude(); onClose()}}
                                 underlayColor={COLORS.secondary}
                             >
                                 <Text style={styles.confirmButtonText}>Confirmar</Text>
@@ -67,8 +61,4 @@ const mapStateToProps = (state: RootState)=>({
     user: state.userReducer.user
 })
 
-const mapDispatchToProps = (dispatch: Dispatch)=>({
-    removeProductAction:(payload: any)=>{dispatch(removeProduct(payload))}
-})
-
-export default connect(mapStateToProps, mapDispatchToProps)(ExcludeModal)
+export default connect(mapStateToProps)(ExcludeModal)

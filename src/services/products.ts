@@ -1,7 +1,7 @@
 import { Product } from "../types/Product";
 import { callDeleteEndpoint, callGetEndpoint, callPostEndpoint, callPutEndpoint } from "./api"
 
-export const getAllByUserId = async (userId: number, queries?: any)=>{
+export const getAllProductsByUserId = async (userId: number, queries?: any)=>{
     const response = await callGetEndpoint(`/products/all`, [userId], queries);
 
     return response.data;
@@ -9,7 +9,7 @@ export const getAllByUserId = async (userId: number, queries?: any)=>{
 
 export const updateProduct = async (id: number, product: any)=>{
     const response = await callPutEndpoint(`/products/${id}`, product);
-    return response.data
+    return response
 }
 export const getProductById = async (id: number)=>{
     const response = await callGetEndpoint(`/products/${id}`, []);

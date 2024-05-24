@@ -14,7 +14,7 @@ const Tab = createBottomTabNavigator();
 const AppNavigator = () => {
   return (
       <Tab.Navigator
-        initialRouteName='Products'
+        initialRouteName='Orders'
         screenOptions={({route})=>({
           header: ()=><Header></Header>,
           tabBarStyle: {

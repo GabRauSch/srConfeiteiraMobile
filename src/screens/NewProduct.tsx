@@ -17,6 +17,7 @@ import { connect } from "react-redux"
 import { useNavigation } from "@react-navigation/native"
 import { Dispatch } from "redux"
 import { newProduct, setProductInfo } from "../reducers/productsReducer"
+import { validateProductCreate } from "../util/validation"
 
 type Props = {
     user: User,
@@ -50,22 +51,7 @@ const NewProduct = ({user, products, newProductAction}: Props)=>{
     }, [])
 
     const validateProduct = (product: any)=>{
-        let error;
-
-        if(product.categoryData){
-            const foundCategory = categories.find((el: any)=>el.description == product.categoryData.description)
-            if(product.categoryData && product.categoryData.description.length <= 3) 
-                return "Categoria deve ter mais que  caractéres"
-            if(foundCategory) return 'Categoria com esse nome já existe'
-        }
-        const foundProduct  = products.find((el: any)=>el.name == product.name)
-        if(foundProduct) return "Produto com esse nome já existe"
-        if(product.name.length <= 3) return 'Nome deve ter mais que 3 caractéres'
-        if(product.description.length <= 3) return 'Descrição deve ter mais que 3 caractéres';
-        if(product.value < product.productionCost) return  'Valor deve ser maior que o custo de produção';
-        if(product.productionCost == 0) return 'Custo de produção não pode ser igual a 0'
-        if(product.value == 0) return  'Valor de venda não pode ser igual a 0'
-        return error
+        return validateProductCreate(product, categories, products)
     }
 
     const handleCreate = async ()=>{

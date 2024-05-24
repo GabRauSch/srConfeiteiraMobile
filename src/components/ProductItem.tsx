@@ -4,6 +4,10 @@ import { useState } from "react";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { COLORS } from "../styles/global";
 import ExcludeModal from "../modals/ExcludeModal";
+import { deleteProduct } from "../services/Products";
+import { Dispatch } from "redux";
+import { connect } from "react-redux";
+import { removeProduct } from "../reducers/productsReducer";
 
 type Props = {
     id: number;
@@ -12,9 +16,10 @@ type Props = {
     image: string;
     description: string;
     onPress: () => void;
+    removeProductAction: (payload: any)=>void
 };
 
-const ProductItem = ({id, name, value, description, image, onPress }: Props) => {
+const ProductItem = ({id, name, value, description, image, onPress, removeProductAction }: Props) => {
     const [modalVisible, setModalVisible] = useState(false);
     const [modalPosition, setModalPosition] = useState({ x: 0, y: 0 });
     const [excludeModal, setExcludeModal] = useState(false)
@@ -25,6 +30,13 @@ const ProductItem = ({id, name, value, description, image, onPress }: Props) => 
         setModalVisible(true);
     };
 
+    const excludeItem = async ()=>{
+        const deletion = await deleteProduct(id);
+        if(deletion.status !== 200) return 
+
+        console.log(deletion.data);
+        removeProductAction(id)
+    }
 
     return (
         <TouchableOpacity style={styles.productItem} onPress={onPress}>
@@ -65,8 +77,8 @@ const ProductItem = ({id, name, value, description, image, onPress }: Props) => 
                 <ExcludeModal 
                     id={id}
                     name={name}
-                    description={description}
-                    image={image}
+                    objectType="produto"
+                    confirmExclude={excludeItem}
                     onClose={()=>{setExcludeModal(false)}}
                 />
             }
@@ -74,4 +86,12 @@ const ProductItem = ({id, name, value, description, image, onPress }: Props) => 
     );
 };
 
-export default ProductItem;
+const mapStateToProps = ()=>({
+    
+})
+
+const mapDispatchToProps = (dispatch: Dispatch)=>({
+    removeProductAction: (payload: any)=>dispatch(removeProduct(payload))
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(ProductItem);
