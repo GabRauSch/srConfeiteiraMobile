@@ -46,15 +46,10 @@ const ClientItem = ({id, name, phone, orderCount, totalOrderValue, nextDeliveryD
 
 
     return (
-        <TouchableOpacity style={{...styles.client, 
-            backgroundColor:  nextDeliveryDate === 'Pedido em atraso' ? '#b00' : 'white'
-        }} activeOpacity={0.8} onPress={onPress}>
+        <TouchableOpacity style={{...styles.client, borderColor: nextDeliveryDate === 'Pedido em atraso' ? '#c00' : 'transparent'}} activeOpacity={0.8} onPress={onPress}>
             <View style={styles.clientInfo}>
                 <View>
-                    <Text style={{...styles.name,
-                        color: nextDeliveryDate === 'Pedido em atraso' ? 'white' : COLORS.primary
-
-                    }}>{name}</Text>
+                    <Text style={{...styles.name}}>{name}</Text>
                     <View style={styles.clientList}>
                         <View style={styles.clientItem}>
                             <Text style={styles.info}>Contato: </Text>
@@ -104,7 +99,7 @@ const ClientItem = ({id, name, phone, orderCount, totalOrderValue, nextDeliveryD
                         <Icon name="ellipsis-v" size={20} color={COLORS.primary} />
                 </TouchableOpacity>
             </View>
-            <Text style={{...styles.time, color: nextDeliveryDate === 'Pedido em atraso' ? 'white' : COLORS.primary}}
+            <Text style={{...styles.time, color: nextDeliveryDate === 'Pedido em atraso' ? '#c00' : COLORS.secondary}}
             > {nextDeliveryDate} </Text>
         </TouchableOpacity>
     );
@@ -113,6 +108,7 @@ const ClientItem = ({id, name, phone, orderCount, totalOrderValue, nextDeliveryD
 const mapStateToProps = ()=>({
 
 })
+
 const mapDispatchToProps = (dispatch: Dispatch)=>({
     removeClientAction: (payload: any)=>dispatch(removeClient(payload))
 })

@@ -1,6 +1,6 @@
 
 import { StyleSheet } from "react-native";
-import { COLORS, MODAL, SHADOW } from "./global";
+import { COLORS, LABEL, MODAL, SHADOW } from "./global";
 
 export const styles = StyleSheet.create({
     page: {
@@ -13,6 +13,19 @@ export const styles = StyleSheet.create({
     productValue: {
         textAlignVertical: 'center',
         color: '#777'
+    },
+    dateDisplay: {
+        ...LABEL
+    },
+    searchInput: {
+        flexDirection: 'row',
+    },
+    total: {
+        textAlign: 'right',
+        fontSize: 20
+    },
+    noProducts: {
+        textAlign: 'center'
     },
     closeModal: {
         zIndex: 999,
@@ -28,7 +41,6 @@ export const styles = StyleSheet.create({
         textAlign: 'center'
     },
     products: {
-        padding: 10,
         gap: 10
     },
     actions: {
@@ -42,10 +54,30 @@ export const styles = StyleSheet.create({
     },
     newProduct: {
         textAlign: 'center',
-        backgroundColor: COLORS.secondary,
+        ...SHADOW,
+        backgroundColor: 'white',
         width: 'auto',
         borderRadius: 5,
         padding: 5,
+        margin: 2
+    },
+    dateTimePicker: {
+        backgroundColor: 'red',
+        color: 'red',
+        borderColor: 'red',
+    },
+    changeDate: {
+        textAlign: 'center',
+        width: 'auto',
+        borderRadius: 5,
+        padding: 5,
+        ...SHADOW,
+        backgroundColor: 'white',
+        margin: 2
+    },
+    changeDateText: {
+        textAlign: 'center',
+        color: COLORS.primary
     },
     product: {
         flexDirection: 'row',
@@ -60,10 +92,11 @@ export const styles = StyleSheet.create({
         fontSize: 17
     },
     newProductText: {
-        textAlign: 'center'
+        textAlign: 'center',
+        color: COLORS.primary
     },
     productsTitle: {
-        fontSize: 18
+        ...LABEL
     },
     productName: {
         textAlignVertical: 'center'
@@ -92,7 +125,8 @@ export const styles = StyleSheet.create({
         borderRadius: 5,
         overflow: 'hidden',
         width: '100%',
-        alignSelf: 'center'
+        alignSelf: 'center',
+        padding: 10
     },
     productModalContainer: {
         maxHeight: '80%',
@@ -103,5 +137,22 @@ export const styles = StyleSheet.create({
     },
     createButton: {
         marginBottom: 50
+    },
+    
+    inputArea: {
+        borderColor: COLORS.primary,
+        borderWidth: 1,
+        borderRadius: 5,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 4,
+        flex: 1,
+    },
+    input: {
+        flex: 1
+    },
+    icon: {
+        padding: 10
     }
 })

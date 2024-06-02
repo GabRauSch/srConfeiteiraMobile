@@ -6,23 +6,29 @@ import { connect } from "react-redux";
 import { toggleVision } from "../reducers/visionReducer";
 import { Dispatch } from "redux";
 import { RootState } from "../store";
+import { useEffect, useState } from "react";
 
 type Props = {
     toggleVision: ()=>void,
     onChange: (value: string)=>void,
     onSearch: ()=>void,
+    initialValue?: string,
     allowToggleVision?: boolean
 }
 
-const SearchInput = ({toggleVision, onChange, onSearch, 
-    allowToggleVision}: Props)=>{
+const SearchInput = ({toggleVision, onChange, onSearch, initialValue, allowToggleVision}: Props)=>{
+    const [searchInput, setSearchInput] = useState('');
+    useEffect(()=>{
+        if(initialValue) setSearchInput(initialValue)
+    }, [])
+    
     return (
         <View style={styles.searchInput}>
             <View style={styles.inputArea}>
                 {allowToggleVision &&
                     <Icon style={styles.icon} name="exchange" size={18} color={COLORS.primary} onPress={toggleVision} />
                 }
-                <TextInput style={styles.input} onChangeText={onChange} />
+                <TextInput style={styles.input} onChangeText={(value)=>{setSearchInput(value); onChange(value)}} value={searchInput}/>
                 <Icon style={styles.icon} name="search" size={15} 
                     color={COLORS.primary} onPress={onSearch}/>
             </View>

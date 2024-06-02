@@ -14,8 +14,8 @@ export const getOrderById = async (id: number)=>{
     return response.data
 }
 
-export const createOrder = async (product: any)=>{
-    const response = await callPostEndpoint(`/orders`, product);
+export const createOrder = async (order: any)=>{
+    const response = await callPostEndpoint(`/orders`, order);
     return response
 }
 

@@ -4,14 +4,15 @@ import { COLORS } from "../styles/global";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
 type Props = {
-    active: number
+    active: boolean,
+    onCheck: ()=>void
 }
 
-const RoundCheckBox = ({active}: Props)=>{
+const RoundCheckBox = ({active, onCheck}: Props)=>{
     const [isChecked, setIsChecket] = useState(Boolean(active));
 
     return (
-        <TouchableOpacity style={{ padding: 5}} onPress={()=>{setIsChecket(!isChecked)}} activeOpacity={1}>
+        <TouchableOpacity style={{ padding: 5}} onPress={()=>{setIsChecket(!isChecked); onCheck()}} activeOpacity={1}>
             <Icon 
                 name={isChecked ? "check-circle" : "circle-o"}
                 size={20}

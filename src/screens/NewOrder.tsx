@@ -1,4 +1,4 @@
-import { Modal, ScrollView, Text, TextInput, TouchableHighlight, TouchableOpacity, View } from "react-native"
+import { Modal, Platform, ScrollView, Text, TextInput, TouchableHighlight, TouchableOpacity, View } from "react-native"
 import { styles } from '../styles/screen.NewProduct'
 import { useEffect, useState, useRef } from "react"
 import InputPicker from "../components/InputPicker"
@@ -17,13 +17,22 @@ import { newClient } from "../reducers/clientsReducer"
 import { COLORS, MODAL } from "../styles/global"
 import ProductListItem from "../components/ProductListItem"
 import { Product } from "../types/Product"
-import { getAllProductsByUserId } from "../services/Products"
+import { getAllProductsByUserId } from "../services/Products";
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { sortClientNames, sortClients, sortProducts } from "../util/sorter"
+import InputEdit from "../components/InputEdit"
+import SearchInput from "../components/SearchInput";
+import Icon from 'react-native-vector-icons/FontAwesome';
+import { createOrder } from "../services/Orders"
+import { newOrder } from "../reducers/ordersReducer"
+import { Order } from "../types/Order"
+
 
 type Props = {
     user: User,
     clients: Client[],
     products: Product[],
-    newClientAction: (payload: any) => void
+    newOrderAction: (payload: any) => void
 }
 
 type SelectedProducts = {
@@ -33,29 +42,48 @@ type SelectedProducts = {
     quantity: number
 }
 
-const NewClient = ({ user, clients, products, newClientAction }: Props) => {
+const NewOrder = ({ user, clients, products, newOrderAction }: Props) => {
     const { message, MessageDisplay, setMessageWithTimer } = useMessage();
-    const [clientId, setClientId] = useState<string>();
+    const [client, setClient] = useState<any>();
     const [clientsList, setClientList] = useState<any[]>([]);
     const [productModal, setProductModal] = useState(false);
     const [productsList, setProductsList] = useState<any[]>([]);
-    const [selectedProducts, setSelectedProducts] = useState<SelectedProducts[]>([])
+    const [selectedProducts, setSelectedProducts] = useState<SelectedProducts[]>([]);
+    const [filteredProducts, setFilteredProducts] = useState<any[]>([])
     const [scrollViewHeight, setScrollViewHeight] = useState(0);
-    const [deliveryDate, setDeliveryDate] = useState('');
-    const [totalSum, setTotalSum] = useState(0)
+    const [totalSum, setTotalSum] = useState(0);
+    const [date, setDate] = useState(new Date());
+    const [time, setTime] = useState(new Date())
+    const [showDate, setShowDate] = useState(false);
+    const [searchValue, setSearchValue] = useState('');
+    const [showTime, setShowTime] = useState(false);
+    const [clientModal, setClientModal] = useState(false);
+    const [filteredClients, setFilteredClients] = useState<any[]>([]);
+    const navigate = useNavigation() as any
 
     const contentRef = useRef<View>(null);
 
     useEffect(() => {
         const getData = async () => {
             const clients = await getAllClientsByUserId(user.id);
-            const clientsMapped = clients.map((client: any) => ({ id: client.id, description: client.name }));
-            setClientList(clientsMapped)
-            setProductsList(products);
+            const sortedClients = sortClientNames(clients);
+            const clientsMapped = sortedClients.map((client: any) => ({ id: client.id, description: client.name }));
+            setClientList(clientsMapped);
+            setFilteredClients(clientsMapped)
+            setProductsList(sortProducts(products));
+            setFilteredProducts(sortProducts(products))
             if(products.length ==0){
                 const products = await getAllProductsByUserId(user.id);
-                setProductsList(products)
+                setProductsList(sortProducts(products));
+                setFilteredProducts(sortProducts(products))
             }
+            if(clients.length == 0 ){
+                const clients = await getAllClientsByUserId(user.id);
+                const clientsMapped = clients.map((client: any) => ({ id: client.id, description: client.name }));
+                setClientList(clientsMapped)
+                setFilteredClients(clientsMapped)
+            }
+
         }
         getData()
     }, [])
@@ -69,46 +97,56 @@ const NewClient = ({ user, clients, products, newClientAction }: Props) => {
     }
 
     const handleSetClient = (value: string) => {
-        const selected = clientsList.find((el) => el.id == value).id
-        setClientId(selected)
+        const selected = clientsList.find((el) => el.id == value)
+        setClient(selected)
     }
 
     const handleCreate = async () => {
-        const totalValue = 20;
-
-
+        if(!date || !time) return setMessageWithTimer('Selecione a data de entrega!', 'error');
+        const datePart = date.toISOString().split('T')[0];
+        const timePart = time.toISOString().split('T')[1];
+        const combinedDateTimeString = `${datePart}T${timePart}`;
+        console.log(combinedDateTimeString)
+        const orderProducts = selectedProducts.map((el: any)=>({id: el.id, quantity: el.quantity}))
         const orderData: any = {
-            userId: 1, clientId, 
-            value: totalValue, deliveryDate,
-            products
+            userId: 1, clientId: client.id, 
+            value: parseFloat(totalSum.toFixed(2)), 
+            deliveryDate: new Date(combinedDateTimeString).toISOString(),
+            products:orderProducts
         }
-        // if(phone) clientData.phone = phone;
-        // if(email) clientData.email = email;
-        // if(address) console.log('address')
+        const validation = validateOrder(orderData);
+        if(validation) return setMessageWithTimer(validation, 'error')
 
-        // const validation = validateClient(clientData);
-        // if(validation) return setMessageWithTimer(validation, 'error')
+        const creation: any = await createOrder(orderData);
+        if(creation.status !== 200){
+            return setMessageWithTimer(creation.data.message, 'error')
+        } 
 
-        // const creation: any = await createClient(clientData);
-        // if(creation.status !== 200){
-        //     return setMessageWithTimer(creation.data.message, 'error')
-        // } 
+        const clientName = clientsList.find((el)=>el.id == creation.data.clientId).description
+        const newOrder: Order = {
+            id: creation.data.id, //
+            client: clientName,
+            deliveryDay: creation.data.deliveryDate,
+            value: orderData.value,
+            status: 0,
+            products: selectedProducts.map((el)=>({id: el.id, name: el.name, quantity: el.quantity, finished: false})),
+            delay: false
+        }
 
-        // const newClient: any = {
-        //     id: creation.data.id,
-        //     name: creation.data.name,
-        //     orderCount: 0,
-        //     totalOrderValue: 0,
-        //     phone: creation.data.phone,
-        //     email: creation.data.email
-        // }
-
-        // newClientAction(newClient);
-        // navigate.navigate('Clients', {screen: 'clients'})
+        newOrderAction(newOrder);
+        navigate.navigate('Orders', {screen: 'orders'})
     }
 
     const handleNewProduct = () => {
         setProductModal(true);
+    }
+    const handleNewClient = ()=>{
+        setClientModal(true)
+    }
+    const handleSelectClient = (client: any)=>{
+        const selectedClient = clientsList.find((el)=>el.id == client.id)
+        setClient(selectedClient);
+        setClientModal(false)
     }
     const handleSelectProduct = (newProduct: any) => {
         const selectedProduct = {
@@ -117,7 +155,10 @@ const NewClient = ({ user, clients, products, newClientAction }: Props) => {
             quantity: 1,
             value: newProduct.value 
         }
-        setProductsList((prevProducts: any) => prevProducts.filter((product: any) => product.id !== newProduct.id));
+
+        search('');
+        setSearchValue('');
+        setFilteredProducts((prevProducts: any) => prevProducts.filter((product: any) => product.id !== newProduct.id));
         setSelectedProducts([...selectedProducts, selectedProduct]);
     }
 
@@ -131,8 +172,8 @@ const NewClient = ({ user, clients, products, newClientAction }: Props) => {
     const removeProduct = (id: number)=>{
         const product = selectedProducts.filter((el: any)=>el.id == id)
         const products = selectedProducts.filter((el: any)=>el.id !== id)
-        setSelectedProducts(products)
-        setProductsList([...productsList, ...product]);
+        setSelectedProducts(sortProducts(products))
+        setFilteredProducts(sortProducts([...productsList, ...product]));
     }
 
     const changeProductQuantity = (id: number, increase: boolean)=>{
@@ -149,7 +190,17 @@ const NewClient = ({ user, clients, products, newClientAction }: Props) => {
         });
     }
     const handleSetQuantity = (id: number, quantity: number)=>{
-
+        setSelectedProducts(prevProducts => {
+            return prevProducts.map(product => {
+                if (product.id === id) {
+                    return {
+                        ...product,
+                        quantity
+                    };
+                }
+                return product;
+            });
+        });
     }
 
     useEffect(() => {
@@ -160,22 +211,116 @@ const NewClient = ({ user, clients, products, newClientAction }: Props) => {
         }
     }, [productsList]);
 
+    const onSetDate = (event: any, selectedDate: any) => {
+        setShowTime(true)
+        const currentDate = selectedDate || date;
+        setShowDate(Platform.OS === 'ios');
+        setDate(currentDate);
+    };
+    const onSetTime = (event: any, selectedDate: any)=>{
+        const currentDate = selectedDate || date;
+        setShowTime(Platform.OS === 'ios');
+        setTime(currentDate)        
+    }
 
+    const search = (value: string)=>{
+        let productsFiltered = productsList.filter((el)=> {
+            if(!selectedProducts.find((sel)=>el.id == sel.id)){
+                return el.name.toLowerCase().includes(value.toLowerCase())
+            }
+        }); 
+        
+        if(productsFiltered)
+        setFilteredProducts(productsFiltered);
+    }
+    const searchClient = (value: string)=>{
+        let clientsFiltered = clientsList.filter((el)=>{
+            return el.description.toLowerCase().includes(value.toLowerCase())
+        })
+        if(clientsFiltered) setFilteredClients(clientsFiltered)
+    }
 
     return (
         <>
             <MessageDisplay />
             <ScrollView style={styles.page}>
                 <View style={styles.inputsDisplay}>
-                    <InputPicker
-                        label="Cliente"
-                        values={clientsList}
-                        selected={clientId}
-                        onSelect={(value) => handleSetClient(value)}
-                        createOption={"Novo cliente"}
-                    />
-                    <View >
-                        <Text>entrega: 15/02/2024</Text>
+                {clientModal && (
+                    <Modal
+                        transparent={true}
+                        visible={clientModal}
+                        onRequestClose={() => setClientModal(false)}
+                    >
+                        <TouchableOpacity style={styles.modal} onPress={() =>{searchClient(''); setSearchValue(''); setClientModal(false)}} activeOpacity={1}>
+                            <View style={styles.productModalContainer}>
+                                <ScrollView style={[styles.productModal, { maxHeight: scrollViewHeight || 500 }]}>
+                                <View style={styles.searchInput}>
+                                    <View style={styles.inputArea}>
+                                        <TextInput style={styles.input} 
+                                            onChangeText={(value)=>{setSearchValue(value); searchClient(value)}} value={searchValue}/>
+                                        <Icon style={styles.icon} name="search" size={15} 
+                                            color={COLORS.primary}/>
+                                    </View>
+                                </View>
+                                    
+                                    {clientsList.length > 0 ? (
+                                        <View ref={contentRef}>
+                                            {filteredClients.map((el: any, key: number) =>(
+                                                <TouchableHighlight style={styles.productItem}
+                                                    key={key}
+                                                    underlayColor={COLORS.grayScalePrimary}
+                                                    onPress={() => { handleSelectClient(el) }}>
+                                                    <Text style={styles.productItemText}>{el.description}</Text>
+                                                </TouchableHighlight>
+                                            ))}
+                                        </View>
+                                    ) : (
+                                        <Text style={styles.noProducts}>Sem clients</Text>
+                                    )}
+                                </ScrollView>
+                            </View>
+                            <Text style={styles.closeModal}>Fechar</Text>
+                        </TouchableOpacity>
+                    </Modal>
+                )}
+                <Text >
+                    <Text style={styles.productsTitle}>Cliente: </Text>
+                    {client ? (
+                        <Text>{client.description}</Text>
+                    ): (
+                        <Text style={{color: COLORS.grayScaleSecondary}}>Nenhum cliente selecionado</Text>
+                    )}
+                </Text>
+                    <TouchableHighlight style={styles.newProduct}
+                    underlayColor={COLORS.primaryPressed} onPress={() => { handleNewClient() }}>
+                    <Text style={styles.newProductText}>Selecionar cliente</Text>
+                </TouchableHighlight>
+                    {showDate &&
+                        <DateTimePicker
+                            value={date}
+                            mode="date"
+                            display="default"
+                            minimumDate={new Date()}
+                            accentColor="red"
+                            onChange={onSetDate} 
+                        />
+                    }
+                    {showTime &&
+                        <DateTimePicker
+                            value={time}
+                            mode="time"
+                            display="default"
+                            minimumDate={new Date()}
+                            accentColor="red"
+                            onChange={onSetTime} 
+                        />
+                    }
+                    <View style={styles.products}>
+                        <Text><Text style={styles.dateDisplay}> Entrega: </Text>{date.toLocaleDateString('pt-BR')} às {time.toLocaleTimeString('pt-BR')}</Text>
+                        <TouchableHighlight style={styles.changeDate}
+                            underlayColor={COLORS.primaryPressed} onPress={() => { setShowDate(true) }}>
+                            <Text style={styles.changeDateText}>Alterar data e hora</Text>
+                        </TouchableHighlight>
                     </View>
                     <View style={styles.products}>
                         <Text style={styles.productsTitle}>Produtos:</Text>
@@ -189,36 +334,49 @@ const NewClient = ({ user, clients, products, newClientAction }: Props) => {
                         ))}
                         <TouchableHighlight style={styles.newProduct}
                             underlayColor={COLORS.primaryPressed} onPress={() => { handleNewProduct() }}>
-                            <Text style={styles.newProductText}>+ Novo produto</Text>
+                            <Text style={styles.newProductText}>+ Adicionar produto</Text>
                         </TouchableHighlight>
                     </View>
                     <View>
-                        <Text>Total: R${totalSum.toFixed(2).replace('.',',')}</Text>
+                        <Text style={styles.total}>Total: R${totalSum.toFixed(2).replace('.',',')}</Text>
                     </View>
                     <View style={styles.createButton}>
                         <CreateButton text={'Criar pedido'} action={handleCreate} />
                     </View>
                 </View>
             </ScrollView>
-            {(productModal && productsList.length > 0) && (
+            {(productModal) && (
                 <Modal
                     transparent={true}
                     visible={productModal}
                     onRequestClose={() => setProductModal(false)}
                 >
-                    <TouchableOpacity style={styles.modal} onPress={() => setProductModal(false)} activeOpacity={1}>
+                    <TouchableOpacity style={styles.modal} onPress={() =>{search(''); setSearchValue(''); setProductModal(false)}} activeOpacity={1}>
                         <View style={styles.productModalContainer}>
                             <ScrollView style={[styles.productModal, { maxHeight: scrollViewHeight || 500 }]}>
-                                <View ref={contentRef}>
-                                    {productsList.map((el: any, key: number) => (
-                                        <TouchableHighlight style={styles.productItem}
-                                            key={key}
-                                            underlayColor={COLORS.grayScalePrimary}
-                                            onPress={() => { handleSelectProduct(el) }}>
-                                            <Text style={styles.productItemText}>{el.name}</Text>
-                                        </TouchableHighlight>
-                                    ))}
+                            <View style={styles.searchInput}>
+                                <View style={styles.inputArea}>
+                                    <TextInput style={styles.input} 
+                                        onChangeText={(value)=>{setSearchValue(value); search(value)}} value={searchValue}/>
+                                    <Icon style={styles.icon} name="search" size={15} 
+                                        color={COLORS.primary}/>
                                 </View>
+                            </View>
+                                
+                                {filteredProducts.length > 0 ? (
+                                    <View ref={contentRef}>
+                                        {filteredProducts.map((el: any, key: number) => (
+                                            <TouchableHighlight style={styles.productItem}
+                                                key={key}
+                                                underlayColor={COLORS.grayScalePrimary}
+                                                onPress={() => { handleSelectProduct(el) }}>
+                                                <Text style={styles.productItemText}>{el.name}</Text>
+                                            </TouchableHighlight>
+                                        ))}
+                                    </View>
+                                ) : (
+                                    <Text style={styles.noProducts}>Sem produtos</Text>
+                                )}
                             </ScrollView>
                         </View>
                         <Text style={styles.closeModal}>Fechar</Text>
@@ -237,7 +395,7 @@ const mapStateToProps = (state: RootState) => ({
 })
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-    newClientAction: (payload: any) => dispatch(newClient(payload))
+    newOrderAction: (payload: any) => dispatch(newOrder(payload))
 })
 
-export default connect(mapStateToProps, mapDispatchToProps)(NewClient)
+export default connect(mapStateToProps, mapDispatchToProps)(NewOrder)

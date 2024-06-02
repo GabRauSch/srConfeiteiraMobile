@@ -31,16 +31,42 @@ const ClientsScreen = ({user, clients, setClientsAction}: Props)=>{
     useEffect(()=>{
         const handleGetData = async ()=>{
             const clients = await getAllClientsByUserId(user.id as number);
-            console.log(clients)
-            setClientsList(clients);
+            const sortedClients =  clients.sort((a: any, b: any) => {
+                const dayA = new Date(a.nextDeliveryDate).getDate();
+                const dayB = new Date(b.nextDeliveryDate).getDate();
+              
+                if (dayA < dayB) return -1;
+                if (dayA > dayB) return 1;
+              
+                const nameA = a.name.toLowerCase();
+                const nameB = b.name.toLowerCase();
+                if (nameA < nameB) return -1;
+                if (nameA > nameB) return 1;
+              
+                return 0;
+              });
+            setClientsList(sortedClients);
             setClientsAction(clients)
         };
         handleGetData()
     }, [user.id]); 
 
     useEffect(() => {
-        console.log(clients)
-        setClientsList(clients);
+        const sortedClients = clients.sort((a, b) => {
+            const dayA = new Date(a.nextDeliveryDate).getDate();
+            const dayB = new Date(b.nextDeliveryDate).getDate();
+          
+            if (dayA < dayB) return -1;
+            if (dayA > dayB) return 1;
+          
+            const nameA = a.name.toLowerCase();
+            const nameB = b.name.toLowerCase();
+            if (nameA < nameB) return -1;
+            if (nameA > nameB) return 1;
+          
+            return 0;
+          });
+        setClientsList(sortedClients);
     }, [clients]);
 
     const toggleModal = ()=>{
@@ -51,6 +77,7 @@ const ClientsScreen = ({user, clients, setClientsAction}: Props)=>{
     }
 
     const handleCategorySelect = (category: string, key: number) => {
+        console.log(category);
         setSelectedCategory(category === "Todos" ? null : category);
         setActiveKey(key);
     };
@@ -60,7 +87,10 @@ const ClientsScreen = ({user, clients, setClientsAction}: Props)=>{
         navigate.navigate(url, {id})
     }
     const search = (value: string)=>{
-
+        let clientsFiltered = clients.filter((el)=> el.name.toLowerCase().includes(value.toLowerCase()));
+        
+        if(clientsFiltered)
+        setClientsList(clientsFiltered)
     }
     const completeSearch = ()=>{
 

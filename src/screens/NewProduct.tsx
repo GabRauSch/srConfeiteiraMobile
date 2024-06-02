@@ -39,11 +39,20 @@ const NewProduct = ({user, products, newProductAction}: Props)=>{
 
     const handleFindCategories = async ()=>{
         const categories = await findCategories(1)
-        if(!categories) return false
+        if(!categories) return false;
+
+        console.log(categories)
+        const sortedCategories = categories.sort((a:any, b: any) => {
+            const nameA = a.description.toLowerCase();
+            const nameB = b.description.toLowerCase();
+            if (nameA < nameB) return -1;
+            if (nameA > nameB) return 1;
+          
+            return 0;
+        })
 
         setCategory(categories[0].id)
-
-        setCategories(categories)
+        setCategories(sortedCategories)
     }
 
     useEffect(()=>{

@@ -6,6 +6,9 @@ export const styles = StyleSheet.create({
         padding: 20,
         flex: 1
     }, 
+    totalOrderValue: {
+        alignItems: 'flex-end',
+    },
     save: {
         alignSelf: 'flex-end',
         color: COLORS.primary,

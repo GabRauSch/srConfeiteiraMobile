@@ -1,14 +1,29 @@
 import { StyleSheet } from "react-native";
-import { COLORS, SHADOW } from "./global";
+import { COLORS, LABEL, SHADOW } from "./global";
 
 export const styles = StyleSheet.create({
     order: {
         ...SHADOW,
+        borderColor: '#c00',
         backgroundColor: '#fff',
-        width: 160,
+        width: 150,
         borderRadius: 10,
         position: 'relative',
-        padding: 10
+        padding: 10,
+        margin: 2,
+        marginRight: 5,
+        marginVertical: 15
+    },  
+    options: {
+        flexDirection: 'row',
+    },
+    page: {
+        padding: 10,
+        flex: 1
+    },
+    messageNoRegister: {
+        color: '#777',
+        textAlign: 'center'
     },
     changeView: {
         position: 'absolute',
@@ -17,9 +32,7 @@ export const styles = StyleSheet.create({
     },
     ordersDisplay: {
         flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 20,
-        padding: 5
+        flexWrap: 'wrap'
     },
     labelOrder: {
         width: 20,
@@ -37,7 +50,8 @@ export const styles = StyleSheet.create({
         backgroundColor: '#0e0',
     },
     name:{
-        fontSize: 18
+        fontSize: 13,
+        flex: 1
     },
     price: {
         fontWeight: 'bold'
@@ -60,15 +74,15 @@ export const styles = StyleSheet.create({
         gap: 1,
     },
     separator: {
+        ...LABEL,
         color: COLORS.primary,
-        opacity: 0.5,
-        marginVertical: 10
     },
     bullet: {
         color: '#999'
     },
     listItemText: {
         color: '#999',
-        fontSize: 12
+        fontSize: 12,
+        marginBottom: 2
     }
 })

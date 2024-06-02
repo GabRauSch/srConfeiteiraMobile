@@ -1,4 +1,4 @@
-import { SafeAreaView, Text, View, ScrollView, TouchableWithoutFeedback } from "react-native";
+import { SafeAreaView, Text, View, ScrollView, TouchableWithoutFeedback, useWindowDimensions } from "react-native";
 import { styles } from "../styles/screen.Products";
 import SearchInput from "../components/SearchInput";
 import AddButton from "../components/AddButton";
@@ -17,6 +17,7 @@ import { connect } from "react-redux";
 import { RootState } from "../store";
 import { Dispatch } from "redux";
 import { setProductInfo, setProducts } from "../reducers/productsReducer";
+import { sortCategories, sortProducts } from "../util/sorter";
 
 type Props = {
     user: User,
@@ -38,11 +39,13 @@ const ProductsScreen = ({user, productsList, setProductsAction}: Props) => {
     useEffect(()=>{
         const handleGetData = async ()=>{
             const products = await getAllProductsByUserId(user.id as number);
-            setProducts(products);
+            const sortedProucts = sortProducts(products)
+            setProducts(sortedProucts);
             const uniqueCategories = getUniqueCategories(products) as string[];
-            setCategories(uniqueCategories);
+            const sortedCategories = sortCategories(uniqueCategories)
+            setCategories(sortedCategories);
             setSelectedCategory(null);
-            setFilteredCategories(uniqueCategories);
+            setFilteredCategories(sortedCategories);
             setProductsAction(products);
         };
         handleGetData()
@@ -50,8 +53,9 @@ const ProductsScreen = ({user, productsList, setProductsAction}: Props) => {
 
     useEffect(() => {
         const uniqueCategories = getUniqueCategories(productsList) as string[];
-        setFilteredCategories(uniqueCategories);
-        setOptions(["Todas", ...uniqueCategories])
+        const sortedCategories = sortCategories(uniqueCategories)
+        setFilteredCategories(sortedCategories);
+        setOptions(["Todas", ...sortedCategories])
         setProductsListing(productsList);
     }, [productsList]);
     

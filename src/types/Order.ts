@@ -1,13 +1,14 @@
 export type Order = {
-    id: number,
+    orderId: number,
     client: string,
+    clientId: number,
     deliveryDay: Date,
     value: number,
     status: status,
-    products: string[],
+    products: {id: number, name: string, quantity: number, finished: boolean}[],
     delay: boolean
 }
 
-// aberto, entregue, recebido
-export const statusList = [1, 2, 3];
-export type status = 1 | 2 | 3
+// aberto, feito, entregue
+export const statusList = [0,1,2];
+export type status = 0 | 1 | 2

@@ -33,17 +33,23 @@ export const getUniqueDaysFrom = (data: any[], key: string)=>{
 
 export const formatDate = (date: Date)=>{
     const order = new Date(date);
-
+    
     const now = new Date();
     const diff = order.getTime() - now.getTime();
-
+    
     if(diff <= 0) return 'em atraso';
     const seconds = Math.floor(diff / 1000);
     const minutes = Math.floor(seconds / 60);
     const hours = Math.floor(minutes / 60);
     const days = Math.floor(hours / 24);
 
-    if (hours < 24) {
+    const tomorrow = new Date(now);
+    
+    tomorrow.setHours(24, 0, 0, 0);
+    const diffTom = tomorrow.getTime() - now.getTime();
+    const hoursTom = Math.floor(diffTom / (1000 * 60 * 60)); 
+
+    if (hoursTom > hours) {
         return `hoje`;
     } else if(days == 1) {
         return 'Amanhã';
@@ -58,8 +64,6 @@ export const getTimeStringFromDate = (date: Date)=>{
     const now = new Date();
     const diff = order.getTime() - now.getTime();
 
-    console.log('date do carlaho', date)
-
     if(diff <= 0) return 'em atraso';
 
     const seconds = Math.floor(diff / 1000);
@@ -69,11 +73,16 @@ export const getTimeStringFromDate = (date: Date)=>{
     const weeks = Math.floor(days / 7);
     const months = Math.floor(days / 30);
 
-    if (hours < 24) {
+    if(minutes < 60) {
+        return `${minutes} minutos`
+    } else if (hours < 24) {
+        if(hours == 1) return `${hours} hora`
         return `${hours} horas`;
     } else if (days < 7) {
+        if(days == 1) return `${days} dia`
         return `${days} dias`;
     } else if (weeks < 4) {
+        if(days == 1) return `${days} dia`
         return `${weeks} semanas`;
     } else if (months < 2) {
         return `${months} mês`;

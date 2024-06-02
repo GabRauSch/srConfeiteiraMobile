@@ -1,11 +1,11 @@
 import { StyleSheet } from "react-native";
-import { COLORS } from "./global";
+import { COLORS, LABEL } from "./global";
 
 export const styles = StyleSheet.create({
     productInfoItem: {
     },
     productInfoText: {
-        color: COLORS.primary
+        ...LABEL
     },
     productInput: {
         borderBottomColor: COLORS.primary,

@@ -9,6 +9,7 @@ export const styles = StyleSheet.create({
         position: 'relative',
         padding: 10,
         flex: 1,
+        borderLeftWidth: 10
     },
     options: {
         flexDirection: 'row'
@@ -54,7 +55,7 @@ export const styles = StyleSheet.create({
     clientInfo: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center'
+        alignItems: 'center',
     },
     changeView: {
         position: 'absolute',

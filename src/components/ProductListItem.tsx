@@ -36,6 +36,7 @@ const ProductListItem = ({name, price, removeItem, changeProductQuantity, setPro
         if(value == '') return setQuantity(0);
         const filteredText = value.replace(/[.,]/g, '');
         setQuantity(parseInt(filteredText))
+        setProductQuantity(parseInt(filteredText))
     }
 
     return (

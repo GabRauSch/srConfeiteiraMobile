@@ -13,7 +13,7 @@ const useMessage = () => {
 
     const setMessageWithTimer = (message: string, type: 'error'|'success', time?: number)=>{
         if(!time) {
-            time = 500
+            time = 150
         }
         
         setMessage(message),

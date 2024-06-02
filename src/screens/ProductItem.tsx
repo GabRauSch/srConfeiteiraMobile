@@ -91,9 +91,10 @@ const ProductItem = ({ user, products, setProductInfo }: Props) => {
             categoryId = category
         }
 
+        
         const validation = validateProduct(updateData);
         if (validation) return setMessageWithTimer(validation, 'error');
-
+        
         const update = await updateProduct(id, updateData);
         
         if (update.status != 200) { 
@@ -101,11 +102,10 @@ const ProductItem = ({ user, products, setProductInfo }: Props) => {
             return setMessageWithTimer(responseMapping.message, 'error') 
         }
 
-        if(update.data.category.id){
+        if(update.data.category && update.data.category.id){
             categoryId = update.data.category.id;
             categoryDescription = update.data.category.description
         };
-        console.log(categoryId)
 
         const productInfo = { 
             id, 
@@ -119,6 +119,8 @@ const ProductItem = ({ user, products, setProductInfo }: Props) => {
 
     const handleProfitChange = (value: string) => {
         const percentage = parseFloat(handleSetNumericValue(value)) / 100;
+
+        console.log(value)
         const newCost = parseFloat(productionCost.replace(',', '.')) * (1 + percentage);
         setProductValue(newCost.toFixed(2).replace('.', ','));
         setProfit(handleSetNumericValue(value));
