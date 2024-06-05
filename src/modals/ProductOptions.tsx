@@ -23,7 +23,7 @@ export const ProductOptions = ({onClose, options, modalPos}: Props)=>{
                 <TouchableOpacity onPress={onClose} style={styles.modal} activeOpacity={.8}>
                     <View style={[styles.optionsList,  { position: 'absolute', top: modalPos.y, left: modalPos.x }]}>
                         {options.map((el, key)=>(
-                            <TouchableHighlight key={key} onPress={el.func} underlayColor={COLORS.secondary}>
+                            <TouchableHighlight key={key} onPress={()=>{el.func(); onClose()}} underlayColor={COLORS.secondary}>
                                 <Text style={styles.optionText} key={key}>{el.option}</Text>
                             </TouchableHighlight>
                         ))}

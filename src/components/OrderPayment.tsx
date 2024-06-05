@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Modal, ScrollView, Text, TouchableHighlight, TouchableOpacity, View } from "react-native";
-import { styles } from "../styles/screen.OrderItem";
+import { styles } from "../styles/screen.OrderPayment";
 import { HorizontalLine } from "../components/HorizontalLine";
 import Icon from "react-native-vector-icons/FontAwesome";
 import RoundCheckBox from "../components/RoundCheckBox";
@@ -24,13 +24,16 @@ import EditModal from "../modals/EditModal";
 import OrderProduct from "../components/OrderProduct";
 import Message from "../modals/Message";
 import useMessage from "../hooks/useMessage";
+import { Picker } from "@react-native-picker/picker";
+import NumericInput from "react-native-numeric-input";
+import { getExtendedDate } from "../util/transform";
 
 type Props = {
     user: User,
     products: Product[]
 }
 
-const OrderItem = ({user, products}: Props) => {
+const OrderPayment = ({user, products}: Props) => {
     const [status, setStatus] = useState<any>([]);
     const [orderItems, setOrderItems] = useState<OrderItems[]>([]);
     const [orderData, setOrderData] = useState<any>();
@@ -39,15 +42,23 @@ const OrderItem = ({user, products}: Props) => {
     const route = useRoute();
     const { id } = route.params as any;
     const navigate = useNavigation() as any;
-    const [productModal, setProductModal] = useState(false);
+    const [paymentModal, setPaymentModal] = useState(false);
     const [selectedProducts, setSelectedProducts] = useState<SelectedProducts[]>([]);
     const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
     const [searchValue, setSearchValue] = useState('');
     const [productsList, setProductsList] = useState<any[]>([]);
     const [scrollViewHeight, setScrollViewHeight] = useState(0);
     const { message, MessageDisplay, setMessageWithTimer } = useMessage();
-    
+    const [selectedPaymentType, setSelectedPaymentType] = useState(0);
+    const [paymentValue, setPaymentValue] = useState(0);
+    const [installmentsCount, setInstallmentCount] = useState(1);
+    const [installments, setInstallments] = useState<{value: number, count: number}>({value: 10, count: 1});
+    const [payments, setPayments] = useState([{
+        id: 1, orderId: 1, value: 1, date: new Date(), paid: false
+    }])
+
     const contentRef = useRef<View>(null);
+    const paymentTypes = ['À vista', 'Parcelado', 'Pagamentos independentes'];
 
 
     useEffect(() => {
@@ -126,7 +137,7 @@ const OrderItem = ({user, products}: Props) => {
     }
     const handleNewProduct = ()=>{
         search('');
-        setProductModal(true)
+        setPaymentModal(true)
     }    
     const search = (value: string)=>{
         const productsFiltered = productsList.filter(product => {
@@ -240,103 +251,56 @@ const OrderItem = ({user, products}: Props) => {
                     <Text style={{ ...styles.orderInfoStatus, color: COLORS.primary }}>Status: Aberto</Text>
                     <Text style={styles.orderInfoText}>Cliente: {orderData?.clientName}</Text>
                     <Text>Progresso: {Math.round(percentage * 100)}% ({status.filter((status: any) => status).length}/{status.length})</Text>
-                    <Text>Valor total: R${totalValue.toFixed(2).replace('.', ',')}</Text>
-                    <Text style={styles.payment} onPress={()=>{handleNavigate('orderPayment', id)}}>Pagamentos</Text>
+                    <Text>Valor pago: R${totalValue.toFixed(2).replace('.', ',')} de R${totalValue.toFixed(2).replace('.', ',')}</Text>
+                    <Text style={styles.payment} onPress={()=>{handleNavigate('orderPayment', id)}}>Itens do pedido</Text>
                     <ProgressBar progress={percentage} color={COLORS.primary} style={{ borderRadius: 10, height: 7 }} />
-                    <View style={styles.finishOrderArea}>
-                        <TouchableHighlight style={styles.finishOrder}
-                            underlayColor={COLORS.primaryPressed} onPress={() => { handleBudget() }}>
-                            <Text style={[styles.newProductText, {color: '#000'}]}>Enviar orçamento</Text>
-                        </TouchableHighlight>
-
+                    <View style={[styles.finishOrderArea, {justifyContent: 'flex-end'}]}>
                         <TouchableHighlight style={[styles.finishOrder, 
                                 {backgroundColor: percentage == 1 ?  COLORS.primary : COLORS.grayScaleSecondary}]}
                             underlayColor={COLORS.primaryPressed} onPress={() => { handleFinishOrder() }}>
                             <Text style={styles.newProductText}>
-                                Pedido entregue
+                                Concluir pedido
                             </Text>
                         </TouchableHighlight>
                     </View>
                 </View>
                 <HorizontalLine />
-                {selectedProducts.length > 0 && (
-                    <View style={styles.newProducts}>
-                    <Text style={styles.separator}>Edite os produtos:</Text>
-                        {selectedProducts.map((el: any, key: number) => (
-                            <View key={key}>
-                                <ProductListItem name={el.name} 
-                                    price={el.value} 
-                                    removeItem={()=>removeProduct(el.id)} 
-                                    setProductQuantity={(quantity: number)=>handleSetQuantity(el.id, quantity)}
-                                    confirm confirmItem={()=>{confirmProduct(el.id)}}
-                                />
-                            </View>
-                        ))}
-                    </View>
-                )}
-                {['Pendentes', 'Concluídos'].map((section, key) => (
-                    <View key={key}>
-                        <Text style={styles.separator}>{section} ↆ</Text>
-                        <View style={styles.orders} >
-                            {orderItems.filter((product: any) => product.finished == (key == 1)).map((item: any, key: number) => (
-                                <OrderProduct
-                                    key={key}
-                                    id={item.productId}
-                                    quantity={item.quantity}
-                                    finished={item.finished}
-                                    orderItemId={item.orderItemId}
-                                    name={item.productName}
-                                    handleCheck={handleCheck}
-                                    handleQuantity={handleSetOrderItemQuantity}
-                                    value={item.value}
-                                    removeOrderItem={removeOrderItem}
-                                />
+                <View style={styles.paymentDetails}>
+                    <View style={styles.paymentType}>
+                        <Picker selectedValue={selectedPaymentType} onValueChange={setSelectedPaymentType}>
+                            {paymentTypes.map((el, key)=>(
+                                <Picker.Item label={el} value={key} key={key}></Picker.Item>
                             ))}
+                        </Picker>
+                    </View>
+                    <View style={{flexDirection: 'row'}}>
+                            {selectedPaymentType == 1 && (
+                        <View style={{flex: 1, alignItems: 'center'}}>
+                            <Text>Parcelas</Text>
+                            <NumberSetter quantity={installments.count} 
+                            handleQuantity={(quantity: number)=>{setInstallmentCount(quantity)}}/>
+                        </View>
+                            )}
+                        <View style={{flex: 1}}>
+                            <Text style={{textAlign: 'center'}}>Valor</Text>
+                            <Text style={styles.installments}>R${installments.value.toFixed(2).replace('.',',')}</Text>
                         </View>
                     </View>
-                ))}
-                <TouchableHighlight style={styles.newProduct}
-                        underlayColor={COLORS.primaryPressed} onPress={() => { handleNewProduct() }}>
-                    <Text style={styles.newProductText}>Adicionar produto</Text>
-                </TouchableHighlight>
-                {(productModal) && (
-                    <Modal
-                        transparent={true}
-                        visible={productModal}
-                        onRequestClose={() => setProductModal(false)}
-                    >
-                        <TouchableOpacity style={styles.modal} onPress={() =>{search(''); setSearchValue(''); setProductModal(false)}} activeOpacity={1}>
-                            <View style={styles.productModalContainer}>
-                                <ScrollView style={[styles.productModal, { maxHeight: scrollViewHeight || 500 }]}>
-                                <View style={styles.searchInput}>
-                                    <View style={styles.inputArea}>
-                                        <TextInput style={styles.input} 
-                                            onChangeText={(value)=>{setSearchValue(value); search(value)}} value={searchValue}/>
-                                        <Icon style={styles.icon} name="search" size={15} 
-                                            color={COLORS.primary}/>
-                                    </View>
-                                </View>
-                                    
-                                    {filteredProducts.length > 0 ? (
-                                        <View ref={contentRef}>
-                                            {filteredProducts.map((el: any, key: number) => (
-                                                <TouchableHighlight style={styles.productItem}
-                                                    key={key}
-                                                    underlayColor={COLORS.grayScalePrimary}
-                                                    onPress={() => { handleSelectProduct(el) }}>
-                                                    <Text style={styles.productItemText}>{el.name}</Text>
-                                                </TouchableHighlight>
-                                            ))}
-                                        </View>
-                                    ) : (
-                                        <Text style={styles.noProducts}>Sem produtos</Text>
-                                    )}
-                                </ScrollView>
-                            </View>
-                            <Text style={styles.closeModal}>Fechar</Text>
-                        </TouchableOpacity>
-                    </Modal>
-                )}
+                    {selectedPaymentType == 2 && (
+                        <Text style={styles.editInstallments}>Novo pagamento</Text>
+                    )}
+                    <Text style={{textAlign: 'center', padding: 10, fontWeight: 'bold', color: COLORS.primary}}>Confirmar</Text>
+                </View>
+                <HorizontalLine />
+                <View>
+                    {payments.map((el, key)=>(
+                        <View key={key} style={styles.orderPayment}>
+                            <Text>{getExtendedDate(el.date)}</Text>
+                            <Text>R${el.value.toFixed(2).replace('.',',')}</Text>
+                            <RoundCheckBox active={el.paid} onCheck={() =>{}} />
+                        </View>
+                    ))}
+                </View>
             </ScrollView>
         </>
     );
@@ -347,4 +311,4 @@ const mapStateToProps = (state: RootState) => ({
     products: state.productsReducer.products
 })
 
-export default connect(mapStateToProps)(OrderItem)
+export default connect(mapStateToProps)(OrderPayment)

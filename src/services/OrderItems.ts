@@ -14,7 +14,7 @@ export const addProductToOrder = async (id: number, product: any)=>{
     return response.data
 }
 
-export const updateOrder = async (id: number)=>{
-    const response = await callPutEndpoint(`/orderItems/${id}`, []);
+export const updateOrCreateOrderItems = async (id: number, data: any)=>{
+    const response = await callPutEndpoint(`/orderItems/${id}`, data);
     return response.data
 }

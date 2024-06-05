@@ -9,14 +9,39 @@ export const styles = StyleSheet.create({
     newProducts: {
         gap: 10
     },
+    paymentType: {
+        backgroundColor: 'white',
+        ...SHADOW,
+        marginVertical: 10,
+        borderRadius: 10
+    },
+    orderPayment: {
+        backgroundColor: 'white',
+        ...SHADOW,
+        flexDirection: 'row',
+        borderRadius: 10,
+        margin: 2,
+        padding: 5,
+        alignItems: 'center',
+        justifyContent: 'space-between'
+    },
+    paymentDetails: {
+        margin: 2
+    },
     editInstallments: {
         textAlign: 'center',
         backgroundColor: COLORS.secondary,
         borderRadius: 5
     },
     installments: {
-        flexDirection: 'row',
-        justifyContent: 'space-around'
+        backgroundColor: 'white',
+        padding: 5,
+        ...SHADOW,
+        borderRadius: 10,
+        flex: 1,
+        textAlign: 'center',
+        textAlignVertical: 'center',
+        fontSize: 20
     },
     payment: {
         fontStyle: 'italic',

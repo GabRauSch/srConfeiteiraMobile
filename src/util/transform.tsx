@@ -124,3 +124,16 @@ export const remainingTimeFrom = (time: Date)=>{
         return `Próxima entrega em alguns meses`;
     }
 }
+
+export const getExtendedDate = (time: Date)=>{
+    const months = [
+        'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+        'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+    ];
+
+    const day = time.getDate();
+    const month = months[time.getMonth()];
+    const year = time.getFullYear();
+
+    return `${day} de ${month} de ${year}`;
+}
