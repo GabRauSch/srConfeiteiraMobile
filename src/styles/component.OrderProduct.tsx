@@ -82,7 +82,8 @@ export const styles = StyleSheet.create({
     },
     order: {
         ...SHADOW,
-        padding: 10,
+        padding: 3,
+        margin: 2,
         backgroundColor: 'white',
         borderRadius: 10,
         flexDirection: 'row',

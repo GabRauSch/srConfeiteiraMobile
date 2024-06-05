@@ -8,17 +8,18 @@ import { removeProduct, setProducts } from "../reducers/productsReducer";
 import { RootState } from "../store";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
+import { ReactNode } from "react";
 
 type Props = {
     id: number,
     name: string,
     objectType: string,
-    warning?: string, 
-    onClose: ()=>void,
-    confirmExclude: ()=>void
+    children: ReactNode,
+    action: ()=>void,
+    onClose: ()=>void
 };
 
-const ExcludeModal = ({ id, name, objectType, warning, onClose, confirmExclude}: Props) => {
+const EditModal = ({ id, name, objectType, children, action, onClose}: Props) => {
     const navigate = useNavigation() as any;
 
     return (
@@ -29,19 +30,15 @@ const ExcludeModal = ({ id, name, objectType, warning, onClose, confirmExclude}:
             <TouchableWithoutFeedback onPress={onClose}>
                 <View style={styles.modalBackground}>
                     <View style={styles.modalContent}>
-                        <Text style={styles.modalText}>Confirmar exclusão do {objectType}:</Text>
+                        <Text style={styles.modalText}>Edite o {objectType}:</Text>
                         <Text style={styles.modalItemName}>{name}</Text>
+                        
+                        {children}
+                        
                         <View style={styles.buttons}>
                             <TouchableHighlight 
-                                style={styles.cancelButotn} 
-                                onPress={onClose}
-                                underlayColor={COLORS.secondary}
-                            >
-                                <Text style={styles.cancelButtonText}>Cancelar</Text>
-                            </TouchableHighlight>
-                            <TouchableHighlight 
                                 style={styles.confirmButton} 
-                                onPress={()=>{confirmExclude(); onClose()}}
+                                onPress={onClose}
                                 underlayColor={COLORS.secondary}
                             >
                                 <Text style={styles.confirmButtonText}>Confirmar</Text>
@@ -58,4 +55,4 @@ const mapStateToProps = (state: RootState)=>({
     user: state.userReducer.user
 })
 
-export default connect(mapStateToProps)(ExcludeModal)
+export default connect(mapStateToProps)(EditModal)

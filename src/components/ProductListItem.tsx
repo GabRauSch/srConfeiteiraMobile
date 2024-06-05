@@ -14,30 +14,28 @@ import { validateClientCreate, validateOrderCreate, validateProductCreate } from
 import { createClient, getAllClientsByUserId } from "../services/Clients"
 import { Client } from "../types/Client"
 import { newClient } from "../reducers/clientsReducer"
-import { COLORS, MODAL } from "../styles/global"
+import { COLORS, MODAL } from "../styles/global";
+import Icon from 'react-native-vector-icons/FontAwesome';
+import NumberSetter from "./NumberSetter"
+
 
 type Props = {
     name: string,
     price: number,
-    removeItem: ()=>void
-    changeProductQuantity: (increase: boolean)=>void,
-    setProductQuantity: (quantity: number)=>void
+    removeItem: ()=>void,
+    confirmItem?: ()=>void,
+    setProductQuantity: (quantity: number)=>void,
+    confirm?: boolean
 }
 
-const ProductListItem = ({name, price, removeItem, changeProductQuantity, setProductQuantity}: Props)=>{
+const ProductListItem = ({name, price, removeItem, confirmItem, setProductQuantity, confirm}: Props)=>{
     const [quantity, setQuantity] = useState(1);
-    const handleDecrease = ()=>{
-        if(quantity > 1){
-            setQuantity(quantity-1);
-            changeProductQuantity(false)
-        }
+    
+    const handleQuantity = (quantity: number)=>{
+        setQuantity(quantity);
+        setProductQuantity(quantity)
     }
-    const handleChangeInput = (value: string)=>{
-        if(value == '') return setQuantity(0);
-        const filteredText = value.replace(/[.,]/g, '');
-        setQuantity(parseInt(filteredText))
-        setProductQuantity(parseInt(filteredText))
-    }
+
 
     return (
         <View style={styles.product}>
@@ -46,25 +44,13 @@ const ProductListItem = ({name, price, removeItem, changeProductQuantity, setPro
                 <Text style={styles.productValue}>R${(price * quantity).toFixed(2).replace('.', ',')}</Text>
             </View>
             <View style={styles.actions}>
-                <View style={styles.actionButtons}>
-                    <TouchableHighlight 
-                        onPress={()=>{handleDecrease()}} style={styles.button}
-                        underlayColor={COLORS.grayScalePrimary}>
-                        <Text>-</Text>
-                    </TouchableHighlight>
-                    <TextInput
-                        onBlur={()=>quantity == 0 ? setQuantity(1) : null}
-                        style={styles.button} keyboardType="number-pad"
-                        onChangeText={(value: string)=>handleChangeInput(value)}
-                        value={quantity.toString()}
-                    />
-                    <TouchableHighlight
-                        onPress={()=>{setQuantity(quantity+1); changeProductQuantity(true)}} style={styles.button}
-                        underlayColor={COLORS.grayScalePrimary}>
-                        <Text>+</Text>
-                    </TouchableHighlight>
+               <NumberSetter quantity={quantity} handleQuantity={handleQuantity} />
+                <View style={styles.activationButtons}>
+                    <Icon name="remove" size={25} color={COLORS.primary} onPress={removeItem}/>
+                    {(confirm && confirmItem) &&
+                        <Icon name="check" size={25} color={'#7c2'} onPress={confirmItem}/>
+                    }
                 </View>
-                <Text style={styles.productRemove} onPress={()=>{removeItem()}}>×</Text>
             </View>
         </View>
     )

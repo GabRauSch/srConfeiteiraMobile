@@ -13,6 +13,7 @@ import ClientItem from '../components/ClientItem'
 import { remainingTimeFrom } from "../util/transform";
 import { Dispatch } from "redux";
 import { setClients } from "../reducers/clientsReducer";
+import { sortClients } from "../util/sorter";
 
 type Props = {
     user: User,
@@ -31,20 +32,7 @@ const ClientsScreen = ({user, clients, setClientsAction}: Props)=>{
     useEffect(()=>{
         const handleGetData = async ()=>{
             const clients = await getAllClientsByUserId(user.id as number);
-            const sortedClients =  clients.sort((a: any, b: any) => {
-                const dayA = new Date(a.nextDeliveryDate).getDate();
-                const dayB = new Date(b.nextDeliveryDate).getDate();
-              
-                if (dayA < dayB) return -1;
-                if (dayA > dayB) return 1;
-              
-                const nameA = a.name.toLowerCase();
-                const nameB = b.name.toLowerCase();
-                if (nameA < nameB) return -1;
-                if (nameA > nameB) return 1;
-              
-                return 0;
-              });
+            const sortedClients =  sortClients(clients)
             setClientsList(sortedClients);
             setClientsAction(clients)
         };
@@ -52,20 +40,7 @@ const ClientsScreen = ({user, clients, setClientsAction}: Props)=>{
     }, [user.id]); 
 
     useEffect(() => {
-        const sortedClients = clients.sort((a, b) => {
-            const dayA = new Date(a.nextDeliveryDate).getDate();
-            const dayB = new Date(b.nextDeliveryDate).getDate();
-          
-            if (dayA < dayB) return -1;
-            if (dayA > dayB) return 1;
-          
-            const nameA = a.name.toLowerCase();
-            const nameB = b.name.toLowerCase();
-            if (nameA < nameB) return -1;
-            if (nameA > nameB) return 1;
-          
-            return 0;
-          });
+        const sortedClients = sortClients(clients)
         setClientsList(sortedClients);
     }, [clients]);
 

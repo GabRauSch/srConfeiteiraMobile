@@ -16,7 +16,7 @@ import { Client } from "../types/Client"
 import { newClient } from "../reducers/clientsReducer"
 import { COLORS, MODAL } from "../styles/global"
 import ProductListItem from "../components/ProductListItem"
-import { Product } from "../types/Product"
+import { Product, SelectedProducts } from "../types/Product"
 import { getAllProductsByUserId } from "../services/Products";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { sortClientNames, sortClients, sortProducts } from "../util/sorter"
@@ -35,12 +35,6 @@ type Props = {
     newOrderAction: (payload: any) => void
 }
 
-type SelectedProducts = {
-    id: number,
-    name: string,
-    value: number,
-    quantity: number
-}
 
 const NewOrder = ({ user, clients, products, newOrderAction }: Props) => {
     const { message, MessageDisplay, setMessageWithTimer } = useMessage();
@@ -124,7 +118,8 @@ const NewOrder = ({ user, clients, products, newOrderAction }: Props) => {
 
         const clientName = clientsList.find((el)=>el.id == creation.data.clientId).description
         const newOrder: Order = {
-            id: creation.data.id, //
+            orderId: creation.data.id,
+            clientId: creation.data.clientId,
             client: clientName,
             deliveryDay: creation.data.deliveryDate,
             value: orderData.value,
@@ -291,7 +286,7 @@ const NewOrder = ({ user, clients, products, newOrderAction }: Props) => {
                         <Text style={{color: COLORS.grayScaleSecondary}}>Nenhum cliente selecionado</Text>
                     )}
                 </Text>
-                    <TouchableHighlight style={styles.newProduct}
+                <TouchableHighlight style={styles.newProduct}
                     underlayColor={COLORS.primaryPressed} onPress={() => { handleNewClient() }}>
                     <Text style={styles.newProductText}>Selecionar cliente</Text>
                 </TouchableHighlight>
@@ -328,7 +323,6 @@ const NewOrder = ({ user, clients, products, newOrderAction }: Props) => {
                             <ProductListItem key={key} name={el.name} 
                                 price={el.value} 
                                 removeItem={()=>removeProduct(el.id)} 
-                                changeProductQuantity={(increase: boolean)=>changeProductQuantity(el.id, increase)}   
                                 setProductQuantity={(quantity: number)=>handleSetQuantity(el.id, quantity)}
                             />
                         ))}

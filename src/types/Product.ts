@@ -9,3 +9,10 @@ export type Product = {
     format: string,
     category: string
 }
+
+export type SelectedProducts = {
+    id: number,
+    name: string,
+    value: number,
+    quantity: number
+}

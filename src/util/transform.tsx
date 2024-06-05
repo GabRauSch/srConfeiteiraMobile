@@ -32,7 +32,7 @@ export const getUniqueDaysFrom = (data: any[], key: string)=>{
 }
 
 export const formatDate = (date: Date)=>{
-    const order = new Date(date);
+    const order = new Date(date);1
     
     const now = new Date();
     const diff = order.getTime() - now.getTime();
@@ -54,7 +54,7 @@ export const formatDate = (date: Date)=>{
     } else if(days == 1) {
         return 'Amanhã';
     } else {
-        return `${order.getDate()}/${order.getMonth()}/${order.getFullYear()}`
+        return `${order.getDate()}/${order.getMonth()+1}/${order.getFullYear()}`
     }
 }
 

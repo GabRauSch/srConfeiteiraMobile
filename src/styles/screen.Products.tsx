@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import { COLORS, SHADOW } from "./global";
+import { COLORS, LABEL, SHADOW } from "./global";
 
 export const styles = StyleSheet.create({
     page: {
@@ -29,9 +29,7 @@ export const styles = StyleSheet.create({
         alignItems: 'flex-end'
     },
     separator: {
-        color: COLORS.primary,
-        opacity: 0.5,
-        marginBottom: 10
+        ...LABEL
     },
     scroll: {
         padding: 4,
