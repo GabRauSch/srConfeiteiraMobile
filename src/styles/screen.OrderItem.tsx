@@ -18,11 +18,18 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-around'
     },
+    paymentArea: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10
+    },
     payment: {
         fontStyle: 'italic',
         color: COLORS.primary,
+        fontWeight: 'bold',
         textDecorationLine: 'underline',
-        paddingVertical: 3
+        paddingVertical: 3,
+        fontSize: 18
     },
     totalOrderValue: {
         alignItems: 'flex-end',
@@ -90,7 +97,11 @@ export const styles = StyleSheet.create({
         backgroundColor: 'white'
     },
     orders: {
-        gap: 10
+        backgroundColor: 'white',
+        borderRadius: 5,
+        ...SHADOW,
+        margin: 2,
+
     },
     separator: {
         ...LABEL,

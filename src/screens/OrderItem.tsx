@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Modal, ScrollView, Text, TouchableHighlight, TouchableOpacity, View } from "react-native";
+import { Modal, ScrollView, Text, TouchableHighlight, TouchableNativeFeedback, TouchableOpacity, View } from "react-native";
 import { styles } from "../styles/screen.OrderItem";
 import { HorizontalLine } from "../components/HorizontalLine";
 import Icon from "react-native-vector-icons/FontAwesome";
@@ -222,8 +222,9 @@ const OrderItem = ({user, products}: Props) => {
     }
 
     const handleSave = async ()=>{
-        const updatedOrderItems = orderItems.map((el)=>({productId: el.productId, quantity: el.quantity, finished: Boolean(el.finished)}))
-        const update = await updateOrCreateOrderItems(orderData.orderId ,updatedOrderItems);
+        console.log(orderItems)
+        const updatedOrderItems = orderItems.map((el)=>({productId: el.productId, quantity: el.quantity, finished: Boolean(el.finished), value: el.value}))
+        const update = await updateOrCreateOrderItems(orderData.orderId, updatedOrderItems);
 
         console.log(update)
         if(update.status !== 200) return setMessageWithTimer('Erro ao atualizar', 'error')
@@ -241,7 +242,6 @@ const OrderItem = ({user, products}: Props) => {
                     <Text style={styles.orderInfoText}>Cliente: {orderData?.clientName}</Text>
                     <Text>Progresso: {Math.round(percentage * 100)}% ({status.filter((status: any) => status).length}/{status.length})</Text>
                     <Text>Valor total: R${totalValue.toFixed(2).replace('.', ',')}</Text>
-                    <Text style={styles.payment} onPress={()=>{handleNavigate('orderPayment', id)}}>Pagamentos</Text>
                     <ProgressBar progress={percentage} color={COLORS.primary} style={{ borderRadius: 10, height: 7 }} />
                     <View style={styles.finishOrderArea}>
                         <TouchableHighlight style={styles.finishOrder}
@@ -257,6 +257,10 @@ const OrderItem = ({user, products}: Props) => {
                             </Text>
                         </TouchableHighlight>
                     </View>
+                    <TouchableOpacity style={styles.paymentArea} onPress={()=>{handleNavigate('orderPayment', id)}}>
+                        <Icon name={'money'} size={18} color={COLORS.primary}/>
+                        <Text style={styles.payment}>Pagamentos</Text>
+                    </TouchableOpacity>
                 </View>
                 <HorizontalLine />
                 {selectedProducts.length > 0 && (

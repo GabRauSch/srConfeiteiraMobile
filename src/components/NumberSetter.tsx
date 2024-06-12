@@ -2,25 +2,29 @@ import { TextInput } from "react-native";
 import { Text, TouchableHighlight, View } from "react-native";
 import {styles} from '../styles/component.NumberSetter'
 import { COLORS } from "../styles/global";
+import { useState } from "react";
  
 type Props = {
     quantity: number,
-    handleQuantity: (quantity: number)=>void
+    handleQuantity: (quantity: number)=>void,
+    style?: any,
+    minValue?: number
 }
 
-const NumberSetter = ({quantity, handleQuantity}: Props)=>{
+const NumberSetter = ({quantity, handleQuantity, style, minValue}: Props)=>{
+    const min =  minValue ? minValue : 1
     const handleDecrease = ()=>{
-        if(quantity > 1){
+        if(quantity > min){
             handleQuantity(quantity-1)
         }
     }
     const handleChangeInput = (value: string)=>{
-        if(value == '') return handleQuantity(0);
+        if(value == '') return handleQuantity(min);
         const filteredText = value.replace(/[.,]/g, '');
         handleQuantity(parseInt(filteredText))
     }
     return (
-        <View style={styles.actionButtons}>
+        <View style={[styles.actionButtons, style ? style : null]}>
             <TouchableHighlight 
                 onPress={()=>{handleDecrease()}} style={styles.button}
                 underlayColor={COLORS.grayScalePrimary}>

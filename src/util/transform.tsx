@@ -125,11 +125,12 @@ export const remainingTimeFrom = (time: Date)=>{
     }
 }
 
-export const getExtendedDate = (time: Date)=>{
+export const getExtendedDate = (date: Date)=>{
     const months = [
         'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
         'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
     ];
+    const time = new Date(date)
 
     const day = time.getDate();
     const month = months[time.getMonth()];

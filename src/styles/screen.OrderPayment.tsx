@@ -4,34 +4,54 @@ import { COLORS, LABEL, SHADOW } from "./global";
 export const styles = StyleSheet.create({
     page: {
         padding: 20,
-        flex: 1
-    }, 
+        flex: 1,
+    },
     newProducts: {
         gap: 10
     },
+    redirectButtonText: { 
+        color: COLORS.primary, 
+        fontWeight: 'bold', 
+        fontStyle: 'italic', 
+        textDecorationLine: 'underline' },
     paymentType: {
         backgroundColor: 'white',
         ...SHADOW,
         marginVertical: 10,
-        borderRadius: 10
+        borderRadius: 10,
+    },
+    paymentsList: {
+        borderRadius: 5,
+        backgroundColor: 'white',
+        marginBottom: 50
+    },
+    installmentsText: {
+        fontSize: 20
+    },
+    checkAsPaid: {
+        color: COLORS.primary,
+        fontSize: 13,
+        fontWeight: 'bold'
+    },
+    changeDate: {
+        textAlign: 'center',
+        color: COLORS.primary,
     },
     orderPayment: {
-        backgroundColor: 'white',
-        ...SHADOW,
         flexDirection: 'row',
-        borderRadius: 10,
-        margin: 2,
         padding: 5,
         alignItems: 'center',
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
     },
     paymentDetails: {
-        margin: 2
+        margin: 2,
+        gap: 10
     },
     editInstallments: {
         textAlign: 'center',
         backgroundColor: COLORS.secondary,
-        borderRadius: 5
+        borderRadius: 5,
+        margin: 10
     },
     installments: {
         backgroundColor: 'white',
@@ -39,9 +59,12 @@ export const styles = StyleSheet.create({
         ...SHADOW,
         borderRadius: 10,
         flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: 20,
         textAlign: 'center',
-        textAlignVertical: 'center',
-        fontSize: 20
+        textAlignVertical: 'center'
     },
     payment: {
         fontStyle: 'italic',
@@ -66,7 +89,7 @@ export const styles = StyleSheet.create({
         marginVertical: 20,
         marginBottom: 30
     },
-    
+
     newProductText: {
         textAlign: 'center',
         color: 'white'
@@ -85,15 +108,15 @@ export const styles = StyleSheet.create({
     orderInfoText: {
     },
     finishOrder: {
-        color: '#fff', 
-        fontWeight: 'bold', 
+        color: '#fff',
+        fontWeight: 'bold',
         backgroundColor: COLORS.secondary,
         borderRadius: 5,
         padding: 5,
         width: 150,
         textAlign: 'center',
         alignSelf: 'flex-end'
-    }, 
+    },
     finishOrderArea: {
         flexDirection: 'row',
         justifyContent: 'space-around',
@@ -136,7 +159,7 @@ export const styles = StyleSheet.create({
         fontSize: 16,
         flex: 1
     },
-    
+
     modal: {
         position: 'relative',
         height: '100%',
@@ -144,7 +167,7 @@ export const styles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,0.5)',
         justifyContent: 'center',
         alignItems: 'center'
-    },    
+    },
     closeModal: {
         zIndex: 999,
         color: 'white',
@@ -163,7 +186,7 @@ export const styles = StyleSheet.create({
     productItemText: {
         fontSize: 17
     },
-    
+
     icon: {
         padding: 10
     },
@@ -197,4 +220,62 @@ export const styles = StyleSheet.create({
     productModalText: {
         padding: 10,
     },
+    modalBackground: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalContent: {
+        width: '80%',
+        backgroundColor: 'white',
+        borderRadius: 10,
+        padding: 20,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+        zIndex: 999
+    },
+    modalText: {
+        fontSize: 15,
+        marginBottom: 10,
+    },
+    modalItemName: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 20,
+    },
+    confirmButton: {
+        backgroundColor: COLORS.primary,
+        paddingVertical: 10,
+        borderRadius: 5,
+        flex: 1,
+    },
+    cancelButotn: {
+        borderColor: COLORS.primary,
+        borderWidth: 2,
+        paddingVertical: 10,
+        borderRadius: 5,
+        flex: 1,
+    },
+    cancelButtonText: {
+        color: 'black',
+        fontSize: 16,
+        textAlign: 'center'
+    },
+    confirmButtonText: {
+        color: 'white',
+        fontSize: 16,
+        textAlign: 'center'
+    },
+    buttons: {
+        flexDirection: 'row',
+        gap: 10
+    }
 })

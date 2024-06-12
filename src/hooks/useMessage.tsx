@@ -12,8 +12,9 @@ const useMessage = () => {
     const [type, setMessageType] = useState<'error' | 'success'>('error');
 
     const setMessageWithTimer = (message: string, type: 'error'|'success', time?: number)=>{
+        console.log(message.length)
         if(!time) {
-            time = 150
+            time = 5 * message.length
         }
         
         setMessage(message),
