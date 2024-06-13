@@ -12,7 +12,7 @@ import { ReactNode } from "react";
 
 type Props = {
     id: number,
-    name: string,
+    name?: string,
     objectType: string,
     children: ReactNode,
     action: ()=>void,
@@ -31,14 +31,16 @@ const EditModal = ({ id, name, objectType, children, action, onClose}: Props) =>
                 <View style={styles.modalBackground}>
                     <View style={styles.modalContent}>
                         <Text style={styles.modalText}>Edite o {objectType}:</Text>
-                        <Text style={styles.modalItemName}>{name}</Text>
+                        {name &&
+                            <Text style={styles.modalItemName}>{name}</Text>
+                        }
                         
                         {children}
                         
                         <View style={styles.buttons}>
                             <TouchableHighlight 
                                 style={styles.confirmButton} 
-                                onPress={onClose}
+                                onPress={()=>{onClose(); action()}}
                                 underlayColor={COLORS.secondary}
                             >
                                 <Text style={styles.confirmButtonText}>Confirmar</Text>

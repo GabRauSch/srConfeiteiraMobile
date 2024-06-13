@@ -20,13 +20,23 @@ export const styles = StyleSheet.create({
         marginVertical: 10,
         borderRadius: 10,
     },
+    editPayment: {
+        flexDirection: 'row',
+        borderRadius: 5,
+        ...SHADOW,
+        backgroundColor: 'white',
+        margin: 5,
+        width: '100%',
+        paddingHorizontal: 20,
+        paddingVertical: 10
+    },
     paymentsList: {
         borderRadius: 5,
         backgroundColor: 'white',
         marginBottom: 50
     },
     installmentsText: {
-        fontSize: 20
+        fontSize: 20,
     },
     checkAsPaid: {
         color: COLORS.primary,

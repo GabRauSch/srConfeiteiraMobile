@@ -20,6 +20,7 @@ import { handleSetNumericValue } from "../util/numeric";
 import { addMonths, constructNow, format } from 'date-fns';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { handleResponse } from "../services/responseMapping";
+import EditModal from "../modals/EditModal";
 
 
 type Props = {
@@ -49,15 +50,8 @@ const OrderPayment = ({user, products}: Props) => {
     const route = useRoute();
     const { id } = route.params as any;
     const navigate = useNavigation() as any;
-    const [paymentModal, setPaymentModal] = useState(false);
-    const [selectedProducts, setSelectedProducts] = useState<SelectedProducts[]>([]);
-    const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
-    const [searchValue, setSearchValue] = useState('');
-    const [productsList, setProductsList] = useState<any[]>([]);
-    const [scrollViewHeight, setScrollViewHeight] = useState(0);
     const { message, MessageDisplay, setMessageWithTimer } = useMessage();
     const [selectedPaymentType, setSelectedPaymentType] = useState(0);
-    const [paymentValue, setPaymentValue] = useState('0,00');
     const [installments, setInstallments] = useState<number>(1);
     const [payments, setPayments] = useState<payment[]>([]);
     const [independentPayments, setIndependentPayments] = useState<any>([]);
@@ -66,7 +60,9 @@ const OrderPayment = ({user, products}: Props) => {
     const [independentPaymentsDate, setIndependentPaymentsDate] = useState(-1);
     const [showChoosePayment, setShowChoosePayment] = useState(false);
     const [changePaymentModal, setChangePaymentModal] = useState(false);
-    const [allowExclusion, setAllowExclusion] = useState(false)
+    const [allowExclusion, setAllowExclusion] = useState(false);
+    const [updateModal, setUpdateModal] = useState<any | null>(null);
+    const [updateDate, setUpdateDate] = useState(false)
 
     const contentRef = useRef<View>(null);
     const paymentTypes = ['À vista', 'Parcelado', 'Pagamentos independentes'];
@@ -97,10 +93,6 @@ const OrderPayment = ({user, products}: Props) => {
         handleGetData();
     }, []);
 
-
-    const handleCheck = (paymentId: number)=>{
-        
-    }
     const closeChangePayment = ()=>{
         setChangePaymentModal(false)
     }
@@ -115,12 +107,21 @@ const OrderPayment = ({user, products}: Props) => {
     }
     const handleSetIndepentendPayments = (value: string, id: number)=>{
         const updatedPayments = [...independentPayments];
+        console.log('being')
 
         updatedPayments[id].value = handleSetNumericValue(value);
         setIndependentPayments(updatedPayments);
     }
     const handleNavigate = (url: string, id: number)=>{
         navigate.navigate(url, {id})
+    }
+    const handleEditPayment = (el: payment)=>{
+        console.log(el.paymentId)
+        if(selectedPaymentType == 2) {
+            setUpdateModal({paymentId: el.paymentId, dueDate: new Date(el.dueDate), paymentValue: handleSetNumericValue(el.paymentValue.toFixed(2).replace('.',','))})
+            return
+        }
+        setShowDate(true)
     }
 
     const handleCreate = async ()=>{
@@ -156,11 +157,14 @@ const OrderPayment = ({user, products}: Props) => {
     }
 
     const handleNewIndependentPayment = ()=>{
-        if(independentPayments.length == 0) 
+        setShowChoosePayment(true)
+        console.log(independentPayments)
+        // if(independentPayments.length == 0)
+        console.log('a') 
             return setIndependentPayments([{value: handleSetNumericValue('0'), dueDate: new Date()}])
             
-        const newPI = {value: handleSetNumericValue('0'), dueDate: addMonths(new Date(independentPayments[independentPayments.length -1].dueDate), 1)}
-        setIndependentPayments([...independentPayments, newPI])
+        // const newPI = {value: handleSetNumericValue('0'), dueDate: addMonths(new Date(independentPayments[independentPayments.length -1].dueDate), 1)}
+        // setIndependentPayments([...independentPayments, newPI])
     }
 
     const onSetIndependentPaymentDate = (event: any, selectedDate: any, id: number) => {
@@ -181,6 +185,22 @@ const OrderPayment = ({user, products}: Props) => {
         const currentDate = selectedDate || dueDate;
         setShowDate(Platform.OS === 'ios');
         setDueDate(currentDate);
+
+        if (payments.length !== 0) {
+            let updatedPayments;
+            if (selectedPaymentType == 1) {
+                updatedPayments = payments.map((payment, index) => ({
+                    ...payment,
+                    dueDate: addMonths(new Date(currentDate), index)
+                }));
+            } else {
+                updatedPayments = payments.map(payment => ({
+                    ...payment,
+                    dueDate: currentDate
+                }));
+            }
+            setPayments(updatedPayments);
+        }
     };
 
     const mapPaymentType = (type: number)=>{
@@ -189,59 +209,32 @@ const OrderPayment = ({user, products}: Props) => {
         if(type == 2) return 'Pagamentos independentes'
     }
 
-    const confirmProduct = async (id: number)=>{
-        // const createdProduct = selectedProducts.find(el=>el.id == id);
-        // if(!createdProduct) return
-
-        // const newOrderItem = {
-        //     quantity: createdProduct.quantity, 
-        //     productId: id
-        // }
-
-        // const orderItem = {
-        //     quantity: newOrderItem.quantity,
-        //     productId: id,
-        //     productName: createdProduct.name,
-        //     orderItemId: createdProduct.id,
-        //     value: createdProduct.value,
-        //     finished: false
-        // }
-        
-        // setTotalValue(totalValue + (orderItem.value * orderItem.quantity))
-
-        // const filteredSelected = selectedProducts.filter((el)=>{
-        //     return el.id !== orderItem.productId
-        // })
-        // const updatedOrderItems = [...orderItems, orderItem];
-        // setSelectedProducts(filteredSelected)
-        // setOrderItems(updatedOrderItems);
-        
-        // calculateTotal(updatedOrderItems)
-    }
-
-    const calculateTotal = (updatedOrderItems: OrderItems[])=>{
-        const statusArray = updatedOrderItems.map(item => item.finished);
-        setStatus(statusArray);
-        
-        const concluded = statusArray.filter(status => status).length;
-        const percentage = concluded / statusArray.length;
-        setPercentage(percentage);
-        const totalValue = updatedOrderItems.map((el)=>el.value * el.quantity).reduce((a: any, b: any)=>a+b)
-        setTotalValue(totalValue)
-    }
-
     const handleSave = async ()=>{
-        // const updatedOrderItems = orderItems.map((el)=>({productId: el.productId, quantity: el.quantity, finished: Boolean(el.finished)}))
-        // const update = await updatePayments(orderData.orderId ,updatedOrderItems);
-
-        // if(update.status !== 200) return setMessageWithTimer('Erro ao atualizar', 'error')
-
-        // return setMessageWithTimer('Alterado com sucesso', 'success')
     }
 
     const handleChangeSelectedPayment = ()=>{
         setChangePaymentModal(true)
+    }   
+    const handleChangeUpdateData = (value: string)=>{
+        console.log(handleSetNumericValue(value))
+        const updatedModal = { ...updateModal, paymentValue: handleSetNumericValue(value)};
+        setUpdateModal(updatedModal);
     }
+    const handleChangeUpdateDate = (date?: Date)=>{
+        setUpdateDate(false);
+        const currentDate = date || updateModal.dueDate;
+        console.log(currentDate)
+        const updatedModal = { ...updateModal, dueDate: currentDate};
+        setUpdateModal(updatedModal)
+    }
+    const handleUpdatePayments = () => {
+        console.log(payments, )
+        const updatedPayments = payments.map(payment =>
+            payment.paymentId === updateModal.paymentId ? { ...payment, ...{paymentValue: 20, ...updateModal} } : payment
+        );
+        console.log(updatedPayments)
+        setPayments(updatedPayments);
+    };
 
     return (
         <>
@@ -335,16 +328,7 @@ const OrderPayment = ({user, products}: Props) => {
                                                 <Text style={styles.installments}>R${orderData?.orderValue.toFixed(2).replace('.',',')}</Text>
                                             )}      
                                         </View>
-                                        {showDate && (
-                                            <DateTimePicker
-                                                value={dueDate}
-                                                mode="date"
-                                                display="default"
-                                                minimumDate={new Date()}
-                                                accentColor="red"
-                                                onChange={onSetDate} 
-                                            />
-                                        )}
+                                       
                                         <View style={{flex: 1}}>
                                             <Text style={{textAlign: 'center'}}>data</Text>
                                             <View style={{gap: 5}}>
@@ -358,7 +342,7 @@ const OrderPayment = ({user, products}: Props) => {
                         </View>
                         </>
                     )}
-                    {selectedPaymentType == 2 && (
+                    {(selectedPaymentType == 2) && (
                         <>
                             <Text style={styles.editInstallments} onPress={handleNewIndependentPayment}>Novo pagamento</Text>
                         </>
@@ -366,15 +350,23 @@ const OrderPayment = ({user, products}: Props) => {
                     {showChoosePayment && (
                         <Text onPress={handleCreate} style={{textAlign: 'center', color: COLORS.primary, fontWeight: 'bold', padding: 10}}>Confirmar</Text>
                     )}
+                     {showDate && (
+                        <DateTimePicker
+                            value={dueDate}
+                            mode="date"
+                            display="default"
+                            minimumDate={new Date()}
+                            accentColor="red"
+                            onChange={onSetDate} 
+                        />
+                    )}
                 </ScrollView>
                 <HorizontalLine />
                 <ScrollView style={styles.paymentsList}>
                     <View style={styles.orderPayment}>
                         <Text style={{flex: 1, textAlign: 'center'}}>Data</Text>
                         <Text style={{flex: 1, textAlign: 'center'}}>Valor</Text>
-                        {selectedPaymentType == 2 && (
-                            <Text style={{flex: 1, textAlign: 'center'}}>Editar</Text>
-                        )}
+                        <Text style={{flex: 1, textAlign: 'center'}}>Editar</Text>
                         <Text style={{flex: 1, textAlign: 'center'}}>Marcar Pago</Text>
                     </View>
                     {payments.map((el, key)=>{
@@ -382,13 +374,44 @@ const OrderPayment = ({user, products}: Props) => {
                         <View key={key} style={styles.orderPayment}>
                             <Text style={{textAlign: 'center', flex: 1}}>{format(el.dueDate, 'dd/MM/yy')}</Text>
                             <Text style={{textAlign: 'center', flex: 1}}>R${el.paymentValue.toFixed(2).replace('.',',')}</Text>
-                            {selectedPaymentType == 2 && (
-                                <Icon name="pencil" color={COLORS.primary} style={{flex: 1, textAlign: 'center'}} size={20}/>
+                            {(selectedPaymentType == 1 && key == 0 || selectedPaymentType !== 1) ? (
+                                <Icon name="pencil" color={COLORS.primary} style={{flex: 1, textAlign: 'center'}} size={20}
+                                    onPress={()=>handleEditPayment(el)}
+                                />
+                            ): (
+                                <Text style={{flex: 1}}> </Text>
                             )}
                             <Icon name="check"  color={COLORS.primary} style={{flex: 1, textAlign: 'center'}} size={20}/>
 
                         </View>)
                         })}
+                    {updateModal !== null && (
+                        <EditModal id={2} objectType="pagamento" action={handleUpdatePayments} onClose={()=>setUpdateModal(null)}>
+                            <Text style={{textAlign: 'left', width: '100%'}}>Valor</Text>
+                            <View style={styles.editPayment}>
+                                <Text style={styles.installmentsText}>R$</Text>
+                                <TextInput
+                                    style={[styles.installmentsText, {flex: 1}]}
+                                    keyboardType="numeric"
+                                    value={updateModal.paymentValue}
+                                    onChangeText={(value)=>{handleChangeUpdateData(value)}}
+                                />
+                            </View>
+                            <Text style={{textAlign: 'left', width: '100%'}}>Data</Text>
+                            <View style={styles.editPayment} >
+                                <Text style={{width: '100%'}} onPress={()=>setUpdateDate(true)}>{format(updateModal.dueDate, 'dd/MM/yy')}</Text>
+                                {updateDate && 
+                                    <DateTimePicker
+                                        value={updateModal.dueDate}
+                                        mode="date"
+                                        display="default"
+                                        minimumDate={new Date()}
+                                        onChange={(event, date) => handleChangeUpdateDate(date)}
+                                    />
+                                }
+                            </View>
+                        </EditModal>
+                    )}
                     {changePaymentModal && (
                         <Modal
                         animationType="fade"
