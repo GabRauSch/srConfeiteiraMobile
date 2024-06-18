@@ -63,21 +63,18 @@ export const callPostFormData = async (url: string, body: { image: string; userI
     }
 };
 
-export const callPostEndpoint = async (url: string, body: any, queries?: string)=>{
+export const callPostEndpoint = async (url: string, body: any, queries?: string) => {
+    const finalUrl = `${backendAdress}${url}`;
     try {
-        const finalUrl = `${backendAdress}${url}`
-        const response = await axios.post(finalUrl, body);  
-        return response
+        const response = await axios.post(finalUrl, body, {
+            validateStatus: (status) => status >= 200 && status < 500,
+        });
+        return response;
     } catch (error) {
-        console.error(error)
-        if (axios.isAxiosError(error)) {
-            if (error.response && error.response.data) {
-                return error.response;
-            }
-        }
+        console.error('Unexpected error:', error);
         throw error;
     }
-}
+};
 
 export const callGetEndpoint = async (url: string, params: string[] | number[], queries?: string)=>{
     try {

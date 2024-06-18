@@ -1,59 +1,107 @@
 import React, { useEffect, useState } from 'react';
-import { View, TextInput, TouchableOpacity, Text, StyleSheet, Image } from 'react-native';
+import { View, TextInput, TouchableOpacity, Text, StyleSheet, Image, SafeAreaView } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import {styles} from '../../styles/screen.auth.Register'
+import { login } from '../../services/Auth';
+import useMessage from '../../hooks/useMessage';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import * as SecureStore from 'expo-secure-store';
+import { retrieveUserData } from '../../services/User';
+import { decodeToken } from '../../util/token';
+import { RootState } from '../../store';
+import { Dispatch } from 'redux';
+import { connect } from 'react-redux';
+import { User } from '../../types/User';
+import { setUser } from '../../reducers/userReducer';
 
-type LoginNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;
-
-type RootStackParamList = {
-    Login: undefined;
-    Register: undefined; 
-  };
-  
-
-interface Props {
-  navigation: LoginNavigationProp;
-}
-
-const Login: React.FC<Props> = ({ navigation }) => {
+const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
-//   const logoImage = require('../../assets/images/titserLogo.png');
+  const {MessageDisplay, setMessageWithTimer} = useMessage();
+  const route = useRoute() as any;
+  const navigation = useNavigation() as any
+
+  
+  useEffect(()=>{
+    const emailRoute = route.params?.email
+    console.log(emailRoute)
+    if(emailRoute) setEmail(emailRoute);
+  }, [route.params])
 
   const redirectToRegister = () => {
-    navigation.navigate('Register');
+    navigation.navigate('Register', {email});
   };
 
-  const handleLogin = ()=>{
-    
-  }
+const handleLogin = async () => {
+    if (!email) return setMessageWithTimer('Digite um email para continuar', 'error');
+    if (!password) return setMessageWithTimer('Digite uma senha para continuar', 'error');
+  
+    try {
+        const response = await login({ email, password });
+        const data = response;
+
+        if (data.status === 200) {
+          await SecureStore.setItem('authToken', data.data.token);
+          console.log('va para a merda')
+          const {id: userId} = decodeToken(data.data.token);
+          const userInfo = await retrieveUserData(userId)    
+          if(!userInfo.data){
+            return setMessageWithTimer('Falha no login','error')
+          } 
+          setUser(userInfo.data)
+        } else {
+          if (data.status === 400) {
+            setMessageWithTimer('Login não pertence a um usuário ativo', 'error');
+          } else {
+            setMessageWithTimer('Falha ao logar', 'error');
+          }
+        }
+      } catch (error) {
+        console.error('Unexpected error:', error);
+        setMessageWithTimer('Erro inesperado ao tentar logar', 'error');
+      }
+  };
 
   return (
-    <View style={styles.container}>
-      {/* <Image source={logoImage} style={styles.logo} /> */}
-      <Text style={styles.welcome}>Faça o login!</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Digite seu email"
-        placeholderTextColor={'#a78384'}
-        value={email}
-        onChangeText={(text) => setEmail(text)}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Digite sua senha"
-        placeholderTextColor={'#a78384'}
-        value={password}
-        onChangeText={(text) => setPassword(text)}
-      />
-      {/* {errorMessage !== '' && <ErrorMessage text={errorMessage}></ErrorMessage>} */}
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText} onPress={handleLogin}>Acessar</Text>
-      </TouchableOpacity>
-      <Text style={styles.loginText} onPress={redirectToRegister}>Criar novo usuário</Text>
-    </View>
+    <>
+      <SafeAreaView style={{position: 'relative', top: 50}}>
+        <MessageDisplay />
+      </SafeAreaView>
+      <View style={styles.container}>
+        <Text style={styles.welcome}>Faça o login!</Text>
+        <TextInput
+          
+          style={styles.input}
+          placeholder="Digite seu email"
+          placeholderTextColor={'#a78384'}
+          value={email}
+          onChangeText={(text) => setEmail(text.toLowerCase())}
+          autoCapitalize="none"
+          />
+        <TextInput
+          style={styles.input}
+          placeholder="Digite sua senha"
+          secureTextEntry={true}
+          placeholderTextColor={'#a78384'} autoCapitalize="none"
+          value={password}
+          onChangeText={(text) => setPassword(text)}
+          />
+
+        <TouchableOpacity style={styles.button}  onPress={handleLogin}>
+          <Text style={styles.buttonText}>Acessar</Text>
+        </TouchableOpacity>
+        <Text style={styles.loginText} onPress={redirectToRegister}>Criar novo usuário</Text>
+      </View>
+    </>
   );
 };
 
-export default Login;
+const mapStateToProps = (state: RootState) => ({
+    user: state.userReducer.user,
+  });
+  
+  const mapDispatchToProps = (dispatch: Dispatch) => ({
+    setUserAction: (payload: User)=> dispatch(setUser(payload))
+  });
+  
+  export default connect(mapStateToProps, mapDispatchToProps)(Login);

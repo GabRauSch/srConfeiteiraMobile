@@ -1,7 +1,7 @@
 import { User } from "../types/User";
 
 interface State {
-    user: User
+    user: User | null
 }
 
 interface Action {
@@ -9,13 +9,14 @@ interface Action {
     payload?: any; 
 }
 
-export const toggleVision = () => ({
-    type: 'TOGGLE_VISION',
+export const setUser = (payload: any) => ({
+    type: 'SET_USER',
+    payload
 });
 
 
 const initialState: State = {
-    user: {id: 1, planId: 1, email: 'tal@gmail', phone: '', userPermission: 1, name: 'name'}
+    user: null
 }
 
 const reducer = (state: State = initialState, action: Action): State => {

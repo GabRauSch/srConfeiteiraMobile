@@ -22,7 +22,6 @@ import EditProductModal from "../modals/EditModal";
 import NumberSetter from "../components/NumberSetter";
 import EditModal from "../modals/EditModal";
 import OrderProduct from "../components/OrderProduct";
-import Message from "../modals/Message";
 import useMessage from "../hooks/useMessage";
 
 type Props = {
@@ -45,7 +44,7 @@ const OrderItem = ({user, products}: Props) => {
     const [searchValue, setSearchValue] = useState('');
     const [productsList, setProductsList] = useState<any[]>([]);
     const [scrollViewHeight, setScrollViewHeight] = useState(0);
-    const { message, MessageDisplay, setMessageWithTimer } = useMessage();
+    const { MessageDisplay, setMessageWithTimer } = useMessage();
     
     const contentRef = useRef<View>(null);
 

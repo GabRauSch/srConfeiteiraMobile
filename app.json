@@ -12,7 +12,7 @@
       "backgroundColor": "#ffffff"
     },
     "assetBundlePatterns": [
-      "src/assets/**/*"  
+      "src/assets/**/*"
     ],
     "ios": {
       "supportsTablet": true
@@ -22,6 +22,9 @@
         "backgroundColor": "#ffffff"
       }
     },
-    "web": {}
+    "web": {},
+    "plugins": [
+      "expo-secure-store"
+    ]
   }
 }

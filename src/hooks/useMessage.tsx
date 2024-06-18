@@ -1,34 +1,83 @@
-import { useState } from 'react';
-import { View } from 'react-native';
-import Message from '../modals/Message';
-
-type Props = {
-    type: 'error' | 'success',
-    message: string
-}
+import { useState, useEffect } from 'react';
+import { Animated, Text, View } from 'react-native';
 
 const useMessage = () => {
     const [message, setMessage] = useState('');
-    const [type, setMessageType] = useState<'error' | 'success'>('error');
+    const [type, setType] = useState<'error' | 'success'>('error');
+    const [visible, setVisible] = useState(false);
+    const fadeAnim = useState(new Animated.Value(0))[0];
 
-    const setMessageWithTimer = (message: string, type: 'error'|'success', time?: number)=>{
-        console.log(message.length)
-        if(!time) {
-            time = 5 * message.length
+    useEffect(() => {
+        let animation: Animated.CompositeAnimation | null = null;
+
+        if (visible) {
+            animation = Animated.timing(fadeAnim, {
+                toValue: 1,
+                duration: 200,
+                useNativeDriver: true,
+            });
+        } else {
+            animation = Animated.timing(fadeAnim, {
+                toValue: 0,
+                duration: 200,
+                useNativeDriver: true,
+            });
         }
-        
-        setMessage(message),
-        setMessageType(type),
-        setTimeout(()=>{setMessage('')}, time *10)
-    }
 
-    const MessageDisplay = ()=>{
-        return(
-            <Message type={type} message={message} />
-        )
-    }
+        if (animation) {
+            animation.start(() => {
+                if (!visible) {
+                    setMessage('');
+                }
+            });
+        }
 
-    return { message, setMessage, MessageDisplay, setMessageWithTimer, setMessageType};
+        return () => {
+            if (animation) {
+                animation.stop();
+            }
+        };
+    }, [visible]);
+
+    const setMessageWithTimer = (msg: string, msgType: 'error' | 'success', time = 2500) => {
+        setMessage(msg);
+        setType(msgType);
+        setVisible(true);
+
+        setTimeout(() => {
+            setVisible(false);
+        }, time);
+    };
+
+    const MessageDisplay = () => {
+        return (
+            message && (
+                <Animated.View
+                    style={{
+                        opacity: fadeAnim,
+                        transform: [
+                            {
+                                translateY: fadeAnim.interpolate({
+                                    inputRange: [0, 1],
+                                    outputRange: [-50, 0],
+                                }),
+                            },
+                        ],
+                        zIndex: 999,
+                        position: 'absolute', 
+                        width: '100%', 
+                        alignItems: 'center', 
+                    }}
+                >
+                    <View style={{ backgroundColor: type === 'error' ? '#f65' : '#6c5', padding: 10, borderRadius: 10 }}>
+                        <Text style={{ color: '#fff' }}>{message}</Text>
+                    </View>
+                </Animated.View>
+            )
+        );
+    };
+
+    return { setMessageWithTimer, MessageDisplay };
 };
 
 export default useMessage;

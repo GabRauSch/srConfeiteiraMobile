@@ -21,6 +21,7 @@ export const sortCategories = (categories: any[])=>{
 }
 
 export const sortClients = (clients: any[]) => {
+    if(clients.length == 0) return []
     return clients.sort((a: any, b: any) => {
         const dayA = new Date(a.nextDeliveryDate).getTime();
         const dayB = new Date(b.nextDeliveryDate).getTime();

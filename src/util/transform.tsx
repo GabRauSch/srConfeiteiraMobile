@@ -1,4 +1,5 @@
 export const getUniqueCategories = (data: any[]) =>{
+    if(data.length == 0) return []
     const categories = new Set()
     data.forEach((item)=>{
         categories.add(item.category)
@@ -7,6 +8,8 @@ export const getUniqueCategories = (data: any[]) =>{
 }
 
 export const getUniqueDays = (data: any[])=>{
+    if(data.length == 0) return []
+
     const days = new Set();
     data.forEach((item)=>{
         days.add(item.dataString)
@@ -15,6 +18,8 @@ export const getUniqueDays = (data: any[])=>{
 }
 
 export const getUniqueData = (data: any[], key: string)=>{
+    if(data.length == 0) return []
+
     const newData = new Set();
     data.forEach((item)=>{
         newData.add(item[key])
@@ -23,6 +28,9 @@ export const getUniqueData = (data: any[], key: string)=>{
 }
 
 export const getUniqueDaysFrom = (data: any[], key: string)=>{
+    console.log(data)
+    if(data.length == 0) return [];
+
     const newData = new Set();
     data.forEach((item)=>{
         const remainingTime = formatDate(item[key]);

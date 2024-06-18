@@ -62,10 +62,12 @@ const OrderPayment = ({user, products}: Props) => {
     const [changePaymentModal, setChangePaymentModal] = useState(false);
     const [allowExclusion, setAllowExclusion] = useState(false);
     const [updateModal, setUpdateModal] = useState<any | null>(null);
-    const [updateDate, setUpdateDate] = useState(false)
+    const [updateDate, setUpdateDate] = useState(false);
+    const [confirmPaidModal, setConfirmPaidModal] = useState(false);
+    const [confirmPaymentDay, setConfirmPaymentDay] = useState('')
 
     const contentRef = useRef<View>(null);
-    const paymentTypes = ['À vista', 'Parcelado', 'Pagamentos independentes'];
+    const paymentTypes = ['À vista', 'Parcelado', 'Independentes'];
     useEffect(() => {
         const handleGetData = async () => {
             try {
@@ -76,6 +78,7 @@ const OrderPayment = ({user, products}: Props) => {
                 setOrderData(orderData);
                 setShowChoosePayment(orderData.selectedPayment == null)
                 if(data.selectedPayment) setSelectedPaymentType(data.selectedPayment)
+                console.log('paymentId', data.payments)
                 setPayments(data.payments);
                 setAllowExclusion(!!data.payments.filter((el: any)=>el.paidValue !== null))
 
@@ -107,7 +110,6 @@ const OrderPayment = ({user, products}: Props) => {
     }
     const handleSetIndepentendPayments = (value: string, id: number)=>{
         const updatedPayments = [...independentPayments];
-        console.log('being')
 
         updatedPayments[id].value = handleSetNumericValue(value);
         setIndependentPayments(updatedPayments);
@@ -116,7 +118,6 @@ const OrderPayment = ({user, products}: Props) => {
         navigate.navigate(url, {id})
     }
     const handleEditPayment = (el: payment)=>{
-        console.log(el.paymentId)
         if(selectedPaymentType == 2) {
             setUpdateModal({paymentId: el.paymentId, dueDate: new Date(el.dueDate), paymentValue: handleSetNumericValue(el.paymentValue.toFixed(2).replace('.',','))})
             return
@@ -141,26 +142,24 @@ const OrderPayment = ({user, products}: Props) => {
 
         const totalValue = createData.payments.reduce((a: any,b: any)=>a.value+b.value).value;
         const currentPayment = payments.reduce((a: number, b: any) => a + b.paymentValue, 0);
-        console.log(currentPayment, totalValue, orderData.orderValue)
         if(currentPayment + totalValue > orderData.orderValue) return setMessageWithTimer('Pagamento excede o valor do pedido', 'error')
 
         const {data, status} = await createPayments(createData);
-        console.log(data)
         if(status !== 200) return setMessageWithTimer(handleResponse(data).message, 'error');
         const newPayment = createData.payments.map((el: any)=>({
             dueDate: new Date(el.dueDate),
             paidValue: null,
-            paymentValue: el.value
+            paymentValue: el.value,
+            paymentId: '\''+ Math.floor(Math.random()*500)
         }))
+        console.log(newPayment)
         setShowChoosePayment(false)
         setPayments([...payments, ...newPayment])
     }
 
     const handleNewIndependentPayment = ()=>{
         setShowChoosePayment(true)
-        console.log(independentPayments)
         // if(independentPayments.length == 0)
-        console.log('a') 
             return setIndependentPayments([{value: handleSetNumericValue('0'), dueDate: new Date()}])
             
         // const newPI = {value: handleSetNumericValue('0'), dueDate: addMonths(new Date(independentPayments[independentPayments.length -1].dueDate), 1)}
@@ -202,13 +201,6 @@ const OrderPayment = ({user, products}: Props) => {
             setPayments(updatedPayments);
         }
     };
-
-    const mapPaymentType = (type: number)=>{
-        if(type == 0) return 'À vista';
-        if(type == 1) return  'Parcelado';
-        if(type == 2) return 'Pagamentos independentes'
-    }
-
     const handleSave = async ()=>{
     }
 
@@ -216,25 +208,30 @@ const OrderPayment = ({user, products}: Props) => {
         setChangePaymentModal(true)
     }   
     const handleChangeUpdateData = (value: string)=>{
-        console.log(handleSetNumericValue(value))
         const updatedModal = { ...updateModal, paymentValue: handleSetNumericValue(value)};
         setUpdateModal(updatedModal);
     }
     const handleChangeUpdateDate = (date?: Date)=>{
         setUpdateDate(false);
         const currentDate = date || updateModal.dueDate;
-        console.log(currentDate)
         const updatedModal = { ...updateModal, dueDate: currentDate};
         setUpdateModal(updatedModal)
     }
     const handleUpdatePayments = () => {
-        console.log(payments, )
-        const updatedPayments = payments.map(payment =>
-            payment.paymentId === updateModal.paymentId ? { ...payment, ...{paymentValue: 20, ...updateModal} } : payment
+        const updatedPayments = payments.map(payment =>{
+            const newValue = parseFloat(updateModal.paymentValue.replace(',','.'))
+            console.log('new Value', newValue);
+            console.log(payment, updateModal)
+            return payment.paymentId === updateModal.paymentId ? { ...payment, paymentValue: newValue, dueDate: updateModal.dueDate } : payment;
+        }
         );
         console.log(updatedPayments)
         setPayments(updatedPayments);
     };
+
+    const handleCheckPaid = ()=>{
+        setConfirmPaidModal(true)
+    }
 
     return (
         <>
@@ -244,7 +241,7 @@ const OrderPayment = ({user, products}: Props) => {
                 <View style={styles.orderInfo}>
                     <Text style={{ ...styles.orderInfoStatus, color: COLORS.primary }}>Status: Aberto</Text>
                     <Text style={styles.orderInfoText}>Cliente: {orderData?.name}</Text>
-                    <Text>Tipo de pagamento: {mapPaymentType(selectedPaymentType)}
+                    <Text>Tipo de pagamento: {paymentTypes[selectedPaymentType]}
                         <Text> </Text> 
                         <Text style={styles.redirectButtonText} onPress={handleChangeSelectedPayment}>alterar</Text>
                     </Text>
@@ -381,7 +378,9 @@ const OrderPayment = ({user, products}: Props) => {
                             ): (
                                 <Text style={{flex: 1}}> </Text>
                             )}
-                            <Icon name="check"  color={COLORS.primary} style={{flex: 1, textAlign: 'center'}} size={20}/>
+                            <Icon name="check"  color={COLORS.primary} style={{flex: 1, textAlign: 'center'}} size={20}
+                                onPress={()=>handleCheckPaid()}
+                            />
 
                         </View>)
                         })}
@@ -411,6 +410,38 @@ const OrderPayment = ({user, products}: Props) => {
                                 }
                             </View>
                         </EditModal>
+                    )}
+                    {confirmPaidModal && (
+                        <Modal
+                        animationType="fade"
+                        transparent={true}
+                    >
+                        <TouchableWithoutFeedback onPress={closeChangePayment}>
+                            <View style={styles.modalBackground}>
+                                <View style={styles.modalContent}>
+                                    <Text style={styles.modalText}>Confirmar o pagamento do dia {confirmPaymentDay}</Text>
+
+
+                                    <Text style={{margin: 5}}>Deseja continuar?</Text>
+                                    <TextInput
+                                        style={[styles.installmentsText, {flex: 1}]}
+                                        keyboardType="numeric"
+                                        value={updateModal.paymentValue}
+                                        onChangeText={(value)=>{handleChangeUpdateData(value)}}
+                                    />
+                                    <View style={styles.buttons}>
+                                        <TouchableHighlight 
+                                            style={styles.confirmButton} 
+                                            onPress={closeChangePayment}
+                                            underlayColor={COLORS.secondary}
+                                        >
+                                            <Text style={styles.confirmButtonText} onPress={confirmChangePayment}>Confirmar</Text>
+                                        </TouchableHighlight>
+                                    </View>
+                                </View>
+                            </View>
+                        </TouchableWithoutFeedback>
+                    </Modal>
                     )}
                     {changePaymentModal && (
                         <Modal

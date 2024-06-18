@@ -17,7 +17,8 @@ const errorMessages = {
     "161": { message: 'Imagem não foi carregada, tente novamente', link: 'suporte.com' },
     "146": { message: 'Email e/ou senha não condizem', link: 'suporte.com' },
     "171": { message: 'Email não foi enviado', link: 'suporte.com' },
-    "131": { message: 'Não foi possível mandar a mensagem', link: 'suporte.com' }
+    "131": { message: 'Não foi possível mandar a mensagem', link: 'suporte.com' },
+    "126": {message: "Email e/ou nome estão em uso", link: ''}
 };
 
 const successMessages = {
