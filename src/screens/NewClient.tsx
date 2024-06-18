@@ -9,7 +9,6 @@ import CreateButton from "../components/CreateButton"
 import { createProduct } from "../services/Products"
 import { findCategories } from "../services/Categories"
 import useMessage from "../hooks/useMessage"
-import Message from "../modals/Message"
 import { Product } from "../types/Product"
 import { RootState } from "../store"
 import { User } from "../types/User"
@@ -31,7 +30,7 @@ type Props = {
 const NewClient = ({user, clients, newClientAction}: Props)=>{
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
-    const {message, MessageDisplay, setMessageWithTimer} = useMessage();
+    const {MessageDisplay, setMessageWithTimer} = useMessage();
     const [email, setEmail] = useState('');
     const [address, setAddress] = useState('');
     const navigate = useNavigation() as any
@@ -42,7 +41,7 @@ const NewClient = ({user, clients, newClientAction}: Props)=>{
 
     const handleCreate = async ()=>{
         const clientData: any = {
-            userId: 1,
+            userId: user.id,
             name
         }
         if(phone) clientData.phone = phone;

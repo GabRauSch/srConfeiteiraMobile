@@ -2,6 +2,7 @@ import axios, { AxiosError } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system'
 import { RefreshControlComponent } from 'react-native';
+import * as SecureStore from 'expo-secure-store';
 
 const backendAdress = 'http://192.168.15.154:3001'
 
@@ -32,7 +33,7 @@ const getTokenFromState = async () => {
 export const callPostFormData = async (url: string, body: { image: string; userId: string }) => {
     try {
         const finalUrl = `${backendAdress}${url}`;
-        const token = await getTokenFromState();
+        const token = await SecureStore.getItem('authToken')
         
         const imageUri = body.image;
         const fileName = body.image.split('/').pop()!;
@@ -66,8 +67,13 @@ export const callPostFormData = async (url: string, body: { image: string; userI
 export const callPostEndpoint = async (url: string, body: any, queries?: string) => {
     const finalUrl = `${backendAdress}${url}`;
     try {
+        const token = await SecureStore.getItem('authToken')
+
         const response = await axios.post(finalUrl, body, {
             validateStatus: (status) => status >= 200 && status < 500,
+            headers: {
+                Authorization: `Bearer ${token}`
+            } 
         });
         return response;
     } catch (error) {
@@ -81,11 +87,11 @@ export const callGetEndpoint = async (url: string, params: string[] | number[], 
         const paramsString = params.join('/');
         const finalUrl = `${backendAdress}${url}/${paramsString}`;
 
-        // const token = await getTokenFromState();
+        const token = await SecureStore.getItem('authToken')
         const response = await axios.get(finalUrl, {
-            // headers: {
-                // Authorization: `Bearer ${token}`
-            // }
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
         })
         return response
     } catch (error) {
@@ -101,11 +107,11 @@ export const callGetEndpoint = async (url: string, params: string[] | number[], 
 export const callPutEndpoint = async (url: string, body: object, queries?: string)=>{
     try {
         const finalUrl = `${backendAdress}${url}`
-        // const token = await getTokenFromState() 
+        const token = await SecureStore.getItem('authToken')
         const response = await axios.put(finalUrl, body, {
-            // headers: {
-                // Authorization: `Bearer ${token}`
-            // }
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
         })
         return response
     } catch (error) {
@@ -121,11 +127,11 @@ export const callPutEndpoint = async (url: string, body: object, queries?: strin
 export const callDeleteEndpoint = async (url: string)=>{
     try {
         const finalUrl = `${backendAdress}${url}`
-        // const token = await getTokenFromState() 
+        const token = await SecureStore.getItem('authToken') 
         const response = await axios.delete(finalUrl, {
-            // headers: {
-                // Authorization: `Bearer ${token}`
-            // }
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
         })
         return response
     } catch (error) {

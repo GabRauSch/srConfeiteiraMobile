@@ -4,7 +4,7 @@ import { callDeleteEndpoint, callGetEndpoint, callPostEndpoint, callPutEndpoint 
 export const getAllClientsByUserId = async (userId: number, queries?: any)=>{
     const response = await callGetEndpoint(`/clients/all`, [userId], queries);
 
-    return response.data;
+    return response;
 }
 
 export const updateClient = async (id: number, client: any)=>{

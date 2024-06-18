@@ -1,7 +1,7 @@
 import { User } from "../types/User";
 
 interface State {
-    user: User | null
+    user: User
 }
 
 interface Action {
@@ -16,7 +16,7 @@ export const setUser = (payload: any) => ({
 
 
 const initialState: State = {
-    user: null
+    user: {id: 0, planId: 0, name: 'Convidado', email: '', phone: '', userPermission: 0}
 }
 
 const reducer = (state: State = initialState, action: Action): State => {

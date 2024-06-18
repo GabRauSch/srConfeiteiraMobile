@@ -31,8 +31,9 @@ const ClientsScreen = ({user, clients, setClientsAction}: Props)=>{
 
     useEffect(()=>{
         const handleGetData = async ()=>{
-            const clients = await getAllClientsByUserId(user.id as number);
-            const sortedClients =  sortClients(clients)
+            const response = await getAllClientsByUserId(user.id as number);
+            if(response.status !== 200) return
+            const sortedClients =  sortClients(response.data)
             setClientsList(sortedClients);
             setClientsAction(clients)
         };
@@ -40,7 +41,9 @@ const ClientsScreen = ({user, clients, setClientsAction}: Props)=>{
     }, [user.id]); 
 
     useEffect(() => {
+        console.log(clients)
         const sortedClients = sortClients(clients)
+        console.log('sorted', sortedClients)
         setClientsList(sortedClients);
     }, [clients]);
 
@@ -54,6 +57,7 @@ const ClientsScreen = ({user, clients, setClientsAction}: Props)=>{
     const handleCategorySelect = (category: string, key: number) => {
         console.log(category);
         setSelectedCategory(category === "Todos" ? null : category);
+        console.log(clientsList)
         setActiveKey(key);
     };
 

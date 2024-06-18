@@ -14,7 +14,11 @@ import { connect } from 'react-redux';
 import { User } from '../../types/User';
 import { setUser } from '../../reducers/userReducer';
 
-const Login = () => {
+type Props = {
+  setUserAction: (payload: any)=>void
+}
+
+const Login = ({setUserAction}: Props) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const {MessageDisplay, setMessageWithTimer} = useMessage();
@@ -42,13 +46,13 @@ const handleLogin = async () => {
 
         if (data.status === 200) {
           await SecureStore.setItem('authToken', data.data.token);
-          console.log('va para a merda')
           const {id: userId} = decodeToken(data.data.token);
-          const userInfo = await retrieveUserData(userId)    
+          const userInfo = await retrieveUserData(userId);
+          
           if(!userInfo.data){
             return setMessageWithTimer('Falha no login','error')
           } 
-          setUser(userInfo.data)
+          setUserAction(userInfo.data);
         } else {
           if (data.status === 400) {
             setMessageWithTimer('Login não pertence a um usuário ativo', 'error');

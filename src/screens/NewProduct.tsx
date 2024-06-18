@@ -9,7 +9,6 @@ import CreateButton from "../components/CreateButton"
 import { createProduct } from "../services/Products"
 import { findCategories } from "../services/Categories"
 import useMessage from "../hooks/useMessage"
-import Message from "../modals/Message"
 import { Product } from "../types/Product"
 import { RootState } from "../store"
 import { User } from "../types/User"
@@ -33,7 +32,7 @@ const NewProduct = ({user, products, newProductAction}: Props)=>{
     const [category, setCategory] = useState('');
     const [categories, setCategories] = useState<string[]>([]);
     const [newCategory, setNewCategory] = useState('');
-    const {message, MessageDisplay, setMessageWithTimer} = useMessage();
+    const {MessageDisplay, setMessageWithTimer} = useMessage();
     const navigate = useNavigation() as any
 
 

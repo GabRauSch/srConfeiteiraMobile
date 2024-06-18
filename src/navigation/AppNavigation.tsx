@@ -8,6 +8,11 @@ import ProductsStack from './ProductsStack';
 import OrdersStack from './OrdersStack';
 import ClientsStack from './ClientsStack';
 import MoreStack from './MoreStack';
+import { User } from '../types/User';
+import { connect } from 'react-redux';
+import { RootState } from '../store';
+import { useEffect } from 'react';
+import { useNavigation } from '@react-navigation/native';
 
 const Tab = createBottomTabNavigator();
 
