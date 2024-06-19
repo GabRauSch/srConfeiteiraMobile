@@ -2,37 +2,38 @@ import { NavigationContainer } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
 import AuthNavigator from './src/navigation/AuthNavigation';
 import MainNavigation from './src/navigation/MainNavigation';
-import { Provider, useDispatch } from 'react-redux';
-import store from './src/store';
+import { Provider, useSelector } from 'react-redux';
+import store, { RootState } from './src/store';
 import * as SecureStore from 'expo-secure-store';
-import { setUser } from './src/reducers/userReducer';
+import { setUser, loggedOut } from './src/reducers/userReducer';
 import { decodeToken } from './src/util/token';
 import { retrieveUserData } from './src/services/User';
+import { useDispatch } from 'react-redux';
 
 function MainApp() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const dispatch = useDispatch();
+  const user = useSelector((state: RootState) => state.userReducer.user)
 
-  useEffect(() => {
-    async function checkLoginStatus() {
-      const token = await SecureStore.getItemAsync('authToken');
-      if (token) {
-        const decoded = decodeToken(token);
-        console.log(decoded)
-        if (decoded) {
-          const user = await retrieveUserData(decoded.id);
-          dispatch(setUser(user.data));
-          setIsLoggedIn(true);
-        } else {
-          SecureStore.deleteItemAsync('authToken');
-          setIsLoggedIn(false);
-        }
+  async function checkLoginStatus() {
+    const token = await SecureStore.getItemAsync('authToken');
+    if (token) {
+      const decoded = decodeToken(token);
+      if (decoded) {
+        const user = await retrieveUserData(decoded.id);
+        dispatch(setUser(user.data));
+        setIsLoggedIn(true);
       } else {
+        SecureStore.deleteItemAsync('authToken');
         setIsLoggedIn(false);
       }
+    } else {
+      setIsLoggedIn(false);
     }
-    checkLoginStatus();
-  }, [dispatch]);
+  }
+  useEffect(() => {
+    setIsLoggedIn(user.id !== 0)
+  }, [user]);
 
   return (
     <NavigationContainer>

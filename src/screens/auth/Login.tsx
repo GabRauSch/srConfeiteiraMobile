@@ -14,6 +14,9 @@ import { connect } from 'react-redux';
 import { User } from '../../types/User';
 import { setUser } from '../../reducers/userReducer';
 
+// test env
+import * as Device from 'expo-device';
+
 type Props = {
   setUserAction: (payload: any)=>void
 }
@@ -30,6 +33,7 @@ const Login = ({setUserAction}: Props) => {
     const emailRoute = route.params?.email
     console.log(emailRoute)
     if(emailRoute) setEmail(emailRoute);
+    handleLogin()
   }, [route.params])
 
   const redirectToRegister = () => {
@@ -48,6 +52,7 @@ const handleLogin = async () => {
           await SecureStore.setItem('authToken', data.data.token);
           const {id: userId} = decodeToken(data.data.token);
           const userInfo = await retrieveUserData(userId);
+          setUserAction(userInfo.data)
           
           if(!userInfo.data){
             return setMessageWithTimer('Falha no login','error')
@@ -55,7 +60,7 @@ const handleLogin = async () => {
           setUserAction(userInfo.data);
         } else {
           if (data.status === 400) {
-            setMessageWithTimer('Login não pertence a um usuário ativo', 'error');
+            setMessageWithTimer('Email ou senha inválidos', 'error');
           } else {
             setMessageWithTimer('Falha ao logar', 'error');
           }

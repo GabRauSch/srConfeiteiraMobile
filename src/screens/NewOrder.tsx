@@ -4,7 +4,6 @@ import { useEffect, useState, useRef } from "react"
 import InputPicker from "../components/InputPicker"
 import CreateButton from "../components/CreateButton"
 import useMessage from "../hooks/useMessage"
-import Message from "../modals/Message"
 import { RootState } from "../store"
 import { User } from "../types/User"
 import { connect } from "react-redux"
@@ -37,7 +36,7 @@ type Props = {
 
 
 const NewOrder = ({ user, clients, products, newOrderAction }: Props) => {
-    const { message, MessageDisplay, setMessageWithTimer } = useMessage();
+    const { MessageDisplay, setMessageWithTimer } = useMessage();
     const [client, setClient] = useState<any>();
     const [clientsList, setClientList] = useState<any[]>([]);
     const [productModal, setProductModal] = useState(false);
@@ -57,28 +56,35 @@ const NewOrder = ({ user, clients, products, newOrderAction }: Props) => {
 
     const contentRef = useRef<View>(null);
 
-    useEffect(() => {
-        const getData = async () => {
-            const clients = await getAllClientsByUserId(user.id);
-            const sortedClients = sortClientNames(clients);
+
+    const getData = async () => {
+        const clients = await getAllClientsByUserId(user.id);
+        if(clients.data.status !== 200) {
+            setClientList([]);
+            setFilteredClients([])
+        } else{
+            const sortedClients = sortClientNames(clients.data);
             const clientsMapped = sortedClients.map((client: any) => ({ id: client.id, description: client.name }));
             setClientList(clientsMapped);
             setFilteredClients(clientsMapped)
+        }
+        setProductsList(sortProducts(products));
+        setFilteredProducts(sortProducts(products))
+        if(products.length ==0){
+            const products = await getAllProductsByUserId(user.id);
             setProductsList(sortProducts(products));
             setFilteredProducts(sortProducts(products))
-            if(products.length ==0){
-                const products = await getAllProductsByUserId(user.id);
-                setProductsList(sortProducts(products));
-                setFilteredProducts(sortProducts(products))
-            }
-            if(clients.length == 0 ){
-                const clients = await getAllClientsByUserId(user.id);
-                const clientsMapped = clients.map((client: any) => ({ id: client.id, description: client.name }));
-                setClientList(clientsMapped)
-                setFilteredClients(clientsMapped)
-            }
-
         }
+        if(clients.data.length == 0 ){
+            const clients = await getAllClientsByUserId(user.id);
+            const clientsMapped = clients.data.map((client: any) => ({ id: client.id, description: client.name }));
+            setClientList(clientsMapped)
+            setFilteredClients(clientsMapped)
+        }
+
+    }
+
+    useEffect(() => {
         getData()
     }, [])
 
