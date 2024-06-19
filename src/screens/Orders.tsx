@@ -42,7 +42,7 @@ const OrdersScreen = ({vision, user, orders, setOrdersAction, setUserAction}: Pr
 
     useEffect(()=>{
         const handleGetData = async ()=>{
-            const orders = await getAllOrdersByUserId(user.id as number);
+            const {data: orders, status} = await getAllOrdersByUserId(user.id as number);
             setDays(getUniqueDaysFrom(orders, 'deliveryDay'));
             setOrdersList(sortOrders(orders));
             const agg = aggregateOrdersByProduct(orders);

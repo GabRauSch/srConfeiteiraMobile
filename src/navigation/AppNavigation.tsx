@@ -1,5 +1,5 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { HomeScreen } from '../screens/Home';
+import HomeScreen from '../screens/Home';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Text } from 'react-native';
 import { Header } from '../components/Header';
@@ -19,7 +19,7 @@ const Tab = createBottomTabNavigator();
 const AppNavigator = () => {
   return (
       <Tab.Navigator
-        initialRouteName='Orders'
+        initialRouteName='Home'
         screenOptions={({route})=>({
           header: ()=><Header></Header>,
           tabBarStyle: {

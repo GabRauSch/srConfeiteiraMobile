@@ -50,7 +50,7 @@ const OrderPayment = ({user, products}: Props) => {
     const route = useRoute();
     const { id } = route.params as any;
     const navigate = useNavigation() as any;
-    const { message, MessageDisplay, setMessageWithTimer } = useMessage();
+    const {MessageDisplay, setMessageWithTimer } = useMessage();
     const [selectedPaymentType, setSelectedPaymentType] = useState(0);
     const [installments, setInstallments] = useState<number>(1);
     const [payments, setPayments] = useState<payment[]>([]);

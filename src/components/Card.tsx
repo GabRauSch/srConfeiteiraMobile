@@ -5,12 +5,13 @@ import { ReactNode } from "react"
 type Props = {
     children: ReactNode,
     value?: string,
-    title?: string
+    title?: string,
+    width?: number
 }
 
-const Card = ({title, value, children}: Props)=>{
+const Card = ({title, value, children, width}: Props)=>{
     return (
-        <View style={styles.card}>
+        <View style={[styles.card, {width: width}]}>
             <Text style={styles.title}>{title}</Text>
             {value ? (
                 <Text style={styles.value}>{value}</Text>

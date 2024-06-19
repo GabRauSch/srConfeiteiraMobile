@@ -3,7 +3,7 @@ import { COLORS } from "./global";
 
 export const styles = StyleSheet.create({
     card: {
-        flex: 1,
+        flex:1,
         backgroundColor: '#fbfbfb', 
         borderRadius: 10,
         shadowColor: '#000',
@@ -16,7 +16,7 @@ export const styles = StyleSheet.create({
         alignItems: 'center',  
         justifyContent: 'space-between',
         padding: 10,
-        margin: 10,
+        margin: 5,
         gap: 10
     },
     title: {

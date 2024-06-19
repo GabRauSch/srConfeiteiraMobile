@@ -1,3 +1,16 @@
+export type FormatTransform = 'currency' | 'count' | 'operation'
+
+export const formatTransform = (value: number, format: FormatTransform)=>{
+    switch(format){
+        case 'currency': return `R$${value.toFixed(2).replace('.',',')}`;
+            break;
+        case 'count': return `${value}`;
+            break;
+        case 'operation': return value === 0 ? `${value}` : (value > 0 ? `+${value}` : `${value}`);
+            break;
+    }
+}
+
 export const getUniqueCategories = (data: any[]) =>{
     if(data.length == 0) return []
     const categories = new Set()

@@ -2,7 +2,7 @@ import { callDeleteEndpoint, callGetEndpoint, callPostEndpoint, callPutEndpoint 
 export const getAllOrdersByUserId = async (userId: number, queries?: string)=>{
     const response = await callGetEndpoint(`/orders/all`, [userId], queries);
 
-    return response.data;
+    return response;
 }
 
 export const updateOrder = async (id: number, product: any)=>{

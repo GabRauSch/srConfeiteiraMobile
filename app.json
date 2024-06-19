@@ -20,11 +20,17 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.gabrielrau.srconfeitaria"
     },
     "web": {},
     "plugins": [
       "expo-secure-store"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "66bb82c9-abea-495f-a8bf-ea458316b8fc"
+      }
+    }
   }
 }

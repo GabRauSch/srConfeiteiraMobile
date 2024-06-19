@@ -11,7 +11,6 @@ import { useNavigation } from '@react-navigation/native';
 export const Header = () => {
     const {isSecret, toggleSecret} = useSecret()
 
-    const logo = require('../assets/images/logoMOCK.png');
     const profile = require('../assets/images/user.png');    
 
     const navigate = useNavigation() as any
@@ -23,7 +22,7 @@ export const Header = () => {
         <SafeAreaView style={styles.safeArea}> 
             <View style={styles.header}>
                 <View style={styles.logoContainer}>
-                    <Image source={logo} style={{ width: 50, height: 50 }} />
+                    {/* <Image source={logo} style={{ width: 50, height: 50 }} /> */}
                 </View>
                 <Text style={styles.headerTitle}>SR Confeiteira</Text>
                 <View style={styles.profile}>

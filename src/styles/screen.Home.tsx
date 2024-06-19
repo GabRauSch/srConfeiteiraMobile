@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import { COLORS } from "./global";
+import { COLORS, SHADOW } from "./global";
 
 export const styles = StyleSheet.create({
     page: {
@@ -7,6 +7,18 @@ export const styles = StyleSheet.create({
     },
     title: {
         fontSize: 18
+    },
+    paymentsList: {
+        borderRadius: 5,
+        backgroundColor: 'white',
+        margin: 10,
+        ...SHADOW
+    },
+    orderPayment: {
+        flexDirection: 'row',
+        padding: 5,
+        alignItems: 'center',
+        justifyContent: 'space-between',
     },
     daysDisplay: {
         marginTop: 10,
@@ -33,6 +45,9 @@ export const styles = StyleSheet.create({
         alignItems: 'center',  
         justifyContent: 'space-between',
         padding: 10,
+        borderLeftWidth:  7,
+        borderRightWidth: 7,
+        borderRightColor: '#fbfbfb',
         marginBottom: 10
     },
     dayName: {
@@ -59,6 +74,9 @@ export const styles = StyleSheet.create({
         backgroundColor: '#fc0'
     },
     cardsDisplay: {
-        flexDirection: 'row',
+        
+    },
+    skeletonTitle: {
+        backgroundColor: 'gray'
     }
 })
