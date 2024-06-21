@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "srconfeitaria",
-    "slug": "srconfeitaria",
+    "name": "srconfeiteira",
+    "slug": "srconfeiteira",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./src/assets/images/icon.png",
@@ -29,7 +29,7 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "66bb82c9-abea-495f-a8bf-ea458316b8fc"
+        "projectId": "fd185adf-c7ca-4573-8173-c71b540a7ef3"
       }
     }
   }

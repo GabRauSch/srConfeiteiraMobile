@@ -30,7 +30,7 @@ const ClientItem = ({clients,setClientInfoAction}: Props) => {
     const route = useRoute();
     const { id } = route.params as any;
     const [dataUpdate, setDataUpdate] = useState(false);
-    const { message, MessageDisplay, setMessageWithTimer } = useMessage();
+    const { MessageDisplay, setMessageWithTimer } = useMessage();
 
 
     const person = require(`../assets/images/person.png`);
@@ -61,6 +61,7 @@ const ClientItem = ({clients,setClientInfoAction}: Props) => {
         const validation = validateClient(updateData);
         if(validation) return setMessageWithTimer(validation, 'error');
 
+        console.log(validation)
         const updated = await updateClient(id, updateData);
         if(updated.status !== 200) {
             const response = handleResponse(updated.data);
@@ -84,7 +85,7 @@ const ClientItem = ({clients,setClientInfoAction}: Props) => {
                 <Text style={styles.save} onPress={handleSave}>Salvar</Text>
                 <View style={styles.profit}>
                     <View style={styles.profitDisplay}>
-                        <Text style={styles.profitText}>R${totalRevenue.toFixed(2).replace('.', ',')}</Text>
+                        <Text style={styles.profitText}>R${totalRevenue?.toFixed(2).replace('.', ',')}</Text>
                     </View>
                 </View>
                 <View style={styles.imageDisplay}>

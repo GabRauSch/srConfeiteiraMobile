@@ -10,6 +10,9 @@ import { getAnalytics } from "../services/Analytics";
 import { FormatTransform, formatTransform } from "../util/transform";
 import { Order } from "../types/Order";
 import { getAllOrdersByUserId } from "../services/Orders";
+import { OrderPayments } from "../types/OrderPayments";
+import { deletePayments, getByOrderId, getByUserId } from "../services/OrderPayments";
+import { formatDate } from "date-fns";
 
 type overViewData = {
     id: string,
@@ -20,7 +23,8 @@ type overViewData = {
 
 type Props = {
     user: User,
-    orders: Order[]
+    orders: Order[],
+    payments: OrderPayments[]
 }
 type OrdersFormated = {
     count: number, 
@@ -29,12 +33,21 @@ type OrdersFormated = {
     day: string
 }
 
-const HomeScreen = ({ user, orders }: Props) => {
+type Payments= {
+    id: number, 
+    name: string,
+    dueDate: Date,
+    value: number
+}
+
+const HomeScreen = ({ user, orders, payments }: Props) => {
     const [data, setData] = useState<overViewData[]>([]);
     const [loading, setLoading] = useState(true); 
-    const [ordersList, setOrdersList] = useState<OrdersFormated[]>([])
+    const [ordersList, setOrdersList] = useState<OrdersFormated[]>([]);
+    const [paymentsList, setPaymentsList ] = useState([])
 
     useEffect(() => {
+        console.log('payment', payments)
         const fetchData = async () => {
             try {
                 const analytics = await getAnalytics(user.id);
@@ -47,6 +60,12 @@ const HomeScreen = ({ user, orders }: Props) => {
                     setOrdersList(formattedOrders)
                 }
 
+                if(payments.length == 0){
+                    const payments = await getByUserId(user.id)
+                    console.log('response', payments.data)
+                    if(payments.status !== 200) return
+                    setPaymentsList(payments.data); 
+                }
 
             } catch (error) {
                 console.error('Error fetching analytics:', error);
@@ -183,21 +202,13 @@ const HomeScreen = ({ user, orders }: Props) => {
                         <Text style={{flex: 1, textAlign: 'center'}}>Data</Text>
                         <Text style={{flex: 1, textAlign: 'center'}}>Valor</Text>
                     </View>
-                    <View style={styles.orderPayment}>
-                        <Text style={{textAlign: 'center', flex: 2}}>Julia Lancelote</Text>
-                        <Text style={{textAlign: 'center', flex: 1}}>12/05/2023</Text>
-                        <Text style={{textAlign: 'center', flex: 1}}>R$90,00</Text>
-                    </View>
-                    <View style={styles.orderPayment}>
-                        <Text style={{textAlign: 'center', flex: 2}}>Julia Mesquita</Text>
-                        <Text style={{textAlign: 'center', flex: 1}}>12/05/2023</Text>
-                        <Text style={{textAlign: 'center', flex: 1}}>R$90,00</Text>
-                    </View>
-                    <View style={styles.orderPayment}>
-                        <Text style={{textAlign: 'center', flex: 2}}>Alfredo Lancelote</Text>
-                        <Text style={{textAlign: 'center', flex: 1}}>12/05/2023</Text>
-                        <Text style={{textAlign: 'center', flex: 1}}>R$90,00</Text>
-                    </View>
+                    {paymentsList.map((el: Payments, key)=>(
+                        <View key={key} style={[styles.orderPayment, {borderLeftWidth: el.dueDate < new Date() ? 0 : 5}]}>
+                            <Text style={{textAlign: 'center', flex: 2}}>{el.name}</Text>
+                            <Text style={{textAlign: 'center', flex: 1}}>{formatDate(el.dueDate, 'dd/MM/yy')}</Text>
+                            <Text style={{textAlign: 'center', flex: 1}}>R${el.value.toFixed(2).replace('.',',')}</Text>
+                        </View>
+                    ))}
                 </View>
             </View>
         </SafeAreaView>
@@ -206,7 +217,8 @@ const HomeScreen = ({ user, orders }: Props) => {
 
 const mapStateToProps = (state: RootState) => ({
     user: state.userReducer.user,
-    orders: state.ordersReducer.orders
+    orders: state.ordersReducer.orders,
+    payments: state.paymentsReducer.payments
 });
 
 export default connect(mapStateToProps)(HomeScreen);

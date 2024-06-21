@@ -64,7 +64,7 @@ const NewProduct = ({user, products, newProductAction}: Props)=>{
 
     const handleCreate = async ()=>{
         const productData: any = {
-            userId: 1,
+            userId: user.id,
             name, description, value: parseFloat(productValue.replace(',','.')),
             productionCost: parseFloat(productionCost.replace(',','.'))
         }

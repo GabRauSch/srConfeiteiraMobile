@@ -15,6 +15,7 @@ export const styles = StyleSheet.create({
         ...SHADOW
     },
     orderPayment: {
+        borderLeftColor: '#c00',
         flexDirection: 'row',
         padding: 5,
         alignItems: 'center',

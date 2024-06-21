@@ -1,4 +1,4 @@
-const handleSetNumericValue = (value: string) => {
+export const handleSetNumericValue = (value: string) => {
     let newValue = '0,00';
     if(!value || value.length == 0) return '0,00';
     if(!value.split(',')[1]) return '0,00'
@@ -12,6 +12,19 @@ const handleSetNumericValue = (value: string) => {
     return newValue
   };
 
-export {
-    handleSetNumericValue
+
+export const handleSetValue = (value: string)=>{
+    console.log(value)
+    let newValue = 0;
+    if(!value || value.length == 0) return 0;
+    if(!value.split(',')[1]) return 0
+    if(value.split(',')[1].length === 1){
+        newValue = (parseFloat(value.replace(/,/g, '.')) / 10)
+    } else if(value.split(',')[1].length === 3){
+        newValue = (parseFloat(value.replace(/,/g, '.')) * 10)
+    } else{
+        newValue = parseFloat(value.replace(/,/g, '.'))
+    }
+    console.log('new ', newValue)
+    return newValue
 }

@@ -1,5 +1,4 @@
 import axios, { AxiosError } from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system'
 import { RefreshControlComponent } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
@@ -18,7 +17,8 @@ const isFileUriValid = async (uri: string) => {
 
 const getTokenFromState = async () => {
     try {
-        const token = await AsyncStorage.getItem('userToken');
+        const token = await SecureStore.getItem('authToken')
+
         if(token){
             return token
         }

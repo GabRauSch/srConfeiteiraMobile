@@ -4,6 +4,11 @@ export const getByOrderId = async (orderId: number, queries?: string)=>{
 
     return response;
 }
+
+export const getByUserId = async (userId: number)=>{
+    const response = await callGetEndpoint(`/orderPayments/user/${userId}`, []);
+    return response
+}
 export const finishOrder = async (id: number)=>{
     const response = await callPutEndpoint(`/orderPayments/${id}`, []);
     return response.data

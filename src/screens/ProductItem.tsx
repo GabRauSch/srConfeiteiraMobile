@@ -14,10 +14,11 @@ import { User } from "../types/User";
 import { getProductById, updateProduct } from "../services/Products";
 import { handleResponse } from "../services/responseMapping";
 import useMessage from "../hooks/useMessage";
-import { handleSetNumericValue } from "../util/numeric";
+import { handleSetNumericValue, handleSetValue } from "../util/numeric";
 import { findCategories } from "../services/Categories";
 import InputNumber from "../components/InputNumber";
 import { validateProductEdit } from "../util/validation";
+import { InputMoney } from "../components/InputMoney";
 
 type Props = {
     user: User,
@@ -32,7 +33,7 @@ const ProductItem = ({ user, products, setProductInfo }: Props) => {
     const [productValue, setProductValue] = useState('0,00');
     const [dataUpdate, setDataUpdate] = useState(false);
     const { id } = route.params as any;
-    const { message, MessageDisplay, setMessageWithTimer } = useMessage();
+    const {MessageDisplay, setMessageWithTimer } = useMessage();
     const [profit, setProfit] = useState('');
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
@@ -112,15 +113,12 @@ const ProductItem = ({ user, products, setProductInfo }: Props) => {
             ...updateData, 
             category: categoryDescription 
         }
-        console.log(productInfo)
         setProductInfo(productInfo);
         setMessageWithTimer('Produto alterado', 'success');
     };
 
     const handleProfitChange = (value: string) => {
         const percentage = parseFloat(handleSetNumericValue(value)) / 100;
-
-        console.log(value)
         const newCost = parseFloat(productionCost.replace(',', '.')) * (1 + percentage);
         setProductValue(newCost.toFixed(2).replace('.', ','));
         setProfit(handleSetNumericValue(value));
@@ -128,11 +126,19 @@ const ProductItem = ({ user, products, setProductInfo }: Props) => {
     };
     
 
-    const calculateProfit = () => {
-        const cost = parseFloat(productionCost.replace(',', '.'));
-        const value = parseFloat(productValue.replace(',', '.'));
-        if (cost && value) {
-            setProfit(((value - cost) / value * 100).toFixed(2).replace('.', ','));
+    const calculateProfit = (value: number, input: 'productionCost' | 'productValue') => {
+        let newCost, newValue;
+        if(input == 'productValue'){
+            newCost = parseFloat(productionCost.replace(',', '.'));
+            newValue = value;
+        } else{
+            newCost = value;
+            newValue = parseFloat(productValue.replace(',', '.'));
+        }
+        console.log(newValue, newCost)
+        if (newCost && newValue) {
+            const newProfit = (((newValue / newCost) -1) * 100).toFixed(2).replace('.',',')
+            setProfit(newProfit);
         }
     };
 
@@ -185,7 +191,7 @@ const ProductItem = ({ user, products, setProductInfo }: Props) => {
                                     onChange={(value) => {
                                         setProductionCost(handleSetNumericValue(value));
                                         setDataUpdate(true);
-                                        calculateProfit()
+                                        calculateProfit(handleSetValue(value), 'productionCost')
                                     }}
                                 />
                                 <InputNumber
@@ -195,7 +201,15 @@ const ProductItem = ({ user, products, setProductInfo }: Props) => {
                                     onChange={(value) => {
                                         setProductValue(handleSetNumericValue(value));
                                         setDataUpdate(true);
-                                        calculateProfit()
+                                        calculateProfit(handleSetValue(value), 'productValue')
+                                    }}
+                                />
+
+                                <InputMoney 
+                                    beforeHolder="R$"
+                                    value={productValue}
+                                    onChange={()=>{
+
                                     }}
                                 />
                                 <InputPicker
