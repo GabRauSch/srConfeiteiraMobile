@@ -1,19 +1,6 @@
 import { Modal, ScrollView, Text, TextInput, TouchableHighlight, TouchableHighlightBase, View } from "react-native"
 import {styles} from '../styles/screen.NewProduct'
 import { useEffect, useState } from "react"
-import InputPicker from "../components/InputPicker"
-import CreateButton from "../components/CreateButton"
-import useMessage from "../hooks/useMessage"
-import Message from "../modals/Message"
-import { RootState } from "../store"
-import { User } from "../types/User"
-import { connect } from "react-redux"
-import { useNavigation } from "@react-navigation/native"
-import { Dispatch } from "redux"
-import { validateClientCreate, validateOrderCreate, validateProductCreate } from "../util/validation"
-import { createClient, getAllClientsByUserId } from "../services/Clients"
-import { Client } from "../types/Client"
-import { newClient } from "../reducers/clientsReducer"
 import { COLORS, MODAL } from "../styles/global";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import NumberSetter from "./NumberSetter"

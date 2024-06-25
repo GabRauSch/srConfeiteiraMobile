@@ -25,6 +25,5 @@ export const handleSetValue = (value: string)=>{
     } else{
         newValue = parseFloat(value.replace(/,/g, '.'))
     }
-    console.log('new ', newValue)
     return newValue
 }

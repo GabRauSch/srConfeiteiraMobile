@@ -37,7 +37,7 @@ const NewProduct = ({user, products, newProductAction}: Props)=>{
 
 
     const handleFindCategories = async ()=>{
-        const categories = await findCategories(1)
+        const categories = await findCategories(user.id)
         if(!categories) return false;
 
         console.log(categories)

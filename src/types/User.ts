@@ -1,3 +1,5 @@
+import { SubscriptionLevel } from "./Subscription"
+
 export type User = {
     id: number,
     planId: number,
@@ -5,4 +7,6 @@ export type User = {
     email: string,
     phone: string,
     userPermission: number,
+    subscriptionLevel: SubscriptionLevel,
+    paymentDate: Date
 }

@@ -4,5 +4,6 @@ export type Client = {
     orderCount: number,
     totalOrderValue: number,
     phone:string,
+    email: string,
     nextDeliveryDate: Date,
 }

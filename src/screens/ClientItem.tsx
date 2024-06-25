@@ -1,4 +1,4 @@
-import { Image, Text, TextInput, View } from "react-native";
+import { Image, ScrollView, Text, TextInput, View } from "react-native";
 import { styles } from "../styles/screen.ProductItem";
 import { Picker } from "@react-native-picker/picker";
 import { ReactNode, useCallback, useEffect, useState } from "react";
@@ -81,7 +81,7 @@ const ClientItem = ({clients,setClientInfoAction}: Props) => {
     return (
         <>
             <MessageDisplay />
-            <View style={styles.page}>
+            <ScrollView style={styles.page}>
                 <Text style={styles.save} onPress={handleSave}>Salvar</Text>
                 <View style={styles.profit}>
                     <View style={styles.profitDisplay}>
@@ -99,7 +99,7 @@ const ClientItem = ({clients,setClientInfoAction}: Props) => {
                     <CreateButton text={'Novo pedido'} 
                         action={()=>handleNavigate('Orders', {screen: 'newOrder', clientId: id})} />
                 </View>
-            </View>
+            </ScrollView>
         </>
     );
 };

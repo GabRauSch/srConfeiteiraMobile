@@ -15,9 +15,9 @@ export const styles = StyleSheet.create({
     },
     home: {
         position: 'absolute',
-        top: 20,
-        left: 20
+        padding: 20
     },
+   
     profitDisplay: {
         backgroundColor: COLORS.primary,
         width: 120,

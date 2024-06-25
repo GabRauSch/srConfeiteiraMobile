@@ -14,6 +14,7 @@ import { validateEditProfile } from "../validation/Profile";
 import useMessage from "../hooks/useMessage";
 import { updateUser } from "../services/User";
 import { loggedOut, setUser } from "../reducers/userReducer";
+import Subscription from "../components/Subscription";
 
 type Props = {
     user: User,
@@ -41,7 +42,7 @@ const Profile = ({ user, setUserAction }: Props) => {
     };
 
     const handleCancel = () => {
-        // Implement the cancel logic if needed
+        navigation.goBack()
     };
 
     const handleSave = async () => {
@@ -74,13 +75,14 @@ const Profile = ({ user, setUserAction }: Props) => {
                 </TouchableOpacity>
                 <View style={styles.imageDisplay}>
                     <Image source={person} style={styles.itemImage} />
-                    <Icon name="pencil" size={15} color={COLORS.primary} style={styles.pencil} />
+                    {/* <Icon name="pencil" size={15} color={COLORS.primary} style={styles.pencil} /> */}
                 </View>
                 <View style={styles.profileInfo}>
                     <InputEdit onChange={setName} label="Nome" value={name} main={true} />
                     <InputEdit onChange={() => { }} label="Email" value={email} lockEdit={true} />
                     <InputEdit onChange={setPhone} label="Telefone" value={phone} />
                 </View>
+                <Subscription/>
                 <View style={styles.editArea}>
                     <View style={styles.editItem}>
                         <Icon name="history" size={iconSize} color={COLORS.primary} />
@@ -97,6 +99,10 @@ const Profile = ({ user, setUserAction }: Props) => {
                     <View style={styles.editItem}>
                         <Icon name="pencil" size={iconSize} color={COLORS.primary} />
                         <Text style={styles.editItemText}>Trocar senha</Text>
+                    </View>
+                    <View style={styles.editItem}>
+                        <Icon name="tag" size={iconSize} color={COLORS.primary} />
+                        <Text style={styles.editItemText}>Indique uma confeiteira</Text>
                     </View>
                     <TouchableOpacity style={styles.editItem} onPress={logout}>
                         <Icon name="sign-out" size={iconSize} color={'red'} />

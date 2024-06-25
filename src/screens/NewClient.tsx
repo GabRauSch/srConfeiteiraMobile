@@ -1,25 +1,21 @@
-import { ScrollView, TextInput, View } from "react-native"
+import { ScrollView, TextInput, TouchableOpacity, View } from "react-native"
 import {styles} from '../styles/screen.NewProduct'
 import InputEdit from "../components/InputEdit"
 import { useEffect, useState } from "react"
-import InputNumber from "../components/InputNumber"
-import { handleSetNumericValue } from "../util/numeric"
-import InputPicker from "../components/InputPicker"
 import CreateButton from "../components/CreateButton"
-import { createProduct } from "../services/Products"
-import { findCategories } from "../services/Categories"
 import useMessage from "../hooks/useMessage"
-import { Product } from "../types/Product"
 import { RootState } from "../store"
 import { User } from "../types/User"
 import { connect } from "react-redux"
 import { useNavigation } from "@react-navigation/native"
 import { Dispatch } from "redux"
-import { newProduct, setProductInfo } from "../reducers/productsReducer"
 import { validateClientCreate, validateProductCreate } from "../util/validation"
 import { createClient } from "../services/Clients"
 import { Client } from "../types/Client"
 import { newClient } from "../reducers/clientsReducer"
+import Icon from "react-native-vector-icons/FontAwesome";
+import { COLORS } from "../styles/global"
+
 
 type Props = {
     user: User,
@@ -46,7 +42,7 @@ const NewClient = ({user, clients, newClientAction}: Props)=>{
         }
         if(phone) clientData.phone = phone;
         if(email) clientData.email = email;
-        if(address) console.log('address')
+        if(address) clientData.address = address
 
         const validation = validateClient(clientData);
         if(validation) return setMessageWithTimer(validation, 'error')
@@ -57,22 +53,31 @@ const NewClient = ({user, clients, newClientAction}: Props)=>{
             return setMessageWithTimer(creation.data.message, 'error')
         } 
 
-        const newClient: any = {
+        const newClient: Client = {
             id: creation.data.id,
             name: creation.data.name,
             orderCount: 0,
             totalOrderValue: 0,
             phone: creation.data.phone,
-            email: creation.data.email
+            email: creation.data.email,
+            nextDeliveryDate: creation.data.nextDeliveryDate
         }
         
+        console.log(clients)
         newClientAction(newClient);
         navigate.navigate('Clients', {screen: 'clients'})
+    }
+
+    const handleNavigate = (url: string)=>{
+        navigate.navigate(url)
     }
 
     return (
         <>
         <MessageDisplay />
+        <TouchableOpacity style={styles.home} onPress={() => handleNavigate('clients')} activeOpacity={.9}>
+            <Icon name="arrow-left" color={COLORS.primary} size={15} />
+        </TouchableOpacity>
         <ScrollView style={styles.page}>
             <View style={styles.inputsDisplay}>
                 <InputEdit
@@ -81,7 +86,8 @@ const NewClient = ({user, clients, newClientAction}: Props)=>{
                     onChange={(value: string)=>{
                         setName(value) 
                     }}/>
-                <InputNumber
+                <InputEdit
+                    keyboard='phone-pad'
                     label="Telefone" 
                     value={phone} 
                     onChange={(value: string)=>{

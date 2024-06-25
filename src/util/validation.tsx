@@ -1,3 +1,8 @@
+const validateEmail = (email: string) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+}
+
 export const validateProductEdit = (product: any, categories: any[], products: any[])=>{
     if(product.categoryData){
         const foundCategory = categories.find((el: any)=>el.description == product.categoryData.description)
@@ -33,6 +38,8 @@ export const validateProductCreate = (product: any, categories: any[], products:
 export const validateClientCreate = (client: any)=>{
     if(client.name.length <= 2 || client.name.length > 20) return 'Nome do cliente deve ter entre 2 e 20 caractéres';
     if(client.phone.length < 11 || client.phone.length > 14) return 'Telefone inválido'
+    if(client.email && !validateEmail(client.email)) return 'Email inválido'
+    if(client.address && client.address.length < 5) return 'Endereço inválido'
 }
 
 export const validateClientEdit = (client: any)=>{

@@ -24,28 +24,27 @@ export const sortCategories = (categories: any[])=>{
 }
 
 export const sortClients = (clients: any[]) => {
-    console.log(clients)
-    if(clients.length == 0) return []
-    return clients.sort((a: any, b: any) => {
-        const dayA = new Date(a.nextDeliveryDate).getTime();
-        const dayB = new Date(b.nextDeliveryDate).getTime();
-        
-        if (dayA === 0) return 1;  
-        if (dayB === 0) return -1; 
-        
-        const nameA = a.name.toLowerCase();
-        const nameB = b.name.toLowerCase();
+    console.log(clients); 
 
-        if (nameA < nameB) return -1;
-        if (nameA > nameB) return 1;
+    if (clients.length === 0) return [];
+
+    return clients.sort((a: any, b: any) => {
+        const dayA = a.nextDeliveryDate ? new Date(a.nextDeliveryDate).getTime() : null;
+        const dayB = b.nextDeliveryDate ? new Date(b.nextDeliveryDate).getTime() : null;
+        
+        if (dayA === null && dayB === null) {
+            return a.name.localeCompare(b.name); 
+        }
+        if (dayA === null) return 1; 
+        if (dayB === null) return -1;
         
         if (dayA < dayB) return -1;
         if (dayA > dayB) return 1;
         
-
         return a.name.localeCompare(b.name);
     });
 };
+
 
 
 export const sortClientNames = (clients: any[])=>{

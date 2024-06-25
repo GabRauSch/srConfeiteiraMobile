@@ -35,7 +35,7 @@ const ClientsScreen = ({user, clients, setClientsAction}: Props)=>{
             if(response.status !== 200) return
             const sortedClients =  sortClients(response.data)
             setClientsList(sortedClients);
-            setClientsAction(clients)
+            setClientsAction(sortedClients)
         };
         handleGetData()
     }, [user.id]); 

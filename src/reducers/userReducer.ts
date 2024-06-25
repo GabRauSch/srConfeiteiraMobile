@@ -1,3 +1,4 @@
+import Subscription from "../components/Subscription";
 import { User } from "../types/User";
 
 interface State {
@@ -14,7 +15,7 @@ export const setUser = (payload: any) => ({
     payload
 });
 
-export const loggedOut = {id: 0, planId: 0, name: 'Convidado', email: '', phone: '', userPermission: 0} 
+export const loggedOut: User = {id: 0, planId: 0, name: 'Convidado', email: '', phone: '', userPermission: 0, subscriptionLevel: -1, paymentDate: new Date()} 
 
 const initialState: State = {
     user: loggedOut

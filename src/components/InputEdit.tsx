@@ -1,4 +1,4 @@
-import { Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { KeyboardType, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import {styles} from '../styles/component.InputEdit'
 import { optional } from 'joi'
 
@@ -9,10 +9,11 @@ type Props = {
     main?: boolean,
     lockEdit?: boolean,
     beforeHolder?: string,
-    optional?: boolean
+    optional?: boolean,
+    keyboard?: KeyboardType
 }  
 
-const InputEdit = ({label, value, main, lockEdit,onChange, beforeHolder, optional}: Props)=>{
+const InputEdit = ({label, value, main, lockEdit,onChange, beforeHolder, optional, keyboard='default'}: Props)=>{
 
     const handleMessage = ()=>{
         if (lockEdit) console.log('erro')
@@ -34,7 +35,7 @@ const InputEdit = ({label, value, main, lockEdit,onChange, beforeHolder, optiona
                 }
                 <TextInput editable={!lockEdit} onChangeText={(value)=>{onChange(value)}}
                     style={[styles.productInput, main ? styles.name : null, lockEdit ? styles.notEditable : null ]}
-                    value={value}
+                    value={value} keyboardType={keyboard}
                 >
                 </TextInput>
             </View>

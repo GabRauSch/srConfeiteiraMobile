@@ -18,7 +18,6 @@ import { handleSetNumericValue, handleSetValue } from "../util/numeric";
 import { findCategories } from "../services/Categories";
 import InputNumber from "../components/InputNumber";
 import { validateProductEdit } from "../util/validation";
-import { InputMoney } from "../components/InputMoney";
 
 type Props = {
     user: User,
@@ -46,7 +45,7 @@ const ProductItem = ({ user, products, setProductInfo }: Props) => {
     }, []);
 
     const handleCategories = useCallback(async (category: string) => {
-        const categories = await findCategories(1);
+        const categories = await findCategories(user.id);
         if (!categories) return false;
 
         setCategory(categories.find((el: any) => el.description === category).id);
@@ -63,11 +62,12 @@ const ProductItem = ({ user, products, setProductInfo }: Props) => {
             setDescription(foundProduct.description);
             setProductionCost(foundProduct.productionCost.toFixed(2).replace('.', ','));
             setProductValue(foundProduct.value.toFixed(2).replace('.', ','));
+            console.log(foundProduct)
             setProfit((((parseFloat(foundProduct.value) - parseFloat(foundProduct.productionCost)) / parseFloat(foundProduct.value)) * 100).toFixed(2).replace('.', ','));
         }
 
         handleCategories(foundProduct.category);
-    }, [id, products, findProduct, handleCategories]);
+    }, [id]);
 
     const validateProduct = useCallback((product: any) => {
         return validateProductEdit(product, categories, products)
@@ -113,6 +113,7 @@ const ProductItem = ({ user, products, setProductInfo }: Props) => {
             ...updateData, 
             category: categoryDescription 
         }
+        console.log(productInfo)
         setProductInfo(productInfo);
         setMessageWithTimer('Produto alterado', 'success');
     };
@@ -135,7 +136,6 @@ const ProductItem = ({ user, products, setProductInfo }: Props) => {
             newCost = value;
             newValue = parseFloat(productValue.replace(',', '.'));
         }
-        console.log(newValue, newCost)
         if (newCost && newValue) {
             const newProfit = (((newValue / newCost) -1) * 100).toFixed(2).replace('.',',')
             setProfit(newProfit);
@@ -189,7 +189,7 @@ const ProductItem = ({ user, products, setProductInfo }: Props) => {
                                     beforeHolder="R$"
                                     value={productionCost}
                                     onChange={(value) => {
-                                        setProductionCost(handleSetNumericValue(value));
+                                        setProductionCost(value);
                                         setDataUpdate(true);
                                         calculateProfit(handleSetValue(value), 'productionCost')
                                     }}
@@ -199,19 +199,12 @@ const ProductItem = ({ user, products, setProductInfo }: Props) => {
                                     beforeHolder="R$"
                                     value={productValue}
                                     onChange={(value) => {
-                                        setProductValue(handleSetNumericValue(value));
+                                        setProductValue(value);
                                         setDataUpdate(true);
                                         calculateProfit(handleSetValue(value), 'productValue')
                                     }}
                                 />
 
-                                <InputMoney 
-                                    beforeHolder="R$"
-                                    value={productValue}
-                                    onChange={()=>{
-
-                                    }}
-                                />
                                 <InputPicker
                                     label="Categoria"
                                     values={categories}

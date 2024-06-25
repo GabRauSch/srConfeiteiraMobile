@@ -57,35 +57,40 @@ const NewOrder = ({ user, clients, products, newOrderAction }: Props) => {
     const contentRef = useRef<View>(null);
 
 
-    const getData = async () => {
-        const clients = await getAllClientsByUserId(user.id);
-        if(clients.data.status !== 200) {
-            setClientList([]);
-            setFilteredClients([])
-        } else{
-            const sortedClients = sortClientNames(clients.data);
+    const getData = async () => {       
+        if(clients.length == 0){
+            const newClients = await getAllClientsByUserId(user.id);
+            if(newClients.data.status !== 200) {
+                setClientList([]);
+                setFilteredClients([])
+            } 
+            const sortedClients = sortClientNames(newClients.data);
             const clientsMapped = sortedClients.map((client: any) => ({ id: client.id, description: client.name }));
             setClientList(clientsMapped);
             setFilteredClients(clientsMapped)
         }
-        setProductsList(sortProducts(products));
-        setFilteredProducts(sortProducts(products))
-        if(products.length ==0){
-            const products = await getAllProductsByUserId(user.id);
-            setProductsList(sortProducts(products));
-            setFilteredProducts(sortProducts(products))
-        }
-        if(clients.data.length == 0 ){
-            const clients = await getAllClientsByUserId(user.id);
-            const clientsMapped = clients.data.map((client: any) => ({ id: client.id, description: client.name }));
-            setClientList(clientsMapped)
-            setFilteredClients(clientsMapped)
-        }
+        
+        // setProductsList(sortProducts(products));
+        // setFilteredProducts(sortProducts(products))
+        // if(products.length ==0){
+        //     const products = await getAllProductsByUserId(user.id);
+        //     setProductsList(sortProducts(products));
+        //     setFilteredProducts(sortProducts(products))
+        // }
 
     }
 
     useEffect(() => {
         getData()
+    }, [user.id])
+
+    useEffect(()=>{
+        if(clients.length > 0){
+            const sortedClients = sortClientNames(clients);
+            const clientsMapped = sortedClients.map((client: any) => ({ id: client.id, description: client.name }));
+            setClientList(clientsMapped);
+            setFilteredClients(clientsMapped)
+        }
     }, [])
 
     useEffect(()=>{
@@ -106,7 +111,6 @@ const NewOrder = ({ user, clients, products, newOrderAction }: Props) => {
         const datePart = date.toISOString().split('T')[0];
         const timePart = time.toISOString().split('T')[1];
         const combinedDateTimeString = `${datePart}T${timePart}`;
-        console.log(combinedDateTimeString)
         const orderProducts = selectedProducts.map((el: any)=>({id: el.id, quantity: el.quantity}))
         const orderData: any = {
             userId: 1, clientId: client.id, 
@@ -250,7 +254,7 @@ const NewOrder = ({ user, clients, products, newOrderAction }: Props) => {
                     <Modal
                         transparent={true}
                         visible={clientModal}
-                        onRequestClose={() => setClientModal(false)}
+                        onRequestClose={() =>{console.log(filteredClients); setClientModal(false)}}
                     >
                         <TouchableOpacity style={styles.modal} onPress={() =>{searchClient(''); setSearchValue(''); setClientModal(false)}} activeOpacity={1}>
                             <View style={styles.productModalContainer}>
@@ -293,7 +297,7 @@ const NewOrder = ({ user, clients, products, newOrderAction }: Props) => {
                     )}
                 </Text>
                 <TouchableHighlight style={styles.newProduct}
-                    underlayColor={COLORS.primaryPressed} onPress={() => { handleNewClient() }}>
+                    underlayColor={COLORS.primaryPressed} onPress={() => {console.log(filteredClients); handleNewClient() }}>
                     <Text style={styles.newProductText}>Selecionar cliente</Text>
                 </TouchableHighlight>
                     {showDate &&

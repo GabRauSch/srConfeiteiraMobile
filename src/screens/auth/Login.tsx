@@ -13,9 +13,12 @@ import { Dispatch } from 'redux';
 import { connect } from 'react-redux';
 import { User } from '../../types/User';
 import { setUser } from '../../reducers/userReducer';
+import Icon from 'react-native-vector-icons/FontAwesome';
+
 
 // test env
 import * as Device from 'expo-device';
+import { COLORS } from '../../styles/global';
 
 type Props = {
   setUserAction: (payload: any)=>void
@@ -27,7 +30,7 @@ const Login = ({setUserAction}: Props) => {
   const {MessageDisplay, setMessageWithTimer} = useMessage();
   const route = useRoute() as any;
   const navigation = useNavigation() as any
-
+  const [secure, setSecure] = useState(true)
   
   useEffect(()=>{
     const emailRoute = route.params?.email
@@ -82,19 +85,24 @@ const handleLogin = async () => {
           
           style={styles.input}
           placeholder="Digite seu email"
-          placeholderTextColor={'#a78384'}
+          placeholderTextColor={COLORS.primary}
           value={email}
           onChangeText={(text) => setEmail(text.toLowerCase())}
           autoCapitalize="none"
           />
-        <TextInput
-          style={styles.input}
-          placeholder="Digite sua senha"
-          secureTextEntry={true}
-          placeholderTextColor={'#a78384'} autoCapitalize="none"
-          value={password}
-          onChangeText={(text) => setPassword(text)}
-          />
+        <View   style={styles.input}>
+          <TextInput
+            style={{flex: 1}}
+            placeholder="Digite sua senha"
+            secureTextEntry={secure}
+            placeholderTextColor={COLORS.primary} autoCapitalize="none"
+            value={password}
+            onChangeText={(text) => setPassword(text)}
+            />
+            <TouchableOpacity onPress={()=>setSecure(!secure)} activeOpacity={1}>
+             <Icon name={secure ? "eye-slash" : "eye"} size={20} color={COLORS.primary} />
+            </TouchableOpacity>
+        </View>
 
         <TouchableOpacity style={styles.button}  onPress={handleLogin}>
           <Text style={styles.buttonText}>Acessar</Text>

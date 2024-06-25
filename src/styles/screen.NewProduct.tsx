@@ -5,10 +5,19 @@ import { COLORS, LABEL, MODAL, SHADOW } from "./global";
 export const styles = StyleSheet.create({
     page: {
         padding: 20,
+        paddingTop: 50,
         flex: 1,
     },
     inputsDisplay: {
         gap: 20,
+    },
+    
+    home: {
+        position: 'absolute',
+        top: 20,
+        left: 20,
+        padding:10,
+        zIndex: 999
     },
     activationButtons: {
         flexDirection: 'row',

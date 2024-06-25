@@ -45,6 +45,7 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         width: '100%',
         alignItems: 'center',
+        padding: 5
     },
     input: {
         flex: 1,

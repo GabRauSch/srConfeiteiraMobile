@@ -6,6 +6,9 @@ import useMessage from '../../hooks/useMessage';
 import { register } from '../../services/Auth';
 import { handleResponse } from '../../services/responseMapping';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { COLORS } from '../../styles/global';
+import Icon from 'react-native-vector-icons/FontAwesome';
+
 
 const Register = ()=> {
   const [name, setUsername] = useState('');
@@ -16,6 +19,8 @@ const Register = ()=> {
   const {MessageDisplay, setMessageWithTimer} = useMessage();
   const navigation = useNavigation() as any
   const route = useRoute() as any;
+  const [secure, setSecure] = useState(true)
+
 
   useEffect(()=>{
     const emailRoute = route.params?.email
@@ -69,24 +74,34 @@ const redirectToLogin = () => {
         value={name}
         onChangeText={(text) => setUsername(text)}
         />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        placeholderTextColor={'#a78384'}
-        secureTextEntry={true}
-        autoCapitalize="none"
-        value={password}
-        onChangeText={(text) => setPassword(text)}
-        />
-      <TextInput
-        style={styles.input}
-        placeholder="Confirme a senha"
-        placeholderTextColor={'#a78384'}
-        secureTextEntry={true}
-        autoCapitalize="none"
-        value={confirmPassword}
-        onChangeText={(text) => setConfirmPassword(text)}
-        />
+      <View   style={styles.input}>
+        <TextInput
+          style={styles.input}
+          placeholder="Password"
+          placeholderTextColor={'#a78384'}
+          secureTextEntry={secure}
+          autoCapitalize="none"
+          value={password}
+          onChangeText={(text) => setPassword(text)}
+          />
+        <TouchableOpacity onPress={()=>setSecure(!secure)} activeOpacity={1}>
+          <Icon name={secure ? "eye-slash" : "eye"} size={20} color={COLORS.primary} />
+        </TouchableOpacity>
+      </View>
+      <View   style={styles.input}>
+        <TextInput
+          style={styles.input}
+          placeholder="Confirme a senha"
+          placeholderTextColor={'#a78384'}
+          secureTextEntry={secure}
+          autoCapitalize="none"
+          value={confirmPassword}
+          onChangeText={(text) => setConfirmPassword(text)}
+          />
+        <TouchableOpacity onPress={()=>setSecure(!secure)} activeOpacity={1}>
+          <Icon name={secure ? "eye-slash" : "eye"} size={20} color={COLORS.primary} />
+        </TouchableOpacity>
+      </View>
       {/* {errorMessage !== '' && <ErrorMessage text={errorMessage}></ErrorMessage>} */}
       <TouchableOpacity style={styles.button} onPress={handleRegister}>
         <Text style={styles.buttonText}>Cadastrar</Text>

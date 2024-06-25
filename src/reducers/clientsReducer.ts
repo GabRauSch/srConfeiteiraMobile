@@ -37,7 +37,6 @@ const initialState: State = {
 const reducer = (state: State = initialState, action: Action): State => {
     switch (action.type) {
         case 'SET_CLIENT_INFO':
-            console.log(action.payload)
             const {id, ...rest} = action.payload;
             const updatedClients = state.clients.map(client=>{
                 if(client.id === id){
@@ -63,7 +62,6 @@ const reducer = (state: State = initialState, action: Action): State => {
             }
 
         case 'NEW_CLIENT': 
-            console.log(action.payload)
             const newClients = [...state.clients, action.payload]
             const newState = {
                 ...state,
@@ -71,7 +69,6 @@ const reducer = (state: State = initialState, action: Action): State => {
             }
             return newState
         case 'DELETE_CLIENT': 
-            console.log(action.payload)
             return {
                 ...state,
                 clients: state.clients.filter(client => client.id !== action.payload)

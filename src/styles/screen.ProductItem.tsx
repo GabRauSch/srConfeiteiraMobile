@@ -44,7 +44,8 @@ export const styles = StyleSheet.create({
         height: 200
     },
     productInfo: {
-        gap: 30
+        gap: 30,
+        marginBottom: 50
     },
     newCategoryContainer: {
         paddingBottom: 20
