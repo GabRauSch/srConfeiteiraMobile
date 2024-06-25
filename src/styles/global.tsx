@@ -34,3 +34,10 @@ export const LABEL: label = {
     fontSize: 15,
     fontWeight: 'bold'
 }
+
+export const SUBSCRIPTIONCOLORS: any = {
+    simples: 'white',
+    prata: '#999',
+    gold: '#fee1aa',
+    srconfeiteira: '#FFD700'
+}

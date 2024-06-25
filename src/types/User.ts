@@ -8,5 +8,6 @@ export type User = {
     phone: string,
     userPermission: number,
     subscriptionLevel: SubscriptionLevel,
-    paymentDate: Date
+    paymentDate: Date,
+    dueDate: Date
 }

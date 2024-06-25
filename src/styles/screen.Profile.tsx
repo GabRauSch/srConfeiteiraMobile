@@ -4,7 +4,8 @@ import { COLORS, SHADOW } from "./global";
 export const styles = StyleSheet.create({
     page: {
         padding: 20,
-        flex: 1
+        gap: 10,
+        flex: 1,
     },  
     save: {
         flexDirection: 'row',
@@ -54,7 +55,7 @@ export const styles = StyleSheet.create({
         gap: 20
     }, 
     editArea: {
-        marginTop: 30,
+        marginBottom: 30,
     }, 
     editItem: {
         flexDirection: 'row',

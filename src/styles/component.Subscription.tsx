@@ -1,6 +1,7 @@
 import { StyleSheet } from "react-native";
 import { COLORS, SHADOW } from "./global";
 
+
 export const styles = StyleSheet.create({
     subcription: {
         ...SHADOW,
@@ -15,20 +16,16 @@ export const styles = StyleSheet.create({
     goldenSubscription: {
         padding: 8,
         borderRadius: 5,
-        backgroundColor: COLORS.primary
     },
     subscriptionName: {
         fontSize: 23,
-        color: '#fee1aa',
         fontWeight: 'bold',
     },
     subcriptionTime: {
-        color: '#fee1aa',
     },
     subcriptionCard: {
         borderWidth: 3,
         padding: 10,
-        borderColor: '#fee1aa',
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between'
@@ -42,4 +39,13 @@ export const styles = StyleSheet.create({
         fontSize: 12,
         fontWeight: '500'
     },
+    payment: {
+        flexDirection: 'row',
+        gap: 10
+    },
+    payButton: {
+        color: COLORS.primary,
+        fontStyle:'italic',
+        textDecorationLine: 'underline'
+    }
 })

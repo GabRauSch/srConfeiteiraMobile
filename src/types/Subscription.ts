@@ -4,6 +4,6 @@ export type Subscription = {
     paymentDate: Date
 }
 
-export const subscriptions = ['simples', 'prata', 'gold', 'srconfeiteira']
+export const subscriptions: string[] = ['simples', 'prata', 'gold', 'srconfeiteira']
 
 

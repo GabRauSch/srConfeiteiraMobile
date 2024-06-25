@@ -32,6 +32,7 @@ const ClientsScreen = ({user, clients, setClientsAction}: Props)=>{
     useEffect(()=>{
         const handleGetData = async ()=>{
             const response = await getAllClientsByUserId(user.id as number);
+            console.log(response.data)
             if(response.status !== 200) return
             const sortedClients =  sortClients(response.data)
             setClientsList(sortedClients);

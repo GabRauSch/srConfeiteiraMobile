@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Image, Text, TouchableOpacity, View } from "react-native";
+import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { useNavigation } from "@react-navigation/native";
 import { connect } from "react-redux";
@@ -65,6 +65,7 @@ const Profile = ({ user, setUserAction }: Props) => {
     return (
         <>
             <MessageDisplay />
+            <ScrollView>
             <View style={styles.page}>
                 <View style={styles.save}>
                     <Text onPress={handleCancel} style={{ fontWeight: 'bold', color: '#555' }}>Cancelar</Text>
@@ -110,6 +111,7 @@ const Profile = ({ user, setUserAction }: Props) => {
                     </TouchableOpacity>
                 </View>
             </View>
+            </ScrollView>
         </>
     );
 };

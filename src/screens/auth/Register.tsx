@@ -69,7 +69,7 @@ const redirectToLogin = () => {
         />
       <TextInput
         style={styles.input}
-        placeholder="Username"
+        placeholder="Nome"
         placeholderTextColor={'#a78384'}
         value={name}
         onChangeText={(text) => setUsername(text)}
@@ -77,7 +77,7 @@ const redirectToLogin = () => {
       <View   style={styles.input}>
         <TextInput
           style={styles.input}
-          placeholder="Password"
+          placeholder="Senha"
           placeholderTextColor={'#a78384'}
           secureTextEntry={secure}
           autoCapitalize="none"

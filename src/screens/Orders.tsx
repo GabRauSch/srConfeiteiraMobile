@@ -43,6 +43,7 @@ const OrdersScreen = ({vision, user, orders, setOrdersAction, setUserAction}: Pr
     useEffect(()=>{
         const handleGetData = async ()=>{
             const {data: orders, status} = await getAllOrdersByUserId(user.id as number);
+            console.log(orders, status)
             setDays(getUniqueDaysFrom(orders, 'deliveryDay'));
             setOrdersList(sortOrders(orders));
             const agg = aggregateOrdersByProduct(orders);
@@ -51,7 +52,6 @@ const OrdersScreen = ({vision, user, orders, setOrdersAction, setUserAction}: Pr
             setOrdersAction(orders);            
         };
         handleGetData();
-        console.log(user, SecureStore.getItem('authToken'))
     }, [user.id])
 
     useEffect(()=>{

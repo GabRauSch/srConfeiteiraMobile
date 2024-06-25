@@ -25,6 +25,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { createOrder } from "../services/Orders"
 import { newOrder } from "../reducers/ordersReducer"
 import { Order } from "../types/Order"
+import { constructNow } from "date-fns"
 
 
 type Props = {
@@ -69,14 +70,15 @@ const NewOrder = ({ user, clients, products, newOrderAction }: Props) => {
             setClientList(clientsMapped);
             setFilteredClients(clientsMapped)
         }
+
         
-        // setProductsList(sortProducts(products));
-        // setFilteredProducts(sortProducts(products))
-        // if(products.length ==0){
-        //     const products = await getAllProductsByUserId(user.id);
-        //     setProductsList(sortProducts(products));
-        //     setFilteredProducts(sortProducts(products))
-        // }
+        setProductsList(sortProducts(products));
+        setFilteredProducts(sortProducts(products))
+        if(products.length ==0){
+            const products = await getAllProductsByUserId(user.id);
+            setProductsList(sortProducts(products));
+            setFilteredProducts(sortProducts(products))
+        }
 
     }
 
@@ -90,6 +92,11 @@ const NewOrder = ({ user, clients, products, newOrderAction }: Props) => {
             const clientsMapped = sortedClients.map((client: any) => ({ id: client.id, description: client.name }));
             setClientList(clientsMapped);
             setFilteredClients(clientsMapped)
+        }
+
+        if(products.length > 0){
+            setProductsList(sortProducts(products));
+            setFilteredProducts(sortProducts(products))
         }
     }, [])
 
@@ -113,20 +120,21 @@ const NewOrder = ({ user, clients, products, newOrderAction }: Props) => {
         const combinedDateTimeString = `${datePart}T${timePart}`;
         const orderProducts = selectedProducts.map((el: any)=>({id: el.id, quantity: el.quantity}))
         const orderData: any = {
-            userId: 1, clientId: client.id, 
+            userId: user.id, clientId: client.id, 
             value: parseFloat(totalSum.toFixed(2)), 
             deliveryDate: new Date(combinedDateTimeString).toISOString(),
             products:orderProducts
         }
         const validation = validateOrder(orderData);
         if(validation) return setMessageWithTimer(validation, 'error')
-
+            
         const creation: any = await createOrder(orderData);
         if(creation.status !== 200){
             return setMessageWithTimer(creation.data.message, 'error')
         } 
-
-        const clientName = clientsList.find((el)=>el.id == creation.data.clientId).description
+        
+        console.log('creation', creation.status)
+        const clientName = clientsList.find((el)=>el.id == creation.data.clientId).description;
         const newOrder: Order = {
             orderId: creation.data.id,
             clientId: creation.data.clientId,
