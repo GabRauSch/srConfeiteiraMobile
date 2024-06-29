@@ -9,6 +9,12 @@ export const styles = StyleSheet.create({
     newProducts: {
         gap: 10
     },
+    orderNumber: {
+        position: 'absolute',
+        fontSize: 11,
+        right: 10,
+        top: 10
+    },
     editInstallments: {
         textAlign: 'center',
         backgroundColor: COLORS.secondary,

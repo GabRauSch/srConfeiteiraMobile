@@ -1,5 +1,7 @@
+import { Subscription, SubscriptionLevel } from "../types/Subscription";
+
 interface State {
-    vision: boolean
+    subscription: Subscription
 }
 
 interface Action {
@@ -7,22 +9,22 @@ interface Action {
     payload?: any; 
 }
 
-export const toggleVision = () => ({
-    type: 'TOGGLE_VISION',
+export const setSubscription = (payload: any) => ({
+    type: 'SET_SUBSCRIPTION',
+    payload
 });
 
 
 const initialState: State = {
-    vision: true
+    subscription: {subscriptionLevel: 0, paymentDate: new Date()}
 }
 
 const reducer = (state: State = initialState, action: Action): State => {
     switch (action.type) {
-        case 'TOGGLE_VISION':
-            console.log('toggle vision')
+        case 'SET_SUBSCRIPTION':
                 return {
                     ...state,
-                    vision: !state.vision
+                    subscription: action.payload
                 };
             break;
         default: break;

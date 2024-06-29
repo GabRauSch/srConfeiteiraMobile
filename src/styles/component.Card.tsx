@@ -24,7 +24,7 @@ export const styles = StyleSheet.create({
         color: '#555'
     },
     value: {
-        fontSize: 23,
+        fontSize: 18,
         color: '#555'
     }
 });

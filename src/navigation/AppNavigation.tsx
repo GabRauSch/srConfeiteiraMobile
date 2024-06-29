@@ -2,7 +2,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import HomeScreen from '../screens/Home';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Text } from 'react-native';
-import { Header } from '../components/Header';
+import Header from '../components/Header';
 import {COLORS} from '../styles/global'
 import ProductsStack from './ProductsStack';
 import OrdersStack from './OrdersStack';

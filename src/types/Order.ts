@@ -2,6 +2,7 @@ export type Order = {
     orderId: number,
     client: string,
     clientId: number,
+    orderNumber: number,
     deliveryDay: Date,
     value: number,
     status: status,

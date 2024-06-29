@@ -5,11 +5,12 @@ import productsReducer from './productsReducer';
 import clientsReducer from './clientsReducer'
 import ordersReducer from './ordersReducer'
 import paymentsReducer from './paymentsReducer'
+import categoriesReducer from './categoriesReducer'
 
 const rootReducer = combineReducers({
     visionReducer,
     userReducer, productsReducer, clientsReducer, ordersReducer,
-    paymentsReducer
+    paymentsReducer, categoriesReducer
 });
 
 export type RootReducer = ReturnType<typeof rootReducer>

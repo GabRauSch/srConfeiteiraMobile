@@ -5,7 +5,6 @@ import { COLORS, LABEL, MODAL, SHADOW } from "./global";
 export const styles = StyleSheet.create({
     page: {
         padding: 20,
-        paddingTop: 50,
         flex: 1,
     },
     inputsDisplay: {
@@ -14,8 +13,6 @@ export const styles = StyleSheet.create({
     
     home: {
         position: 'absolute',
-        top: 20,
-        left: 20,
         padding:10,
         zIndex: 999
     },
@@ -85,18 +82,18 @@ export const styles = StyleSheet.create({
         color: 'red',
         borderColor: 'red',
     },
-    changeDate: {
+    changeInfo: {
         textAlign: 'center',
         width: 'auto',
         borderRadius: 5,
         padding: 5,
         ...SHADOW,
-        backgroundColor: 'white',
-        margin: 2
+        backgroundColor: COLORS.primary,
+        margin: 2,
     },
-    changeDateText: {
+    changeInfoText: {
         textAlign: 'center',
-        color: COLORS.primary
+        color: 'white',
     },
     product: {
         flexDirection: 'row',

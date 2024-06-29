@@ -2,7 +2,7 @@ import { callDeleteEndpoint, callGetEndpoint, callPostEndpoint, callPutEndpoint 
 export const getByOrderId = async (orderId: number, queries?: string)=>{
     const response = await callGetEndpoint(`/orderItems`, [orderId], queries);
 
-    return response.data;
+    return response;
 }
 export const finishOrder = async (id: number)=>{
     const response = await callPutEndpoint(`/orderItems/${id}`, []);

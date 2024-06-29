@@ -1,6 +1,7 @@
 export type FormatTransform = 'currency' | 'count' | 'operation'
 
-export const formatTransform = (value: number, format: FormatTransform)=>{
+export const formatTransform = (value: number | '-', format: FormatTransform)=>{
+    if(value == '-') return '-'
     switch(format){
         case 'currency': return `R$${value.toFixed(2).replace('.',',')}`;
             break;
@@ -41,7 +42,6 @@ export const getUniqueData = (data: any[], key: string)=>{
 }
 
 export const getUniqueDaysFrom = (data: any[], key: string)=>{
-    console.log(data)
     if(data.length == 0) return [];
 
     const newData = new Set();
@@ -52,67 +52,66 @@ export const getUniqueDaysFrom = (data: any[], key: string)=>{
     return Array.from(newData)
 }
 
-export const formatDate = (date: Date)=>{
-    const order = new Date(date);1
-    
+export const formatDate = (date: Date) => {
+    const order = new Date(date);
     const now = new Date();
-    const diff = order.getTime() - now.getTime();
-    
-    if(diff <= 0) return 'em atraso';
-    const seconds = Math.floor(diff / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
 
-    const tomorrow = new Date(now);
-    
-    tomorrow.setHours(24, 0, 0, 0);
-    const diffTom = tomorrow.getTime() - now.getTime();
-    const hoursTom = Math.floor(diffTom / (1000 * 60 * 60)); 
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+    const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+    const startOfTomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
+    const endOfTomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 23, 59, 59, 999);
 
-    if (hoursTom > hours) {
-        return `hoje`;
-    } else if(days == 1) {
+    if (order.getTime() <= now.getTime()) {
+        return 'em atraso';
+    } else if (order >= startOfToday && order <= endOfToday) {
+        return 'hoje';
+    } else if (order >= startOfTomorrow && order <= endOfTomorrow) {
         return 'Amanhã';
     } else {
-        return `${order.getDate()}/${order.getMonth()+1}/${order.getFullYear()}`
+        return `${order.getDate()}/${order.getMonth() + 1}/${order.getFullYear()}`;
     }
-}
+};
 
-export const getTimeStringFromDate = (date: Date)=>{
-    const order = new Date(date);
-
+export const getTimeStringFromDate = (date: Date) => {
     const now = new Date();
-    const diff = order.getTime() - now.getTime();
+    const dateFormat = new Date(date)
 
-    if(diff <= 0) return 'em atraso';
+    if (dateFormat <= now) return 'em atraso';
 
-    const seconds = Math.floor(diff / 1000);
+    const diffInMilliseconds = dateFormat.getTime() - now.getTime();
+    
+    const seconds = Math.floor(diffInMilliseconds / 1000);
     const minutes = Math.floor(seconds / 60);
     const hours = Math.floor(minutes / 60);
     const days = Math.floor(hours / 24);
     const weeks = Math.floor(days / 7);
-    const months = Math.floor(days / 30);
 
-    if(minutes < 60) {
-        return `${minutes} minutos`
+    // Calcular diferença em meses
+    const futureYear = dateFormat.getFullYear();
+    const futureMonth = dateFormat.getMonth();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
+
+    const totalMonths = (futureYear - currentYear) * 12 + (futureMonth - currentMonth);
+    const months = totalMonths;
+
+    if (minutes < 60) {
+        return `${minutes} minutos`;
     } else if (hours < 24) {
-        if(hours == 1) return `${hours} hora`
-        return `${hours} horas`;
+        return hours === 1 ? `${hours} hora` : `${hours} horas`;
     } else if (days < 7) {
-        if(days == 1) return `${days} dia`
-        return `${days} dias`;
+        return days === 1 ? `${days} dia` : `${days} dias`;
     } else if (weeks < 4) {
-        if(days == 1) return `${days} dia`
-        return `${weeks} semanas`;
+        return weeks === 1 ? `${weeks} semana` : `${weeks} semanas`;
     } else if (months < 2) {
-        return `${months} mês`;
+        return months === 1 ? `${months} mês` : `${months} meses`;
     } else if (months < 6) {
         return `${months} meses`;
     } else {
         return `alguns meses`;
     }
-}
+};
+
 
 export const remainingTimeFrom = (time: Date)=>{
     if(!time) return 'Nenhum pedido pendente';

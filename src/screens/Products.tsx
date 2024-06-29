@@ -1,4 +1,4 @@
-import { SafeAreaView, Text, View, ScrollView, TouchableWithoutFeedback, useWindowDimensions } from "react-native";
+import { SafeAreaView, Text, View, ScrollView, TouchableWithoutFeedback, useWindowDimensions, TouchableHighlight } from "react-native";
 import { styles } from "../styles/screen.Products";
 import SearchInput from "../components/SearchInput";
 import AddButton from "../components/AddButton";
@@ -18,14 +18,17 @@ import { RootState } from "../store";
 import { Dispatch } from "redux";
 import { setProductInfo, setProducts } from "../reducers/productsReducer";
 import { sortCategories, sortProducts } from "../util/sorter";
+import { COLORS } from "../styles/global";
+import { setCategories } from "../reducers/categoriesReducer";
 
 type Props = {
     user: User,
     productsList: Product[],
-    setProductsAction: (payload: any)=>void
+    setProductsAction: (payload: any)=>void,
+    setCategoriesAction: (payload: any)=>void
 }
 
-const ProductsScreen = ({user, productsList, setProductsAction}: Props) => {
+const ProductsScreen = ({user, productsList, setProductsAction, setCategoriesAction}: Props) => {
     const [activeKey, setActiveKey] = useState(0);
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null); 
     const [createOptionsDisplay, setCreateOptionsDisplay] = useState(false)
@@ -35,6 +38,7 @@ const ProductsScreen = ({user, productsList, setProductsAction}: Props) => {
     const [productsListing, setProductsListing] = useState<any[]>([]);
     const [modalsVisibility, setModalsVisibility] = useState(false);
     const [options, setOptions] = useState<string[]>([]);
+    const navigation = useNavigation() as any
 
     useEffect(()=>{
         const handleGetData = async ()=>{
@@ -47,6 +51,8 @@ const ProductsScreen = ({user, productsList, setProductsAction}: Props) => {
             setSelectedCategory(null);
             setFilteredCategories(sortedCategories);
             setProductsAction(products);
+            console.log(products)
+
         };
         handleGetData()
     }, [user.id]); 
@@ -55,6 +61,7 @@ const ProductsScreen = ({user, productsList, setProductsAction}: Props) => {
         const uniqueCategories = getUniqueCategories(productsList) as string[];
         const sortedCategories = sortCategories(uniqueCategories)
         setFilteredCategories(sortedCategories);
+        setCategoriesAction(sortedCategories)
         setOptions(["Todas", ...sortedCategories])
         setProductsListing(productsList);
     }, [productsList]);
@@ -66,10 +73,13 @@ const ProductsScreen = ({user, productsList, setProductsAction}: Props) => {
         updatedCollapseMap[catKey] = !updatedCollapseMap[catKey];
         setCategoriesCollapseMap(updatedCollapseMap);
     }
+
+    const handleNavigate = (url: string)=>{
+        navigation.navigate(url)
+    }
    
     const handleCategorySelect = (category: string, key: number) => {
         setSelectedCategory(category === "Todas" ? null : category);
-        console.log(selectedCategory)
         setActiveKey(key);
     };
 
@@ -98,7 +108,7 @@ const ProductsScreen = ({user, productsList, setProductsAction}: Props) => {
             <View style={styles.modalBackground} />
         </TouchableWithoutFeedback>
         <SearchInput onChange={search} onSearch={completeSearch} />
-        <View>
+        <View style={{position: 'relative'}}>
             <ScrollView horizontal={true} style={styles.options}
                 showsHorizontalScrollIndicator={false}
                 >
@@ -113,6 +123,9 @@ const ProductsScreen = ({user, productsList, setProductsAction}: Props) => {
                     />
                 ))}
             </ScrollView>
+            <TouchableHighlight style={{position: 'absolute', right: 0, backgroundColor: COLORS.background, height: '100%', justifyContent: 'center'}} onPress={()=>handleNavigate('categories')} underlayColor={'transaparent'} >
+                <Text style={{textAlignVertical: 'center', color: COLORS.primary, textDecorationLine: 'underline', textAlign:'left'}}>Suas categorias</Text>
+            </TouchableHighlight>
         </View>
         <HorizontalLine />
 
@@ -158,7 +171,8 @@ const mapStateToProps = (state: RootState)=>({
     productsList: state.productsReducer.products
 })
 const mapDispatchToProps = (dispatch: Dispatch)=>({
-    setProductsAction: (payload: any)=>{dispatch(setProducts(payload))}
+    setProductsAction: (payload: any)=>{dispatch(setProducts(payload))},
+    setCategoriesAction: (payload: any)=>{dispatch(setCategories(payload))}
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(ProductsScreen)

@@ -1,4 +1,4 @@
-import { ScrollView, TextInput, View } from "react-native"
+import { ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native"
 import {styles} from '../styles/screen.NewProduct'
 import InputEdit from "../components/InputEdit"
 import { useEffect, useState } from "react"
@@ -17,14 +17,20 @@ import { useNavigation } from "@react-navigation/native"
 import { Dispatch } from "redux"
 import { newProduct, setProductInfo } from "../reducers/productsReducer"
 import { validateProductCreate } from "../util/validation"
+import { setCategories } from "../reducers/categoriesReducer"
+import Icon from "react-native-vector-icons/FontAwesome";
+import { COLORS } from "../styles/global"
+import { HeaderCreation } from "../components/HeaderCreation"
+
 
 type Props = {
     user: User,
     products: Product[],
-    newProductAction: (payload: any)=>void
+    newProductAction: (payload: any)=>void,
+    setCategoriesAction: (payload: any)=>void
 }
 
-const NewProduct = ({user, products, newProductAction}: Props)=>{
+const NewProduct = ({user, products, newProductAction, setCategoriesAction}: Props)=>{
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [productValue, setProductValue] = useState('0,00');
@@ -37,11 +43,12 @@ const NewProduct = ({user, products, newProductAction}: Props)=>{
 
 
     const handleFindCategories = async ()=>{
-        const categories = await findCategories(user.id)
-        if(!categories) return false;
+        const categories = await findCategories(user.id);
+        if(categories.status !== 200) return setMessageWithTimer('erro ao buscar categorias', 'error');
 
-        console.log(categories)
-        const sortedCategories = categories.sort((a:any, b: any) => {
+        setCategoriesAction(categories.data)
+
+        const sortedCategories = categories.data.sort((a:any, b: any) => {
             const nameA = a.description.toLowerCase();
             const nameB = b.description.toLowerCase();
             if (nameA < nameB) return -1;
@@ -50,7 +57,7 @@ const NewProduct = ({user, products, newProductAction}: Props)=>{
             return 0;
         })
 
-        setCategory(categories[0].id)
+        setCategory(categories.data[0].id)
         setCategories(sortedCategories)
     }
 
@@ -103,6 +110,7 @@ const NewProduct = ({user, products, newProductAction}: Props)=>{
         <>
             <MessageDisplay />
             <ScrollView style={styles.page}>
+                <HeaderCreation url="products" title="Crie um produto"/>
                 <View style={styles.inputsDisplay}>
                 <InputEdit
                     label="Nome" 
@@ -159,7 +167,8 @@ const mapStateToProps = (state: RootState)=>({
 }) 
 
 const mapDispatchToProps = (dispatch: Dispatch)=>({
-    newProductAction: (payload: any)=> dispatch(newProduct(payload))
+    newProductAction: (payload: any)=> dispatch(newProduct(payload)),
+    setCategoriesAction: (payload: any)=>dispatch(setCategories(payload))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(NewProduct)

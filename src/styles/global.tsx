@@ -1,6 +1,6 @@
 import { FontWeight } from "@shopify/react-native-skia"
 
-export const COLORS = {
+export const COLORS: any = {
     primary: '#C7827D',
     primaryBlur: '#B7827D',
     primaryPressed: '#A7827D',
@@ -9,6 +9,10 @@ export const COLORS = {
     grayScaleSecondary: '#929292',
     textColor: '#512115',
     unactive: '#888',
+    background: '#f3f3f',
+    positive: '#095',
+    neutral: 'black',
+    negative: 'red'
 }
 export const SHADOW = {
     shadowColor: '#000',

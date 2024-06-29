@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Image, SafeAreaView, Text, View } from "react-native";
 import { styles } from '../styles/component.Header';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -6,12 +6,22 @@ import { COLORS } from '../styles/global';
 import useSecret from '../hooks/useSecret';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
+import { connect } from 'react-redux';
+import { Dispatch } from 'redux';
+import { toggleVision } from '../reducers/visionReducer';
+import { RootState } from '../store';
 
-
-export const Header = () => {
-    const {isSecret, toggleSecret} = useSecret()
-
+type Props = {
+    vision: boolean,
+    toogleVision: ()=>void
+}
+const Header = ({vision, toogleVision}: Props) => {
+    const [isSecret, toggleSecret] = useState(false)
     const profile = require('../assets/images/user.png');    
+
+    useEffect(()=>{
+        toggleSecret(vision)
+    }, [vision])
 
     const navigate = useNavigation() as any
     const handleNavigate = (url: string)=>{
@@ -27,11 +37,11 @@ export const Header = () => {
                 <Text style={styles.headerTitle}>SR Confeiteira</Text>
                 <View style={styles.profile}>
                     {isSecret ? (
-                        <Icon name="eye-slash" size={20} color={COLORS.primary} onPress={toggleSecret}/>
+                        <Icon style={{padding: 20, paddingRight: 5}} name="eye-slash" size={20} color={COLORS.primary} onPress={()=>{toogleVision(); toggleSecret(!isSecret)}}/>
                     ) : (
-                        <Icon name="eye" size={20} color={COLORS.primary} onPress={toggleSecret}/>
+                        <Icon style={{padding: 20, paddingRight: 5}} name="eye" size={20} color={COLORS.primary} onPress={()=>{toogleVision(); toggleSecret(!isSecret)}}/>
                     )}
-                    <TouchableOpacity activeOpacity={1} onPress={()=>handleNavigate('profile')}>
+                    <TouchableOpacity style={{padding: 20, paddingLeft: 5}} activeOpacity={1} onPress={()=>handleNavigate('profile')}>
                         <Image source={profile} style={styles.profileImage} />
                     </TouchableOpacity>
                 </View>
@@ -39,3 +49,12 @@ export const Header = () => {
         </SafeAreaView>
     );
 };
+
+const mapStateToProps = (state: RootState)=>({
+    vision: state.visionReducer.vision
+})
+const mapDispatchToProps = (dispatch: Dispatch)=>({
+    toogleVision: ()=>dispatch(toggleVision())
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(Header)

@@ -3,6 +3,7 @@ import ProductItem from "../screens/ProductItem";
 import ProductsScreen from "../screens/Products";
 import CommonAssets from "../screens/CommonAssets";
 import NewProduct from "../screens/NewProduct";
+import Categories from "../screens/Categories";
 
 const Stack = createStackNavigator();
 
@@ -16,6 +17,13 @@ export default ()=>(
             {()=>(
                 <CommonAssets>
                     <ProductsScreen />
+                </CommonAssets>
+            )}
+        </Stack.Screen>
+        <Stack.Screen name="categories" >
+            {()=>(
+                <CommonAssets>
+                    <Categories />
                 </CommonAssets>
             )}
         </Stack.Screen>

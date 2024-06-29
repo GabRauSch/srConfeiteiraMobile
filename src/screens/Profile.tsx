@@ -71,7 +71,7 @@ const Profile = ({ user, setUserAction }: Props) => {
                     <Text onPress={handleCancel} style={{ fontWeight: 'bold', color: '#555' }}>Cancelar</Text>
                     <Text onPress={handleSave} style={{ fontWeight: 'bold', color: COLORS.primary }}>Salvar</Text>
                 </View>
-                <TouchableOpacity style={styles.home} onPress={() => handleNavigate('main')} activeOpacity={.9}>
+                <TouchableOpacity style={styles.home} onPress={() => handleNavigate('Home')} activeOpacity={.9}>
                     <Icon name="home" color={COLORS.primary} size={15} />
                 </TouchableOpacity>
                 <View style={styles.imageDisplay}>

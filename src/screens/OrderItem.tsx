@@ -8,7 +8,7 @@ import { ProgressBar } from "react-native-paper";
 import { COLORS } from "../styles/global";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { OrderItems } from "../types/OrderItem";
-import { addProductToOrder, getByOrderId, updateOrCreateOrderItems } from "../services/OrderItems";
+import { addProductToOrder, finishOrder, getByOrderId, updateOrCreateOrderItems } from "../services/OrderItems";
 import { User } from "../types/User";
 import { RootState } from "../store";
 import { connect } from "react-redux";
@@ -23,16 +23,31 @@ import NumberSetter from "../components/NumberSetter";
 import EditModal from "../modals/EditModal";
 import OrderProduct from "../components/OrderProduct";
 import useMessage from "../hooks/useMessage";
+import { mapOrderStatus } from "../util/mappers";
+import { formatDate } from "date-fns";
+import { setOrderInfo } from "../reducers/ordersReducer";
+import { Order } from "../types/Order";
+import { Dispatch } from "redux";
 
 type Props = {
     user: User,
-    products: Product[]
+    products: Product[],
+    setOrderAction: (data: Partial<Order>)=>void
 }
 
-const OrderItem = ({user, products}: Props) => {
+type OrderData = {
+    id: number,
+    orderId: number,
+    orderStatus: 0 | 1 | 2,
+    clientName: string,
+    deliveryDate: Date,
+    orderNumber: number
+}
+
+const OrderItem = ({user, products, setOrderAction}: Props) => {
     const [status, setStatus] = useState<any>([]);
     const [orderItems, setOrderItems] = useState<OrderItems[]>([]);
-    const [orderData, setOrderData] = useState<any>();
+    const [orderData, setOrderData] = useState<OrderData>();
     const [totalValue, setTotalValue] = useState(0);
     const [percentage, setPercentage] = useState(0);
     const route = useRoute();
@@ -52,7 +67,11 @@ const OrderItem = ({user, products}: Props) => {
     useEffect(() => {
         const handleGetData = async () => {
             try {
-                const data = await getByOrderId(id);
+                const {data, status} = await getByOrderId(id);
+                
+                if(status !== 200) return setMessageWithTimer('erro ao buscar dados', 'error')
+                console.log('backend', data)
+
                 setOrderData(data);
                 setOrderItems(data.items);
                 calculateTotal(data.items)
@@ -95,18 +114,23 @@ const OrderItem = ({user, products}: Props) => {
         }
 
         handleGetData();
-    }, []);
-
+    }, [])
+    
     const handleNavigate = (url: string, id: number)=>{
         navigate.navigate(url, {id})
     }
 
     const handleCheck = (itemId: number) => {
+        if(!orderData) return setMessageWithTimer('erro ao buscar os dados', 'error')
+        if(orderData.orderStatus == 2) return setMessageWithTimer('pedido já foi entregue', 'error')
         const updatedOrderItems = orderItems.map(item =>{
            return item.orderItemId === itemId ? { ...item, finished: !item.finished } : item
         });
-        console.log(updatedOrderItems, itemId)
         
+        const pendent = updatedOrderItems.filter((el)=>!el.finished).length;
+         
+        setOrderData({...orderData, orderStatus: pendent ? 0 : 1})
+
         setOrderItems(updatedOrderItems);
         
         const statusArray = updatedOrderItems.map(item => item.finished);
@@ -120,8 +144,12 @@ const OrderItem = ({user, products}: Props) => {
     const handleBudget = ()=>{
 
     }
-    const handleFinishOrder = ()=>{
-        if(percentage !== 1) return setMessageWithTimer('Conclua todos os itens do pedido', 'error')
+    const handleDeliverOrder = ()=>{
+        if(percentage !== 1) return setMessageWithTimer('Conclua todos os itens do pedido', 'error');
+        if(orderData) {
+            const orderStatus = orderData.orderStatus == 1 ? 2 : 1;
+            setOrderData({...orderData, orderStatus})
+        }
     }
     const handleNewProduct = ()=>{
         search('');
@@ -166,7 +194,6 @@ const OrderItem = ({user, products}: Props) => {
         }));
     }
     const handleSetOrderItemQuantity = (id: number, quantity: number)=>{
-        console.log(id, quantity)
         const updatedOrderItems = orderItems.map(oi => {
             return oi.productId === id ? {...oi, quantity} : oi;
         })
@@ -205,6 +232,12 @@ const OrderItem = ({user, products}: Props) => {
     }
 
     const calculateTotal = (updatedOrderItems: OrderItems[])=>{
+        if(updatedOrderItems.length == 0) {
+            setStatus([]);
+            setPercentage(0);
+            setTotalValue(0);
+            return
+        }
         const statusArray = updatedOrderItems.map(item => item.finished);
         setStatus(statusArray);
         
@@ -215,18 +248,36 @@ const OrderItem = ({user, products}: Props) => {
         setTotalValue(totalValue)
     }
     const removeOrderItem = (id: number)=>{
-        const updatedOrderItems = orderItems.filter((el)=>el.productId !== id)
+        const updatedOrderItems = orderItems.filter((el)=>el.productId !== id);
+        console.log(updatedOrderItems)
         setOrderItems(updatedOrderItems);
         calculateTotal(updatedOrderItems)
     }
 
     const handleSave = async ()=>{
-        console.log(orderItems)
-        const updatedOrderItems = orderItems.map((el)=>({productId: el.productId, quantity: el.quantity, finished: Boolean(el.finished), value: el.value}))
-        const update = await updateOrCreateOrderItems(orderData.orderId, updatedOrderItems);
+        if(!orderData) return setMessageWithTimer('erro ao buscar dados', 'error');
+        const updatedOrderItems = orderItems.map((el)=>(
+            {productId: el.productId, quantity: el.quantity, finished: Boolean(el.finished),  value: el.value}
+        ))
 
-        console.log(update)
+        const updateData = {orderItems: updatedOrderItems, order: {
+            orderStatus: orderData.orderStatus
+        }}
+        console.log(updateData)
+        const update = await updateOrCreateOrderItems(orderData.orderId, updateData);
+        
+        
         if(update.status !== 200) return setMessageWithTimer('Erro ao atualizar', 'error')
+            
+        const dispatchProducts = orderItems.map((el)=>({
+            id: el.productId, quantity: el.quantity, name: el.productName, finished: el.finished, value: el.value
+        }))
+        setOrderAction({
+            orderId: orderData.orderId,
+            value: totalValue,
+            status: orderData.orderStatus,
+            products: dispatchProducts,
+        })
 
         return setMessageWithTimer('Alterado com sucesso', 'success')
     }
@@ -237,10 +288,14 @@ const OrderItem = ({user, products}: Props) => {
             <ScrollView style={styles.page}>
                 <Text style={styles.save} onPress={handleSave}>Salvar</Text>
                 <View style={styles.orderInfo}>
-                    <Text style={{ ...styles.orderInfoStatus, color: COLORS.primary }}>Status: Aberto</Text>
+                    <Text style={styles.orderNumber}>Nº {orderData?.orderNumber}</Text>
+                    <Text style={{ ...styles.orderInfoStatus, color: COLORS.primary }}>Status: {mapOrderStatus(orderData?.orderStatus)}</Text>
                     <Text style={styles.orderInfoText}>Cliente: {orderData?.clientName}</Text>
                     <Text>Progresso: {Math.round(percentage * 100)}% ({status.filter((status: any) => status).length}/{status.length})</Text>
                     <Text>Valor total: R${totalValue.toFixed(2).replace('.', ',')}</Text>
+                    {orderData?.deliveryDate && (
+                        <Text>Data de entrega: {formatDate(orderData.deliveryDate as Date, 'dd/MM/yyyy HH:mm')}</Text>
+                    )}
                     <ProgressBar progress={percentage} color={COLORS.primary} style={{ borderRadius: 10, height: 7 }} />
                     <View style={styles.finishOrderArea}>
                         <TouchableHighlight style={styles.finishOrder}
@@ -249,8 +304,11 @@ const OrderItem = ({user, products}: Props) => {
                         </TouchableHighlight>
 
                         <TouchableHighlight style={[styles.finishOrder, 
-                                {backgroundColor: percentage == 1 ?  COLORS.primary : COLORS.grayScaleSecondary}]}
-                            underlayColor={COLORS.primaryPressed} onPress={() => { handleFinishOrder() }}>
+                                {backgroundColor: percentage !== 1 ?  COLORS.grayScaleSecondary : COLORS.primary ,
+                                opacity: orderData?.orderStatus == 2 ?  0.6 : 1 
+
+                                }]}
+                            underlayColor={COLORS.primaryPressed} onPress={() => { handleDeliverOrder() }}>
                             <Text style={styles.newProductText}>
                                 Pedido entregue
                             </Text>
@@ -350,4 +408,8 @@ const mapStateToProps = (state: RootState) => ({
     products: state.productsReducer.products
 })
 
-export default connect(mapStateToProps)(OrderItem)
+const mapDispatchToProps = (dispatch: Dispatch)=>({
+    setOrderAction: (data: Partial<Order>)=>dispatch(setOrderInfo(data))
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(OrderItem)

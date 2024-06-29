@@ -46,9 +46,9 @@ const ProductItem = ({ user, products, setProductInfo }: Props) => {
 
     const handleCategories = useCallback(async (category: string) => {
         const categories = await findCategories(user.id);
-        if (!categories) return false;
+        if (categories.status !== 200) return false;
 
-        setCategory(categories.find((el: any) => el.description === category).id);
+        setCategory(categories.data.find((el: any) => el.description === category).id);
         setCategories(categories);
     }, []);
 

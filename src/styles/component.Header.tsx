@@ -11,12 +11,12 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         marginTop: 20,
-        padding: 20
       },
       logoContainer: {
         width: 100,
         display: 'flex',
         alignItems: 'flex-start',
+        padding: 20
       },
       headerTitle: {
         color: COLORS.primary,

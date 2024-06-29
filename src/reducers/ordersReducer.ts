@@ -37,9 +37,9 @@ const initialState: State = {
 const reducer = (state: State = initialState, action: Action): State => {
     switch (action.type) {
         case 'SET_ORDER_INFO':
-            const {id, ...rest} = action.payload;
+            const {orderId, ...rest} = action.payload;
             const updatedOrders = state.orders.map(order=>{
-                if(order.id === id){
+                if(order.orderId === orderId){
                     return {
                         ...order,
                         ...rest
@@ -52,7 +52,7 @@ const reducer = (state: State = initialState, action: Action): State => {
                 ...state,
                 orders: updatedOrders
             };
-
+            console.log(returner)
             return returner
         case 'SET_ORDERS': 
             return {
@@ -71,7 +71,7 @@ const reducer = (state: State = initialState, action: Action): State => {
             console.log(action.payload)
             return {
                 ...state,
-                orders: state.orders.filter(order => order.id !== action.payload)
+                orders: state.orders.filter(order => order.orderId !== action.payload)
             };
         default: break;
     }

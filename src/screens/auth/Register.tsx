@@ -19,7 +19,8 @@ const Register = ()=> {
   const {MessageDisplay, setMessageWithTimer} = useMessage();
   const navigation = useNavigation() as any
   const route = useRoute() as any;
-  const [secure, setSecure] = useState(true)
+  const [passwordSecure, setPasswordSecure] = useState(true)
+  const [confirmSecure, setConfirmSecure] = useState(true)
 
 
   useEffect(()=>{
@@ -76,30 +77,28 @@ const redirectToLogin = () => {
         />
       <View   style={styles.input}>
         <TextInput
-          style={styles.input}
           placeholder="Senha"
           placeholderTextColor={'#a78384'}
-          secureTextEntry={secure}
+          secureTextEntry={passwordSecure}
           autoCapitalize="none"
           value={password}
           onChangeText={(text) => setPassword(text)}
           />
-        <TouchableOpacity onPress={()=>setSecure(!secure)} activeOpacity={1}>
-          <Icon name={secure ? "eye-slash" : "eye"} size={20} color={COLORS.primary} />
+        <TouchableOpacity onPress={()=>setPasswordSecure(!passwordSecure)} activeOpacity={1}>
+          <Icon name={passwordSecure ? "eye-slash" : "eye"} size={20} color={COLORS.primary} />
         </TouchableOpacity>
       </View>
-      <View   style={styles.input}>
+      <View style={styles.input}>
         <TextInput
-          style={styles.input}
           placeholder="Confirme a senha"
           placeholderTextColor={'#a78384'}
-          secureTextEntry={secure}
+          secureTextEntry={confirmSecure}
           autoCapitalize="none"
           value={confirmPassword}
           onChangeText={(text) => setConfirmPassword(text)}
           />
-        <TouchableOpacity onPress={()=>setSecure(!secure)} activeOpacity={1}>
-          <Icon name={secure ? "eye-slash" : "eye"} size={20} color={COLORS.primary} />
+        <TouchableOpacity onPress={()=>setConfirmSecure(!confirmSecure)} activeOpacity={1}>
+          <Icon name={confirmSecure ? "eye-slash" : "eye"} size={20} color={COLORS.primary} />
         </TouchableOpacity>
       </View>
       {/* {errorMessage !== '' && <ErrorMessage text={errorMessage}></ErrorMessage>} */}

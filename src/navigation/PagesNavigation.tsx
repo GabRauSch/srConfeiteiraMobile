@@ -1,5 +1,5 @@
 import { createStackNavigator } from "@react-navigation/stack";
-import { ProductItem } from "../screens/ProductItem";
+import ProductItem  from "../screens/ProductItem";
 
 const Stack = createStackNavigator();
 

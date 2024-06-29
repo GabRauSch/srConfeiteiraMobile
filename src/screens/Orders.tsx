@@ -4,7 +4,7 @@ import { HorizontalLine } from "../components/HorizontalLine";
 import React, { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { Order, statusList } from "../types/Order";
-import { formatDate, getTimeStringFromDate, getUniqueCategories, getUniqueData, getUniqueDaysFrom } from "../util/transform";
+import { formatDate as formateDateFun, getTimeStringFromDate, getUniqueCategories, getUniqueData, getUniqueDaysFrom } from "../util/transform";
 import { OrderAggregated } from "../types/OrderAgreggated";
 import { RootState } from "../store";
 import { Dispatch } from "redux";
@@ -20,6 +20,7 @@ import OptionItem from "../components/OptionItem";
 import { sortOrders } from "../util/sorter";
 import { setUser } from "../reducers/userReducer";
 import * as SecureStore from 'expo-secure-store';
+import { formatDate } from "date-fns";
 
 type Props = {
     vision: boolean,
@@ -30,21 +31,23 @@ type Props = {
 }
 
 const OrdersScreen = ({vision, user, orders, setOrdersAction, setUserAction}: Props)=>{
-    const status = ["Abertos", "Entregues", "Recebidos"]
-    const options = ["Todas", ...status, 'mais'];
-    const [selectedStatus, setSelectedCategory] = useState<number>(1); 
+    const status = ["Abertos", "Finalizados", "Entregues"]
+    const options = ["Todos", ...status, 'mais'];
+    const [selectedStatus, setSelectedStatus] = useState<number>(-1); 
     const [activeKey, setActiveKey] = useState(0);
     const [createOptionsDisplay, setCreateOptionsDisplay] = useState(false);
     const [ordersList, setOrdersList] = useState<Order[]>([]);
     const [orderAggregated, setOrderAggregated] = useState<OrderAggregated[]>([]);
     const [days, setDays] = useState<any[]>([]);
-    const now = new Date();
+    const now = new Date().getTime();
+    const [displayMode, setDisplayMode] = useState(false);
 
     useEffect(()=>{
         const handleGetData = async ()=>{
             const {data: orders, status} = await getAllOrdersByUserId(user.id as number);
-            console.log(orders, status)
-            setDays(getUniqueDaysFrom(orders, 'deliveryDay'));
+            const uniqueDays = getUniqueDaysFrom(orders, 'deliveryDay');
+            console.log(uniqueDays)
+            setDays(uniqueDays);
             setOrdersList(sortOrders(orders));
             const agg = aggregateOrdersByProduct(orders);
             setOrderAggregated(agg)
@@ -66,17 +69,12 @@ const OrdersScreen = ({vision, user, orders, setOrdersAction, setUserAction}: Pr
         ? statusList.filter(status => status === selectedStatus) 
         : statusList;
 
-    const handleStatusSelect = (option: string, key: number)=>{
-        // if(option === 'mais') return navigate.navigate('listCategories')
-        setSelectedCategory(option === "Todas" ? 0 : key -1);
-        setActiveKey(key);
-    }
-
     const handleNavigate = (url: string, orderId: number)=>{
         navigate.navigate(url, {id: orderId}) 
     }
     const handleCategorySelect = (option: string, key: number)=>{
-
+        setSelectedStatus(option == "Todos" ? -1 : key -1);
+        setActiveKey(key);
     }
 
     const aggregateOrdersByProduct = (orders: Order[]): OrderAggregated[] => {
@@ -103,79 +101,89 @@ const OrdersScreen = ({vision, user, orders, setOrdersAction, setUserAction}: Pr
         const agg = Object.values(aggregated);
         return agg
     };
+
+    const noOrders = !days.some(day => 
+        ordersList.some(order => formateDateFun(order.deliveryDay) === day && (order.status === selectedStatus || selectedStatus === -1))
+    );
     
     return (
         <>
-        <SearchInput onChange={(value)=>{}} onSearch={()=>{}} allowToggleVision/>
+        <SearchInput onChange={(value)=>{}} onSearch={()=>{}} onToggleVision={()=>setDisplayMode(!displayMode)}/>
         <View>
             <ScrollView horizontal={true} style={styles.options}
                 showsHorizontalScrollIndicator={false}
                 >
                 {options.map((option, key) => (
                     <OptionItem
-                    key={key}
-                    option={option}
-                    handleActive={() => {
-                        handleCategorySelect(option, key);
-                    }}
+                        key={key}
+                        option={option}
+                        handleActive={() => {
+                            handleCategorySelect(option, key);
+                        }}
                     active={activeKey == key}
                     />
                 ))}
             </ScrollView>
         </View>
+        <HorizontalLine />
         <ScrollView style={styles.page}>
-            {ordersList.length == 0 && (
+            {noOrders ? (
                 <Text style={styles.messageNoRegister}>Sem pedidos</Text>
-            )}
-            {days.map((day: any, Dkey)=>(
-                <React.Fragment key={Dkey}>
-                    <Text style={{...styles.separator, 
-                        color: day == 'em atraso' ? 'red' : COLORS.primary 
-                    }}>Entrega {day}:</Text>
-                    <ScrollView horizontal style={styles.ordersDisplay}>
-                        
-                        {vision ? (
-                            orderAggregated.filter(order=>formatDate(order.deliveryDate) == day).map((agg, Akey)=>(
-                                <TouchableOpacity style={styles.order} key={Akey}>
-                                    <View style={[styles.labelOrder, agg.status != 1 ? styles.openOrder : styles.closedOrder]}></View>
-                                    <Text style={styles.name} onPress={()=>{console.log(vision)}}>{agg.name}</Text>
-                                    <View style={styles.unitsDisplay}>
-                                        <View style={styles.listItem}>
-                                            <Text style={styles.listItemText}>{agg.amount} unidades</Text>
-                                        </View>
-                                    </View>
-                                </TouchableOpacity>  
-                            ))) : (
-                                ordersList.filter(order=> formatDate(order.deliveryDay) == day)
-                                    .map((item, key)=>(
+            ) : (
+                days.map((day: any, Dkey)=>{                    
+                    return (
 
-                                <TouchableOpacity 
-                                    style={{...styles.order, borderTopWidth: new Date(item.deliveryDay) < now ? 10 : 0}} key={key} 
-                                    onPress={()=>handleNavigate('order', item.orderId)}
-                                >
-                                    <View style={[styles.labelOrder, item.status != 1 ? styles.openOrder : styles.closedOrder]}></View>
-                                    <Text  style={{...styles.name, color: new Date(item.deliveryDay) < now ? '#c00' : 'black'}}>{item.client}</Text>
-                                    <View style={styles.orderList}>
-                                        {item.products.slice(0,3).map((product, Pkey)=>(
-                                            <View style={styles.listItem} key={Pkey}>
-                                                <Text style={styles.bullet}>-</Text>
-                                                <Text style={styles.listItemText} numberOfLines={1}>{product.name}</Text>
-                                            </View>
-                                        ))}
-                                        {/* {item.products.length > 3 ? (
+                    ordersList.some(order => formateDateFun(order.deliveryDay) === day && (order.status === selectedStatus || selectedStatus === -1) && order.status !==2) && (
+                    <React.Fragment key={Dkey}>
+                        <Text style={{...styles.separator, 
+                            color: day == 'em atraso' ? 'red' : COLORS.primary 
+                        }}>Entrega {day}:</Text>
+                        <ScrollView horizontal style={styles.ordersDisplay}>
+                            
+                            {displayMode ? (
+                                orderAggregated.filter(order=>formateDateFun(order.deliveryDate) == day).map((agg, Akey)=>(
+                                    <TouchableOpacity style={styles.order} key={Akey}>
+                                        <View style={[styles.labelOrder, agg.status != 1 ? styles.openOrder : styles.closedOrder]}></View>
+                                        <Text style={styles.name}>{agg.name}</Text>
+                                        <View style={styles.unitsDisplay}>
                                             <View style={styles.listItem}>
-                                                <Text style={styles.listItemText}>...</Text>
+                                                <Text style={styles.listItemText}>{agg.amount} unidades</Text>
                                             </View>
-                                        ) : null} */}
-                                    </View>
-                                    <Text style={styles.time}>Entrega: {getTimeStringFromDate(item.deliveryDay)}</Text>
-                                    <HorizontalLine />
-                                    <Text style={styles.price}>R${item.value.toFixed(2).replace('.',',')}</Text>
-                                </TouchableOpacity>
-                            )))}
-                    </ScrollView>
-                </React.Fragment>
-                ))}
+                                        </View>
+                                    </TouchableOpacity>  
+                                ))) : (
+                                    ordersList.filter(order=> formateDateFun(order.deliveryDay) == day)
+                                        .map((item, key)=>{ 
+                                            return (item.status == selectedStatus || (selectedStatus == -1 && item.status !==2)) && (
+                                                <TouchableOpacity 
+                                                    style={{...styles.order, borderTopWidth: new Date(item.deliveryDay).getTime() < now ? 10 : 0}} key={key} 
+                                                    onPress={()=>handleNavigate('order', item.orderId)}
+                                                >
+                                                    <View style={[styles.labelOrder, item.status != 0 ?  styles.closedOrder : styles.openOrder]}></View>
+                                                    <Text  style={{...styles.name, color: new Date(item.deliveryDay).getTime() < now ? '#c00' : 'black'}}>
+                                                        {item.client}
+                                                    </Text>
+                                                    <View style={styles.orderList}>
+                                                        {item.products.slice(0,3).map((product, Pkey)=>(
+                                                            <View style={styles.listItem} key={Pkey}>
+                                                                <Text style={styles.bullet}>-</Text>
+                                                                <Text style={styles.listItemText} numberOfLines={1}>{product.name}</Text>
+                                                            </View>
+                                                        ))}
+                                                    </View>
+                                                    <Text style={styles.time}>Entrega: {getTimeStringFromDate(item.deliveryDay)}</Text>
+                                                    <HorizontalLine />
+                                                    <Text style={styles.price}>R${item.value.toFixed(2).replace('.',',')}</Text>
+                                                </TouchableOpacity>
+                                            )
+                                        })
+                                    )}
+                        </ScrollView>
+                    </React.Fragment>
+                    )
+                    )
+                })
+            )}
         </ScrollView>
         </>
     )

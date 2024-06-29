@@ -25,7 +25,8 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { createOrder } from "../services/Orders"
 import { newOrder } from "../reducers/ordersReducer"
 import { Order } from "../types/Order"
-import { constructNow } from "date-fns"
+import { constructNow, format } from "date-fns"
+import { HeaderCreation } from "../components/HeaderCreation"
 
 
 type Props = {
@@ -115,30 +116,36 @@ const NewOrder = ({ user, clients, products, newOrderAction }: Props) => {
 
     const handleCreate = async () => {
         if(!date || !time) return setMessageWithTimer('Selecione a data de entrega!', 'error');
-        const datePart = date.toISOString().split('T')[0];
-        const timePart = time.toISOString().split('T')[1];
+        if(!client) return setMessageWithTimer('Selecione o cliente para continuar', 'error')
+            const datePart = format(date, 'yyyy-MM-dd');
+        const timePart = format(time, 'HH:mm:ss');
         const combinedDateTimeString = `${datePart}T${timePart}`;
-        const orderProducts = selectedProducts.map((el: any)=>({id: el.id, quantity: el.quantity}))
+
+        console.log(new Date(combinedDateTimeString).toISOString())
+
+        const orderProducts = selectedProducts.map((el: any)=>({id: el.id, quantity: el.quantity, value: el.value}))
         const orderData: any = {
             userId: user.id, clientId: client.id, 
             value: parseFloat(totalSum.toFixed(2)), 
             deliveryDate: new Date(combinedDateTimeString).toISOString(),
-            products:orderProducts
+            products: orderProducts
         }
         const validation = validateOrder(orderData);
         if(validation) return setMessageWithTimer(validation, 'error')
             
         const creation: any = await createOrder(orderData);
+        
         if(creation.status !== 200){
+            console.log(creation.data)
             return setMessageWithTimer(creation.data.message, 'error')
         } 
         
-        console.log('creation', creation.status)
         const clientName = clientsList.find((el)=>el.id == creation.data.clientId).description;
         const newOrder: Order = {
             orderId: creation.data.id,
             clientId: creation.data.clientId,
             client: clientName,
+            orderNumber: creation.data.orderNumber,
             deliveryDay: creation.data.deliveryDate,
             value: orderData.value,
             status: 0,
@@ -151,6 +158,7 @@ const NewOrder = ({ user, clients, products, newOrderAction }: Props) => {
     }
 
     const handleNewProduct = () => {
+        search('')
         setProductModal(true);
     }
     const handleNewClient = ()=>{
@@ -257,6 +265,7 @@ const NewOrder = ({ user, clients, products, newOrderAction }: Props) => {
         <>
             <MessageDisplay />
             <ScrollView style={styles.page}>
+                <HeaderCreation url="orders" title="Crie um pedido"/>
                 <View style={styles.inputsDisplay}>
                 {clientModal && (
                     <Modal
@@ -304,9 +313,9 @@ const NewOrder = ({ user, clients, products, newOrderAction }: Props) => {
                         <Text style={{color: COLORS.grayScaleSecondary}}>Nenhum cliente selecionado</Text>
                     )}
                 </Text>
-                <TouchableHighlight style={styles.newProduct}
+                <TouchableHighlight style={styles.changeInfo}
                     underlayColor={COLORS.primaryPressed} onPress={() => {console.log(filteredClients); handleNewClient() }}>
-                    <Text style={styles.newProductText}>Selecionar cliente</Text>
+                    <Text style={styles.changeInfoText}>Selecionar cliente</Text>
                 </TouchableHighlight>
                     {showDate &&
                         <DateTimePicker
@@ -330,9 +339,9 @@ const NewOrder = ({ user, clients, products, newOrderAction }: Props) => {
                     }
                     <View style={styles.products}>
                         <Text><Text style={styles.dateDisplay}> Entrega: </Text>{date.toLocaleDateString('pt-BR')} às {time.toLocaleTimeString('pt-BR')}</Text>
-                        <TouchableHighlight style={styles.changeDate}
+                        <TouchableHighlight style={styles.changeInfo}
                             underlayColor={COLORS.primaryPressed} onPress={() => { setShowDate(true) }}>
-                            <Text style={styles.changeDateText}>Alterar data e hora</Text>
+                            <Text style={styles.changeInfoText}>Alterar data e hora</Text>
                         </TouchableHighlight>
                     </View>
                     <View style={styles.products}>
@@ -344,9 +353,9 @@ const NewOrder = ({ user, clients, products, newOrderAction }: Props) => {
                                 setProductQuantity={(quantity: number)=>handleSetQuantity(el.id, quantity)}
                             />
                         ))}
-                        <TouchableHighlight style={styles.newProduct}
+                        <TouchableHighlight style={styles.changeInfo}
                             underlayColor={COLORS.primaryPressed} onPress={() => { handleNewProduct() }}>
-                            <Text style={styles.newProductText}>+ Adicionar produto</Text>
+                            <Text style={styles.changeInfoText}>+ Adicionar produto</Text>
                         </TouchableHighlight>
                     </View>
                     <View>

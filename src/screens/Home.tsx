@@ -13,19 +13,18 @@ import { getAllOrdersByUserId } from "../services/Orders";
 import { OrderPayments } from "../types/OrderPayments";
 import { deletePayments, getByOrderId, getByUserId } from "../services/OrderPayments";
 import { formatDate } from "date-fns";
+import { COLORS } from "../styles/global";
+import { Product } from "../types/Product";
+import { Client } from "../types/Client";
 
 type overViewData = {
     id: string,
     title: string,
     value: any,
-    format: FormatTransform
+    format: FormatTransform,
+    displayColor: string
 }
 
-type Props = {
-    user: User,
-    orders: Order[],
-    payments: OrderPayments[]
-}
 type OrdersFormated = {
     count: number, 
     pending: number, 
@@ -40,18 +39,32 @@ type Payments= {
     value: number
 }
 
-const HomeScreen = ({ user, orders, payments }: Props) => {
+
+type Props = {
+    user: User,
+    orders: Order[],
+    payments: OrderPayments[],
+    products: Product[],
+    clients: Client[]
+    vision: boolean
+}
+
+const HomeScreen = ({ user, orders, payments, products, clients, vision}: Props) => {
     const [data, setData] = useState<overViewData[]>([]);
+    const [dataDisplay, setDataDisplay] = useState<overViewData[]>([]);
     const [loading, setLoading] = useState(true); 
     const [ordersList, setOrdersList] = useState<OrdersFormated[]>([]);
-    const [paymentsList, setPaymentsList ] = useState([])
+    const [paymentsList, setPaymentsList ] = useState([]);
 
     useEffect(() => {
         console.log('payment', payments)
         const fetchData = async () => {
             try {
                 const analytics = await getAnalytics(user.id);
-                if (analytics.status === 200) setData(analytics.data);
+                if (analytics.status === 200) {
+                    setData(analytics.data);
+                    setDataDisplay(analytics.data)
+                };
 
                 if(orders.length == 0){
                     const result = await getAllOrdersByUserId(user.id);
@@ -62,7 +75,6 @@ const HomeScreen = ({ user, orders, payments }: Props) => {
 
                 if(payments.length == 0){
                     const payments = await getByUserId(user.id)
-                    console.log('response', payments.data)
                     if(payments.status !== 200) return
                     setPaymentsList(payments.data); 
                 }
@@ -75,12 +87,20 @@ const HomeScreen = ({ user, orders, payments }: Props) => {
         };
 
         fetchData();
-    }, [user.id]);
+    }, [user.id, orders, products, clients]);
 
     useEffect(()=>{
         if(orders.length !== 0) setOrdersList(formatOrders(orders));
     }, [orders])
 
+    useEffect(()=>{
+        if(!vision){
+            console.log(vision)
+            setDataDisplay(data.map(el=>({...el, value: '-'})))
+        } else{
+            setDataDisplay(data)
+        }
+    }, [vision])
 
     const getDayDescription = (date: Date): string => {
         const today = new Date();
@@ -139,7 +159,7 @@ const HomeScreen = ({ user, orders, payments }: Props) => {
     
 
     const renderItem = ({ item }: { item: overViewData }) => (
-        <Card title={item.title} value={formatTransform(item.value, item.format)}>
+        <Card title={item.title} value={formatTransform(item.value, item.format)} color={COLORS[item.displayColor]}>
             <></>
         </Card>
     );
@@ -157,26 +177,30 @@ const HomeScreen = ({ user, orders, payments }: Props) => {
             <Text style={styles.title}>Próximos Pedidos</Text>
             <ScrollView horizontal={true} style={styles.daysDisplay}>
                 <View style={styles.daysView}>
-                {ordersList.map((el, key) => {
-                    const orderComponents = [];
-
-                    for (let i = 0; i < el.completed; i++) {
-                        orderComponents.push(<View style={[styles.order, styles.finished]} key={`finished-${i}`} />);
-                    }
-                    for (let i = 0; i < el.pending; i++) {
-                        orderComponents.push(<View style={[styles.order, styles.pendent]} key={`pending-${i}`} />);
-                    }
-
-                    return (
-                        <View style={[styles.day, {borderLeftColor: el.day == 'Atrasado' ? '#c00' : '#fbfbfb'}]} key={key}>
-                            <Text>{el.count} pedidos</Text>
-                            <View style={styles.ordersArea}>
-                                {orderComponents}
+                {ordersList.length > 0 ? (
+                    ordersList.map((el, key) => {
+                        const orderComponents = [];
+    
+                        for (let i = 0; i < el.completed; i++) {
+                            orderComponents.push(<View style={[styles.order, styles.finished]} key={`finished-${i}`} />);
+                        }
+                        for (let i = 0; i < el.pending; i++) {
+                            orderComponents.push(<View style={[styles.order, styles.pendent]} key={`pending-${i}`} />);
+                        }
+    
+                        return (
+                            <View style={[styles.day, {borderLeftColor: el.day == 'Atrasado' ? '#c00' : '#fbfbfb'}]} key={key}>
+                                <Text>{el.count} pedidos</Text>
+                                <View style={styles.ordersArea}>
+                                    {orderComponents}
+                                </View>
+                                <Text style={styles.dayName}>{el.day}</Text>
                             </View>
-                            <Text style={styles.dayName}>{el.day}</Text>
-                        </View>
-                    );
-                })}
+                        );
+                    })
+                ) : (
+                    <Text style={{color: COLORS.grayScaleSecondary}}>Nenhum pedido</Text>
+                )}
                     
                 </View>
             </ScrollView>
@@ -185,10 +209,10 @@ const HomeScreen = ({ user, orders, payments }: Props) => {
                 <Text style={styles.title}>Resultados do mês</Text>
                 <View style={styles.cardsDisplay}>
                     <FlatList
-                        data={data}
+                        data={dataDisplay}
                         renderItem={renderItem}
                         keyExtractor={item => item.id}
-                        numColumns={2}
+                        numColumns={3}
                         contentContainerStyle={styles.cardsDisplay}
                     />
                 </View>
@@ -202,13 +226,19 @@ const HomeScreen = ({ user, orders, payments }: Props) => {
                         <Text style={{flex: 1, textAlign: 'center'}}>Data</Text>
                         <Text style={{flex: 1, textAlign: 'center'}}>Valor</Text>
                     </View>
-                    {paymentsList.map((el: Payments, key)=>(
-                        <View key={key} style={[styles.orderPayment, {borderLeftWidth: el.dueDate < new Date() ? 0 : 5}]}>
-                            <Text style={{textAlign: 'center', flex: 2}}>{el.name}</Text>
-                            <Text style={{textAlign: 'center', flex: 1}}>{formatDate(el.dueDate, 'dd/MM/yy')}</Text>
-                            <Text style={{textAlign: 'center', flex: 1}}>R${el.value.toFixed(2).replace('.',',')}</Text>
+                    {paymentsList.length > 0 ? (
+                        paymentsList.map((el: Payments, key)=>(
+                            <View key={key} style={[styles.orderPayment, {borderLeftWidth: el.dueDate < new Date() ? 0 : 5}]}>
+                                <Text style={{textAlign: 'center', flex: 2}}>{el.name}</Text>
+                                <Text style={{textAlign: 'center', flex: 1}}>{formatDate(el.dueDate, 'dd/MM/yy')}</Text>
+                                {/* <Text style={{textAlign: 'center', flex: 1}}>R${el.value.toFixed(2).replace('.',',')}</Text> */}
+                            </View>
+                        ))
+                    ) : (
+                        <View style={styles.orderPayment}>
+                            <Text style={{textAlign: 'center', flex: 1, color: COLORS.grayScaleSecondary, fontStyle: 'italic'}}>Nenhum pagamento pendente</Text>
                         </View>
-                    ))}
+                    )}
                 </View>
             </View>
         </SafeAreaView>
@@ -218,7 +248,10 @@ const HomeScreen = ({ user, orders, payments }: Props) => {
 const mapStateToProps = (state: RootState) => ({
     user: state.userReducer.user,
     orders: state.ordersReducer.orders,
-    payments: state.paymentsReducer.payments
+    payments: state.paymentsReducer.payments,
+    products: state.productsReducer.products,
+    clients: state.clientsReducer.clients,
+    vision: state.visionReducer.vision
 });
 
 export default connect(mapStateToProps)(HomeScreen);

@@ -9,14 +9,13 @@ import { RootState } from "../store";
 import { useEffect, useState } from "react";
 
 type Props = {
-    toggleVision: ()=>void,
     onChange: (value: string)=>void,
     onSearch: ()=>void,
     initialValue?: string,
-    allowToggleVision?: boolean
+    onToggleVision?: ()=>void
 }
 
-const SearchInput = ({toggleVision, onChange, onSearch, initialValue, allowToggleVision}: Props)=>{
+const SearchInput = ({onChange, onSearch, initialValue, onToggleVision}: Props)=>{
     const [searchInput, setSearchInput] = useState('');
     useEffect(()=>{
         if(initialValue) setSearchInput(initialValue)
@@ -25,8 +24,8 @@ const SearchInput = ({toggleVision, onChange, onSearch, initialValue, allowToggl
     return (
         <View style={styles.searchInput}>
             <View style={styles.inputArea}>
-                {allowToggleVision &&
-                    <Icon style={styles.icon} name="exchange" size={18} color={COLORS.primary} onPress={toggleVision} />
+                {onToggleVision &&
+                    <Icon style={styles.icon} name="exchange" size={18} color={COLORS.primary} onPress={onToggleVision} />
                 }
                 <TextInput style={styles.input} onChangeText={(value)=>{setSearchInput(value); onChange(value)}} value={searchInput}/>
                 <Icon style={styles.icon} name="search" size={15} 
@@ -36,11 +35,4 @@ const SearchInput = ({toggleVision, onChange, onSearch, initialValue, allowToggl
     )
 }
 
-const mapStateToProps = (state: RootState)=>({
-    vision: state.visionReducer.vision
-})
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-    toggleVision: ()=> dispatch(toggleVision())
-  });
-
-export default connect(mapStateToProps, mapDispatchToProps)(SearchInput)
+export default SearchInput

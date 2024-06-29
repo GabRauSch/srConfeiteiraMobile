@@ -1,9 +1,8 @@
 import { StyleSheet } from "react-native";
-import { COLORS, SHADOW } from "./global";
+import { COLORS, LABEL, SHADOW } from "./global";
 
 export const styles = StyleSheet.create({
     page: {
-        padding: 20,
     },
     profit: {
         position: 'absolute',
@@ -13,6 +12,9 @@ export const styles = StyleSheet.create({
     },
     profitChange: {
 
+    },
+    separator: {
+        ...LABEL
     },
     save: {
         position: 'absolute',
@@ -35,19 +37,24 @@ export const styles = StyleSheet.create({
         fontSize: 17,
         color: '#fff'
     },
-    imageDisplay: {
-        alignItems: 'center',
-        padding: 20
-    },
-    itemImage: {
-        width: 200,
-        height: 200
-    },
-    productInfo: {
-        gap: 30,
-        marginBottom: 50
-    },
     newCategoryContainer: {
         paddingBottom: 20
+    },
+    categories: {
+        gap: 10,
+    },
+    category: {
+        ...SHADOW,
+        backgroundColor: 'white',
+        padding: 10,
+        margin: 2,
+        borderRadius: 5,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+    },
+    actions: {
+        flexDirection: 'row',
+        gap: 20
     }
 });

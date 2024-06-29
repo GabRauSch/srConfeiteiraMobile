@@ -42,7 +42,7 @@ export const styles = StyleSheet.create({
         padding: 7,
     },
     options: {
-        flexDirection: 'row'
+        flexDirection: 'row',
     },
     
 })

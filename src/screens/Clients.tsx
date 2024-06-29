@@ -14,6 +14,7 @@ import { remainingTimeFrom } from "../util/transform";
 import { Dispatch } from "redux";
 import { setClients } from "../reducers/clientsReducer";
 import { sortClients } from "../util/sorter";
+import { HorizontalLine } from "../components/HorizontalLine";
 
 type Props = {
     user: User,
@@ -32,7 +33,6 @@ const ClientsScreen = ({user, clients, setClientsAction}: Props)=>{
     useEffect(()=>{
         const handleGetData = async ()=>{
             const response = await getAllClientsByUserId(user.id as number);
-            console.log(response.data)
             if(response.status !== 200) return
             const sortedClients =  sortClients(response.data)
             setClientsList(sortedClients);
@@ -42,7 +42,6 @@ const ClientsScreen = ({user, clients, setClientsAction}: Props)=>{
     }, [user.id]); 
 
     useEffect(() => {
-        console.log(clients)
         const sortedClients = sortClients(clients)
         console.log('sorted', sortedClients)
         setClientsList(sortedClients);
@@ -98,6 +97,7 @@ const ClientsScreen = ({user, clients, setClientsAction}: Props)=>{
                     ))} 
                 </ScrollView>
             </View>
+            <HorizontalLine />
             <ScrollView style={styles.scroll}>
                 <View style={styles.scrollView}>
 

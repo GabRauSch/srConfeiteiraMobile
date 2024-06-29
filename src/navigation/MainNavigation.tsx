@@ -5,7 +5,7 @@ import OrderItem from "../screens/OrderItem";
 import OrdersByProductCategory from "../screens/OrdersByProductCategory";
 import AppNavigator from "./AppNavigation";
 import Profile from "../screens/Profile";
-import { Header } from "../components/Header";
+import Header  from "../components/Header";
 import { useEffect } from "react";
 import { connect } from "react-redux";
 import { RootState } from "../store";
