@@ -47,7 +47,7 @@ export const styles = StyleSheet.create({
         ...SHADOW,
         backgroundColor: 'white',
         padding: 10,
-        margin: 2,
+        margin: 3,
         borderRadius: 5,
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -55,6 +55,5 @@ export const styles = StyleSheet.create({
     },
     actions: {
         flexDirection: 'row',
-        gap: 20
     }
 });

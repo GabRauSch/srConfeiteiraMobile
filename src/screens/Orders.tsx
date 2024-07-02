@@ -161,7 +161,7 @@ const OrdersScreen = ({vision, user, orders, setOrdersAction, setUserAction}: Pr
                                                 >
                                                     <View style={[styles.labelOrder, item.status != 0 ?  styles.closedOrder : styles.openOrder]}></View>
                                                     <Text  style={{...styles.name, color: new Date(item.deliveryDay).getTime() < now ? '#c00' : 'black'}}>
-                                                        {item.client}
+                                                        {item.client} {item.orderNumber}
                                                     </Text>
                                                     <View style={styles.orderList}>
                                                         {item.products.slice(0,3).map((product, Pkey)=>(

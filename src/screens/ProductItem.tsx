@@ -1,7 +1,7 @@
-import { Image, SafeAreaView, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Image, SafeAreaView, ScrollView, Text, TextInput, TouchableHighlight, TouchableOpacity, View } from "react-native";
 import { styles } from "../styles/screen.ProductItem";
 import { Picker } from "@react-native-picker/picker";
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback } from "react";
 import InputEdit from "../components/InputEdit";
 import InputPicker from "../components/InputPicker";
 import { useNavigation, useRoute } from "@react-navigation/native";
@@ -11,109 +11,111 @@ import { RootState } from "../store";
 import { Dispatch } from "redux";
 import { setProductInfo } from "../reducers/productsReducer";
 import { User } from "../types/User";
-import { getProductById, updateProduct } from "../services/Products";
+import { getAllProductsByUserId, getProductById, updateProduct } from "../services/Products";
 import { handleResponse } from "../services/responseMapping";
 import useMessage from "../hooks/useMessage";
 import { handleSetNumericValue, handleSetValue } from "../util/numeric";
 import { findCategories } from "../services/Categories";
 import InputNumber from "../components/InputNumber";
 import { validateProductEdit } from "../util/validation";
+import CreateButton from "../components/CreateButton";
+import { Category } from "../types/Category";
+import { COLORS } from "../styles/global";
 
 type Props = {
     user: User,
     products: Product[],
+    categories: Category[],
     setProductInfo: (payload: any) => void
 }
 
-const ProductItem = ({ user, products, setProductInfo }: Props) => {
+const ProductItem = ({ user, products, categories, setProductInfo }: Props) => {
     const bolo = require('../assets/images/bolo.png');
     const route = useRoute();
+    const { id } = route.params as any;
+    const { MessageDisplay, setMessageWithTimer } = useMessage();
     const [productionCost, setProductionCost] = useState('0,00');
     const [productValue, setProductValue] = useState('0,00');
     const [dataUpdate, setDataUpdate] = useState(false);
-    const { id } = route.params as any;
-    const {MessageDisplay, setMessageWithTimer } = useMessage();
     const [profit, setProfit] = useState('');
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
-    const [category, setCategory] = useState<any>();
-    const [categories, setCategories] = useState<any>([]);
-    const [newCategory, setNewCategory] = useState('');
+    const [category, setCategory] = useState<Category>();
+    const [categoriesList, setCategoriesList] = useState<Category[]>([]);
+    const [newCategory, setNewCategory] = useState<string>('');
+    const navigation = useNavigation() as any
 
-    const findProduct = useCallback(async (id: any) => {
-        return await getProductById(id);
-    }, []);
+    const getData = async () => {
+        let foundProducts = products;
 
-    const handleCategories = useCallback(async (category: string) => {
-        const categories = await findCategories(user.id);
-        if (categories.status !== 200) return false;
-
-        setCategory(categories.data.find((el: any) => el.description === category).id);
-        setCategories(categories);
-    }, []);
-
-    useEffect(() => {
-        let foundProduct: any = products.find((product) => product.id == id);
-        if (!foundProduct) {
-            foundProduct = findProduct(id);
+        if (!products.length) {
+            const { data, status } = await getAllProductsByUserId(user.id);
+            if (status !== 200) return setMessageWithTimer('Não foi possível encontrar os produtos', 'error');
+            foundProducts = data;
         }
+
+        const foundProduct = foundProducts.find((product: Product) => product.id === id);
         if (foundProduct) {
             setName(foundProduct.name);
             setDescription(foundProduct.description);
             setProductionCost(foundProduct.productionCost.toFixed(2).replace('.', ','));
             setProductValue(foundProduct.value.toFixed(2).replace('.', ','));
-            console.log(foundProduct)
-            setProfit((((parseFloat(foundProduct.value) - parseFloat(foundProduct.productionCost)) / parseFloat(foundProduct.value)) * 100).toFixed(2).replace('.', ','));
+            setProfit(calculateProfit(foundProduct.productionCost, foundProduct.value));
         }
 
-        handleCategories(foundProduct.category);
-    }, [id]);
+        let foundCategories = categories;
+        if (!categories.length) {
+            const { data, status } = await findCategories(user.id);
+            if (status !== 200) return setMessageWithTimer('Não foi possível encontrar as categorias', 'error');
+            foundCategories = data;
+        }
+
+        setCategory(foundCategories.find((el: any) => el.id === foundProduct?.categoryId));
+        setCategoriesList(foundCategories);
+    };
+
+    useEffect(() => {
+        getData();
+    }, [user.id]);
 
     const validateProduct = useCallback((product: any) => {
-        return validateProductEdit(product, categories, products)
-    }, []);
+        return validateProductEdit(product, categories, products);
+    }, [categories, products]);
 
     const handleSave = async () => {
         if (!dataUpdate) return setMessageWithTimer('Nenhum dado foi alterado', 'error');
 
-        let categoryItem = categories.find((el: any) => el.id == category);
+        console.log(category)
+
+        const categoryItem = categories.find((el: Category) => el.id === category?.id);
+        if (!categoryItem) return setMessageWithTimer('Erro ao encontrar categoria', 'error');
+
         const updateData: any = {
-            name, description, productionCost: parseFloat(productionCost.replace(',', '.')),
+            name,
+            description,
+            productionCost: parseFloat(productionCost.replace(',', '.')),
             value: parseFloat(productValue.replace(',', '.')),
         };
 
-        let categoryId; 
-        let categoryDescription;       
-        if(category == '+ Nova categoria') {
-            updateData.categoryData = {description: newCategory};
+        if (category?.description === '+ Nova categoria') {
+            updateData.categoryData = { description: newCategory };
         } else if (category) {
-            updateData.categoryId = category;
-            categoryDescription = categoryItem.description;
-            categoryId = category
+            updateData.categoryId = category.id;
         }
 
-        
         const validation = validateProduct(updateData);
         if (validation) return setMessageWithTimer(validation, 'error');
-        
+
         const update = await updateProduct(id, updateData);
-        
-        if (update.status != 200) { 
+        if (update.status !== 200) {
             const responseMapping = handleResponse(update.data.code);
-            return setMessageWithTimer(responseMapping.message, 'error') 
+            return setMessageWithTimer(responseMapping.message, 'error');
         }
 
-        if(update.data.category && update.data.category.id){
-            categoryId = update.data.category.id;
-            categoryDescription = update.data.category.description
-        };
-
-        const productInfo = { 
-            id, 
-            ...updateData, 
-            category: categoryDescription 
-        }
+        const updatedCategory = update.data.category || categoryItem;
+        const productInfo = { id, ...updateData, category: updatedCategory.description };
         console.log(productInfo)
+
         setProductInfo(productInfo);
         setMessageWithTimer('Produto alterado', 'success');
     };
@@ -125,109 +127,110 @@ const ProductItem = ({ user, products, setProductInfo }: Props) => {
         setProfit(handleSetNumericValue(value));
         setDataUpdate(true);
     };
-    
 
-    const calculateProfit = (value: number, input: 'productionCost' | 'productValue') => {
-        let newCost, newValue;
-        if(input == 'productValue'){
-            newCost = parseFloat(productionCost.replace(',', '.'));
-            newValue = value;
-        } else{
-            newCost = value;
-            newValue = parseFloat(productValue.replace(',', '.'));
-        }
+    const handleProfit = (value: number, input: 'productionCost' | 'productValue') => {
+        const newCost = input === 'productValue' ? parseFloat(productionCost.replace(',', '.')) : value;
+        const newValue = input === 'productValue' ? value : parseFloat(productValue.replace(',', '.'));
+
         if (newCost && newValue) {
-            const newProfit = (((newValue / newCost) -1) * 100).toFixed(2).replace('.',',')
+            const newProfit = calculateProfit(newCost, newValue);
             setProfit(newProfit);
         }
     };
+
+    const calculateProfit = (newCost: number, newValue: number) => {
+        return (((newValue / newCost) - 1) * 100).toFixed(2).replace('.', ',');
+    };
+
+    const handleNavigate = (url: string)=>{
+        navigation.navigate(url)
+    }
 
     return (
         <>
             <SafeAreaView>
                 <MessageDisplay />
-                <>
-                    <Text style={styles.save} onPress={handleSave}>Salvar</Text>
-                    <View style={styles.profit}>
-                        <View style={styles.profitDisplay}>
-                            <TextInput
-                                value={profit}
-                                style={styles.profitText}
-                                keyboardType="decimal-pad"
-                                onChangeText={(value) => {
-                                    handleProfitChange(value);
-                                }}
-                            />
-                            <Text style={styles.profitText}>%</Text>
-                        </View>
+                <Text style={styles.save} onPress={handleSave}>Salvar</Text>
+                <View style={styles.profit}>
+                    <View style={styles.profitDisplay}>
+                        <TextInput
+                            value={profit}
+                            style={styles.profitText}
+                            keyboardType="decimal-pad"
+                            onChangeText={handleProfitChange}
+                        />
+                        <Text style={styles.profitText}>%</Text>
                     </View>
-                    <ScrollView style={styles.page} contentContainerStyle={{ paddingBottom: 100 }}>
-                        <>
-                            <View style={styles.imageDisplay}>
-                                <Image source={bolo} style={styles.itemImage} />
-                            </View>
-                            <View style={styles.productInfo}>
+                </View>
+                <ScrollView style={styles.page} contentContainerStyle={{ paddingBottom: 100 }}>
+                    <View style={styles.imageDisplay}>
+                        <Image source={bolo} style={styles.itemImage} />
+                    </View>
+                    <View style={styles.productInfo}>
+                        <InputEdit
+                            label="Nome"
+                            value={name}
+                            main={true}
+                            onChange={(value: string) => {
+                                setName(value);
+                                setDataUpdate(true);
+                            }}
+                        />
+                        <InputEdit
+                            label="Descrição"
+                            value={description}
+                            onChange={(value: string) => {
+                                setDescription(value);
+                                setDataUpdate(true);
+                            }}
+                        />
+                        <InputNumber
+                            label="Custo de Produção"
+                            beforeHolder="R$"
+                            value={productionCost}
+                            onChange={(value) => {
+                                setProductionCost(value);
+                                setDataUpdate(true);
+                                handleProfit(handleSetValue(value), 'productionCost');
+                            }}
+                        />
+                        <InputNumber
+                            label="Valor de venda"
+                            beforeHolder="R$"
+                            value={productValue}
+                            onChange={(value) => {
+                                setProductValue(value);
+                                setDataUpdate(true);
+                                handleProfit(handleSetValue(value), 'productValue');
+                            }}
+                        />
+                        <InputPicker
+                            label="Categoria"
+                            values={categoriesList}
+                            selected={category}
+                            createOption="+ Nova categoria"
+                            onSelect={(value: Category) => {
+                                setCategory(value);
+                                setDataUpdate(true);
+                            }}
+                            dataType="categorias"
+                        />
+                        <TouchableHighlight style={styles.changeInfo}
+                            underlayColor={COLORS.primaryPressed} onPress={() => {handleNavigate('categories') }}>
+                            <Text style={styles.changeInfoText}>Nova categoria</Text>
+                        </TouchableHighlight>
+                        {category?.description === '+ Nova categoria' && (
+                            <View style={styles.newCategoryContainer}>
                                 <InputEdit
-                                    label="Nome"
-                                    value={name}
-                                    main={true}
-                                    onChange={(value: string) => {
-                                        setName(value);
-                                        setDataUpdate(true);
-                                    }}
+                                    label="Nova categoria"
+                                    value={newCategory}
+                                    onChange={setNewCategory}
                                 />
-                                <InputEdit
-                                    label="Descrição"
-                                    value={description}
-                                    onChange={(value: string) => {
-                                        setDescription(value);
-                                        setDataUpdate(true);
-                                    }}
-                                />
-                                <InputNumber
-                                    label={'Custo de Produção'}
-                                    beforeHolder="R$"
-                                    value={productionCost}
-                                    onChange={(value) => {
-                                        setProductionCost(value);
-                                        setDataUpdate(true);
-                                        calculateProfit(handleSetValue(value), 'productionCost')
-                                    }}
-                                />
-                                <InputNumber
-                                    label="Valor de venda"
-                                    beforeHolder="R$"
-                                    value={productValue}
-                                    onChange={(value) => {
-                                        setProductValue(value);
-                                        setDataUpdate(true);
-                                        calculateProfit(handleSetValue(value), 'productValue')
-                                    }}
-                                />
-
-                                <InputPicker
-                                    label="Categoria"
-                                    values={categories}
-                                    selected={category}
-                                    createOption="+ Nova categoria"
-                                    onSelect={(value: string) => {
-                                        setCategory(value);
-                                        setDataUpdate(true);
-                                    }}
-                                />
-                                {category === '+ Nova categoria' && (
-                                    <View style={styles.newCategoryContainer}>
-                                        <InputEdit
-                                            label={'Nova categoria'}
-                                            value={newCategory}
-                                            onChange={(value) => { setNewCategory(value); }}
-                                        />
-                                    </View>
-                                )}
                             </View>
-                        </>
-                    </ScrollView>
-                </>
+                        )}
+                    </View>
+                    <CreateButton text="Salvar" action={handleSave} />
+                </ScrollView>
             </SafeAreaView>
         </>
     );
@@ -235,10 +238,12 @@ const ProductItem = ({ user, products, setProductInfo }: Props) => {
 
 const mapStateToProps = (state: RootState) => ({
     user: state.userReducer.user,
-    products: state.productsReducer.products
+    products: state.productsReducer.products,
+    categories: state.categoriesReducer.categories,
 });
+
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-    setProductInfo: (payload: any) => dispatch(setProductInfo(payload))
+    setProductInfo: (payload: any) => dispatch(setProductInfo(payload)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(ProductItem);

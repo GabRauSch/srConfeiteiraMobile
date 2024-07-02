@@ -4,6 +4,7 @@ import ProductsScreen from "../screens/Products";
 import CommonAssets from "../screens/CommonAssets";
 import NewProduct from "../screens/NewProduct";
 import Categories from "../screens/Categories";
+import NewCategory from "../screens/newCategory";
 
 const Stack = createStackNavigator();
 
@@ -15,19 +16,20 @@ export default ()=>(
     >
         <Stack.Screen name="products">
             {()=>(
-                <CommonAssets>
+                <CommonAssets createUrl="newProduct">
                     <ProductsScreen />
                 </CommonAssets>
             )}
         </Stack.Screen>
         <Stack.Screen name="categories" >
             {()=>(
-                <CommonAssets>
+                <CommonAssets createUrl="newCategory">
                     <Categories />
                 </CommonAssets>
             )}
         </Stack.Screen>
         <Stack.Screen name="product" component={ProductItem}></Stack.Screen>
+        <Stack.Screen name="newCategory" component={NewCategory}></Stack.Screen>
         <Stack.Screen name="newProduct" component={NewProduct}></Stack.Screen>
     </Stack.Navigator>
 )

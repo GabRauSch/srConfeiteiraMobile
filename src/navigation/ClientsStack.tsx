@@ -15,7 +15,7 @@ export default ()=>(
     >
         <Stack.Screen name="clients">
             {()=>(
-                <CommonAssets>
+                <CommonAssets createUrl="newClient">
                     <ClientsScreen />
                 </CommonAssets>
             )}

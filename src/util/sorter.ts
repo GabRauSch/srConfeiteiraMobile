@@ -1,3 +1,5 @@
+import { Category } from "../types/Category";
+
 export const sortProducts = (products: any[])=>{
     if(products.length == 0) return []
 
@@ -11,11 +13,11 @@ export const sortProducts = (products: any[])=>{
     })
 }
 
-export const sortCategories = (categories: any[])=>{
+export const sortCategories = (categories: Category[])=>{
     if(categories.length == 0) return []
-    return categories.sort((a:any, b: any) => {
-        const nameA = a.toLowerCase();
-        const nameB = b.toLowerCase();
+    return categories.sort((a:Category, b: Category) => {
+        const nameA = a.description.toLowerCase();
+        const nameB = b.description.toLowerCase();
         if (nameA < nameB) return -1;
         if (nameA > nameB) return 1;
       

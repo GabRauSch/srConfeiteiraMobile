@@ -16,7 +16,7 @@ export default ()=>(
         >
         <Stack.Screen name="orders">
             {()=>(
-                <CommonAssets>
+                <CommonAssets createUrl="newOrder">
                     <OrdersScreen />
                 </CommonAssets>
             )}

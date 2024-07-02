@@ -30,7 +30,7 @@ const EditModal = ({ id, name, objectType, children, action, onClose}: Props) =>
             <TouchableWithoutFeedback onPress={onClose}>
                 <View style={styles.modalBackground}>
                     <View style={styles.modalContent}>
-                        <Text style={styles.modalText}>Edite o {objectType}:</Text>
+                        <Text style={styles.modalText}>Edite {objectType}:</Text>
                         {name &&
                             <Text style={styles.modalItemName}>{name}</Text>
                         }

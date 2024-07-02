@@ -57,7 +57,6 @@ const HomeScreen = ({ user, orders, payments, products, clients, vision}: Props)
     const [paymentsList, setPaymentsList ] = useState([]);
 
     useEffect(() => {
-        console.log('payment', payments)
         const fetchData = async () => {
             try {
                 const analytics = await getAnalytics(user.id);

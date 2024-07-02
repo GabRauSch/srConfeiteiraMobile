@@ -3,15 +3,21 @@ import { StyleSheet } from "react-native";
 import { COLORS, LABEL, MODAL, SHADOW } from "./global";
 
 export const styles = StyleSheet.create({
-    page: {
-        padding: 20,
+    productInfoItem: {
         flex: 1,
-
     },
     inputsDisplay: {
         gap: 20,
     },
-    
+    inputPicker: {
+        borderWidth: 2,
+        borderRadius: 5,
+        borderColor: COLORS.primary,
+        padding: 10,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+    },
     home: {
         position: 'absolute',
         padding:10,

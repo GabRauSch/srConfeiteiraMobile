@@ -11,16 +11,17 @@ import { COLORS } from "../styles/global";
 
 type Props = {
   children: ReactNode;
+  createUrl: string
 };
 
-const CommonAssets = ({ children }: Props) => {
+const CommonAssets = ({ children, createUrl }: Props) => {
   const status = ["Abertos", "Entregues", "Recebidos"];
   const options = ["Todas", ...status, "mais"];
   const [selectedStatus, setSelectedCategory] = useState<string | null>(null);
   const [activeKey, setActiveKey] = useState(0);
   const [createOptionsDisplay, setCreateOptionsDisplay] = useState(false);
 
-  const navigate = useNavigation();
+  const navigation = useNavigation() as any;
   const handleStatusSelect = (option: string, key: number) => {
     setSelectedCategory(option === "Todas" ? null : option);
     setActiveKey(key);
@@ -40,7 +41,7 @@ const CommonAssets = ({ children }: Props) => {
         )}
         <AddButton
           onClick={() => {
-            setCreateOptionsDisplay(!createOptionsDisplay);
+            navigation.navigate(createUrl)
           }}
         ></AddButton>
       </View>

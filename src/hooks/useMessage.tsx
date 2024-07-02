@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Animated, Text, View } from 'react-native';
+import { Animated, Text, TouchableHighlight, TouchableOpacity, View } from 'react-native';
 
 const useMessage = () => {
     const [message, setMessage] = useState('');
@@ -66,12 +66,13 @@ const useMessage = () => {
                         zIndex: 999,
                         position: 'absolute', 
                         width: '100%', 
+                        padding: 20,
                         alignItems: 'center', 
                     }}
                 >
-                    <View style={{ backgroundColor: type === 'error' ? '#f65' : '#6c5', padding: 10, borderRadius: 10 }}>
+                    <TouchableOpacity activeOpacity={1} onPress={()=>{setVisible(false)}} style={{ backgroundColor: type === 'error' ? '#f65' : '#6c5', padding: 10, borderRadius: 10 }}>
                         <Text style={{ color: '#fff' }}>{message}</Text>
-                    </View>
+                    </TouchableOpacity>
                 </Animated.View>
             )
         );

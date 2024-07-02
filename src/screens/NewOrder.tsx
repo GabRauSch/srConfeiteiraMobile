@@ -76,7 +76,7 @@ const NewOrder = ({ user, clients, products, newOrderAction }: Props) => {
         setProductsList(sortProducts(products));
         setFilteredProducts(sortProducts(products))
         if(products.length ==0){
-            const products = await getAllProductsByUserId(user.id);
+            const {data: products} = await getAllProductsByUserId(user.id);
             setProductsList(sortProducts(products));
             setFilteredProducts(sortProducts(products))
         }

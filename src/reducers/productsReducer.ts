@@ -30,6 +30,7 @@ export const removeProduct = (payload: any)=>({
     payload
 })
 
+
 const initialState: State = {
     products: []
 }
@@ -74,6 +75,7 @@ const reducer = (state: State = initialState, action: Action): State => {
                 products: state.products.filter(product => product.id !== action.payload)
             };
         default: break;
+
     }
     return state;
 }

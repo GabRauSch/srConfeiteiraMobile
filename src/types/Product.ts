@@ -7,7 +7,7 @@ export type Product = {
     photo: string,
     size: number,
     format: string,
-    category: string
+    categoryId: number
 }
 
 export type SelectedProducts = {

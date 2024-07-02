@@ -14,6 +14,19 @@ export const styles = StyleSheet.create({
     profitChange: {
 
     },
+    changeInfo: {
+        textAlign: 'center',
+        width: 'auto',
+        borderRadius: 5,
+        padding: 5,
+        ...SHADOW,
+        backgroundColor: 'white',
+        margin: 2,
+    },
+    changeInfoText: {
+        textAlign: 'center',
+        color: COLORS.primary,
+    },
     save: {
         position: 'absolute',
         right: 0,
@@ -49,5 +62,51 @@ export const styles = StyleSheet.create({
     },
     newCategoryContainer: {
         paddingBottom: 20
-    }
+    },    
+    modal: {
+        position: 'relative',
+        height: '100%',
+        zIndex: 999,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    productModal: {
+        backgroundColor: '#fff',
+        zIndex: 999,
+        ...SHADOW,
+        borderRadius: 5,
+        overflow: 'hidden',
+        width: '100%',
+        alignSelf: 'center',
+        padding: 10
+    },
+    productModalContainer: {
+        maxHeight: '80%',
+        width: '80%',
+    },
+    productModalText: {
+        padding: 10,
+    },
+    createButton: {
+        marginBottom: 50
+    },
+    
+    inputArea: {
+        borderColor: COLORS.primary,
+        borderWidth: 1,
+        borderRadius: 5,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 4,
+        flex: 1,
+    },
+    input: {
+        flex: 1
+    },
+    
+    searchInput: {
+        flexDirection: 'row',
+    },
 });
