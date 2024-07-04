@@ -89,12 +89,12 @@ export const styles = StyleSheet.create({
         borderRadius: 5,
         padding: 5,
         ...SHADOW,
-        backgroundColor: COLORS.primary,
+        backgroundColor: 'white',
         margin: 2,
     },
     changeInfoText: {
         textAlign: 'center',
-        color: 'white',
+        color: COLORS.primary,
     },
     product: {
         flexDirection: 'row',

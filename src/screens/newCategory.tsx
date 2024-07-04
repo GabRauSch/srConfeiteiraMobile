@@ -40,7 +40,7 @@ const NewCategory = ({user, clients, newCategoryAction}: Props)=>{
             return setMessageWithTimer(creation.data.message, 'error')
         } 
         console.log(creation.data)
-        newCategoryAction(creation.data);
+        newCategoryAction({id: creation.data.id, description: creation.data.description});
         navigate.goBack()
     }
 

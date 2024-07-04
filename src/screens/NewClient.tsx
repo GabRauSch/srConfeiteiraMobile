@@ -17,6 +17,7 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import { COLORS } from "../styles/global"
 import { HorizontalLine } from "../components/HorizontalLine"
 import { HeaderCreation } from "../components/HeaderCreation"
+import { formatPhoneNumber } from "../util/transform"
 
 
 type Props = {
@@ -62,6 +63,7 @@ const NewClient = ({user, clients, newClientAction}: Props)=>{
             totalOrderValue: 0,
             phone: creation.data.phone,
             email: creation.data.email,
+            addresss: creation.data.address,
             nextDeliveryDate: creation.data.nextDeliveryDate
         }
         
@@ -89,7 +91,7 @@ const NewClient = ({user, clients, newClientAction}: Props)=>{
                 <InputEdit
                     keyboard='phone-pad'
                     label="Telefone" 
-                    value={phone} 
+                    value={formatPhoneNumber(phone)} 
                     onChange={(value: string)=>{
                         setPhone(value) 
                     }}/>

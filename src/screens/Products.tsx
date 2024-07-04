@@ -9,7 +9,7 @@ import ProductItem from "../components/ProductItem";
 import Collapsible from "react-native-collapsible";
 import { useEffect, useState } from "react";
 import { getUniqueCategories, getUniqueDays } from "../util/transform";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
 import { CreateOptions } from "../modals/CreateOptions";
 import { getAllProductsByUserId } from "../services/Products";
 import { User } from "../types/User";
@@ -40,16 +40,19 @@ const ProductsScreen = ({user, products, categories, setProductsAction, setCateg
     const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
     const [modalsVisibility, setModalsVisibility] = useState(false);
     const [options, setOptions] = useState<string[]>([]);
-    const navigation = useNavigation() as any;
     const [categoriesCollapseMap, setCategoriesCollapseMap] = useState(Array.from({length: categories.length}, () => false));
+    const navigation = useNavigation() as any;
+    const route = useRoute() as any;
+    const params = route.params
+
     useEffect(()=>{
         const handleGetData = async ()=>{
             const {data: products, status} = await getAllProductsByUserId(user.id as number);
             if(status !== 200) return console.log('erro ao buscar produtos') 
-
+                
             const sortedProucts = sortProducts(products);
-
-            setProducts(sortedProucts);
+            
+            setProductsAction(sortedProucts);
             setFilteredProducts(sortedProucts)
             
             const {data: categories, status: cstatus} = await findCategories(user.id);
@@ -65,11 +68,8 @@ const ProductsScreen = ({user, products, categories, setProductsAction, setCateg
             const productCategoryIds = products.map((product: Product) => product.categoryId);
 
             const filteredCategories = sortedCategories.filter(category =>productCategoryIds.includes(category.id));
-            console.log(filteredCategories)
-
 
             setFilteredCategories(filteredCategories);
-            setProductsAction(products);
         };
         handleGetData()
     }, [user.id]); 
@@ -80,8 +80,6 @@ const ProductsScreen = ({user, products, categories, setProductsAction, setCateg
         const productCategoryIds = products.map((product: Product) => product.categoryId);
 
         const filteredCategories = sortedCategories.filter(category =>productCategoryIds.includes(category.id));
-        console.log(filteredCategories)
-
 
         setFilteredCategories(filteredCategories);
 
@@ -91,6 +89,13 @@ const ProductsScreen = ({user, products, categories, setProductsAction, setCateg
         setProductsList(sortedProducts);
         setFilteredProducts(sortedProducts)
     }, [products, categories]);
+
+    useEffect(()=>{
+        if(params && params.category){
+            const category = params.category
+            setSelectedCategory(category.description)
+        }
+    }, [params])
 
     const handleToggleCategory = (catKey: number)=>{
         const updatedCollapseMap = [...categoriesCollapseMap];
@@ -104,6 +109,7 @@ const ProductsScreen = ({user, products, categories, setProductsAction, setCateg
         setSelectedCategory(category === "Todas" ? null : category);
         setActiveKey(key);
     };
+
     const handleRedirect = (url: string, id: number)=>{
         navigation.navigate(url, {id})
     }
@@ -141,6 +147,7 @@ const ProductsScreen = ({user, products, categories, setProductsAction, setCateg
                         active={activeKey == key}
                         />
                 ))}
+                <View style={{marginRight: 120}}></View>
             </ScrollView>
             <TouchableHighlight style={{position: 'absolute', right: 0, backgroundColor: '#f3f3f3', zIndex: 2, height: '100%', justifyContent: 'center'}} onPress={()=>handleNavigate('categories')} underlayColor={'transaparent'} >
                 <Text style={{textAlignVertical: 'center', color: COLORS.primary, textDecorationLine: 'underline', textAlign:'left'}}>Suas categorias</Text>

@@ -178,20 +178,20 @@ const HomeScreen = ({ user, orders, payments, products, clients, vision}: Props)
                 <View style={styles.daysView}>
                 {ordersList.length > 0 ? (
                     ordersList.map((el, key) => {
-                        const orderComponents = [];
+                        const orderComponents: any[] = [];
     
-                        for (let i = 0; i < el.completed; i++) {
+                        for (let i = 0; i < 6; i++) {
                             orderComponents.push(<View style={[styles.order, styles.finished]} key={`finished-${i}`} />);
                         }
-                        for (let i = 0; i < el.pending; i++) {
+                        for (let i = 0; i < 6; i++) {
                             orderComponents.push(<View style={[styles.order, styles.pendent]} key={`pending-${i}`} />);
                         }
     
                         return (
                             <View style={[styles.day, {borderLeftColor: el.day == 'Atrasado' ? '#c00' : '#fbfbfb'}]} key={key}>
-                                <Text>{el.count} pedidos</Text>
+                                <Text style={{fontSize: 12}}>{el.count} pedidos</Text>
                                 <View style={styles.ordersArea}>
-                                    {orderComponents}
+                                    {orderComponents.slice(0, 8)}
                                 </View>
                                 <Text style={styles.dayName}>{el.day}</Text>
                             </View>

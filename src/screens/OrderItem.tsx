@@ -84,7 +84,7 @@ const OrderItem = ({user, products, setOrderAction}: Props) => {
                 setPercentage(percentage);
 
                 if(!products || products.length ==0){
-                    const products = await getAllProductsByUserId(user.id);
+                    const {data: products, status} = await getAllProductsByUserId(user.id);
                     
                     const filteredProducts = products.filter((product: any) => {
                         const isInOrder = data.items.some((orderItem: any) => orderItem.productId === product.id);

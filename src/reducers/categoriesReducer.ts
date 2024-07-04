@@ -43,6 +43,7 @@ const reducer = (state: State = initialState, action: Action): State => {
 
         case 'NEW_CATEGORY': 
             const newCategories = [...state.categories, action.payload]
+            console.log(newCategories)
             const newState = {
                 ...state,
                 categories: newCategories

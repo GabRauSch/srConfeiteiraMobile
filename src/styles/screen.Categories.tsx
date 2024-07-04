@@ -44,6 +44,7 @@ export const styles = StyleSheet.create({
         gap: 10,
     },
     category: {
+        borderLeftWidth: 10,
         ...SHADOW,
         backgroundColor: 'white',
         padding: 10,

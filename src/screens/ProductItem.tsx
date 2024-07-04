@@ -21,6 +21,7 @@ import { validateProductEdit } from "../util/validation";
 import CreateButton from "../components/CreateButton";
 import { Category } from "../types/Category";
 import { COLORS } from "../styles/global";
+import { HeaderCreation } from "../components/HeaderCreation";
 
 type Props = {
     user: User,
@@ -148,7 +149,9 @@ const ProductItem = ({ user, products, categories, setProductInfo }: Props) => {
 
     return (
         <>
+            <HeaderCreation url="products" title="Edite o produto"/>
             <SafeAreaView>
+
                 <MessageDisplay />
                 <Text style={styles.save} onPress={handleSave}>Salvar</Text>
                 <View style={styles.profit}>

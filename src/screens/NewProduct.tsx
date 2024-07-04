@@ -1,4 +1,4 @@
-import { ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native"
+import { ScrollView, Text, TextInput, TouchableHighlight, TouchableOpacity, View } from "react-native"
 import {styles} from '../styles/screen.NewProduct'
 import InputEdit from "../components/InputEdit"
 import { useEffect, useState } from "react"
@@ -21,65 +21,81 @@ import { setCategories } from "../reducers/categoriesReducer"
 import Icon from "react-native-vector-icons/FontAwesome";
 import { COLORS } from "../styles/global"
 import { HeaderCreation } from "../components/HeaderCreation"
+import { Category } from "../types/Category"
 
 
 type Props = {
     user: User,
     products: Product[],
+    categories: Category[]
     newProductAction: (payload: any)=>void,
     setCategoriesAction: (payload: any)=>void
 }
 
-const NewProduct = ({user, products, newProductAction, setCategoriesAction}: Props)=>{
+const NewProduct = ({user, products, categories, newProductAction, setCategoriesAction}: Props)=>{
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [productValue, setProductValue] = useState('0,00');
     const [productionCost, setProductionCost] = useState('0,00');
-    const [category, setCategory] = useState('');
-    const [categories, setCategories] = useState<string[]>([]);
+    const [category, setCategory] = useState<Category>();
+    const [categoriesList, setCategoriesList] = useState<Category[]>([]);
     const [newCategory, setNewCategory] = useState('');
     const {MessageDisplay, setMessageWithTimer} = useMessage();
-    const navigate = useNavigation() as any
+    const navigation = useNavigation() as any
 
 
     const handleFindCategories = async ()=>{
         const categories = await findCategories(user.id);
         if(categories.status !== 200) return setMessageWithTimer('erro ao buscar categorias', 'error');
 
-        setCategoriesAction(categories.data)
-
         const sortedCategories = categories.data.sort((a:any, b: any) => {
             const nameA = a.description.toLowerCase();
             const nameB = b.description.toLowerCase();
             if (nameA < nameB) return -1;
             if (nameA > nameB) return 1;
-          
+            
             return 0;
         })
-
+        
         setCategory(categories.data[0].id)
-        setCategories(sortedCategories)
+        setCategoriesList(sortedCategories)
+        setCategoriesAction(sortedCategories)
     }
 
     useEffect(()=>{
-        handleFindCategories();
-    }, [])
+        handleFindCategories()
+    }, [user.id])
+
+    useEffect(()=>{
+        if(categories.length == 0) {
+            handleFindCategories()
+        } 
+        const sortedCategories = categories.sort((a:any, b: any) => {
+            const nameA = a.description.toLowerCase();
+            const nameB = b.description.toLowerCase();
+            if (nameA < nameB) return -1;
+            if (nameA > nameB) return 1;
+            
+            return 0;
+        })
+        console.log(sortedCategories)
+        setCategory(categories[0])
+        setCategoriesList(sortedCategories)
+    }, [categories])
 
     const validateProduct = (product: any)=>{
         return validateProductCreate(product, categories, products)
     }
 
     const handleCreate = async ()=>{
+        if(!category) return setMessageWithTimer('Selecione uma categoria', 'error');
         const productData: any = {
             userId: user.id,
             name, description, value: parseFloat(productValue.replace(',','.')),
-            productionCost: parseFloat(productionCost.replace(',','.'))
+            productionCost: parseFloat(productionCost.replace(',','.')),
+            categoryId: category.id
         }
 
-        if(category == '+ Nova categoria') productData.categoryData = {description: newCategory}
-        else {
-            productData.categoryId = category
-        }
 
         const validation = validateProduct(productData);
         if(validation) return setMessageWithTimer(validation, 'error')
@@ -89,21 +105,17 @@ const NewProduct = ({user, products, newProductAction, setCategoriesAction}: Pro
             return setMessageWithTimer(creation.data.message, 'error')
         } 
 
-        if(!productData.categoryData){
-            productData.categoryData = categories.find((el: any)=>el.id === creation.data.categoryId)
-        }
         const newProduct: any = {
-            categoryId: creation.categoryId,
-            category: productData.categoryData.description,
-            description: productData.description,
             id: creation.data.id,
             name: creation.data.name,
+            description: productData.description,
             productionCost: creation.data.productionCost,
             value: creation.data.value,
+            categoryId: category.id,
         }
         
         newProductAction(newProduct);
-        navigate.navigate('products')
+        navigation.navigate('products')
     }
 
     return (
@@ -140,19 +152,14 @@ const NewProduct = ({user, products, newProductAction, setCategoriesAction}: Pro
                         setProductValue(handleSetNumericValue(value))
                     }}/>
                 <InputPicker label="Categoria" values={categories} selected={category} 
-                    createOption="+ Nova categoria"
-                    onSelect={(value:string)=>{
+                    createOption="+ Nova categoria" dataType="categorias"
+                    onSelect={(value:Category)=>{
                         setCategory(value)
-                    }}/>
-                {category === '+ Nova categoria' && (
-                    <View>
-                        <InputEdit 
-                            label={'Nova categoria'}
-                            value={newCategory}
-                            onChange={(value)=>{setNewCategory(value)}}
-                        />
-                    </View>
-                )}
+                }}/>
+                <TouchableHighlight style={styles.changeInfo}
+                    underlayColor={COLORS.primaryPressed} onPress={() => { navigation.navigate('newCategory') }}>
+                    <Text style={styles.changeInfoText}>criar nova categoria</Text>
+                </TouchableHighlight>
                 <CreateButton text={'Criar produto'} action={handleCreate}/>
             </View> 
         </ScrollView>
@@ -163,7 +170,8 @@ const NewProduct = ({user, products, newProductAction, setCategoriesAction}: Pro
 
 const mapStateToProps = (state: RootState)=>({
     user: state.userReducer.user,
-    products: state.productsReducer.products
+    products: state.productsReducer.products,
+    categories: state.categoriesReducer.categories
 }) 
 
 const mapDispatchToProps = (dispatch: Dispatch)=>({

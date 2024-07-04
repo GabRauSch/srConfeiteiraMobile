@@ -30,7 +30,7 @@ export const removeClient = (payload: any)=>({
     payload
 })
 
-const initialState: State = {
+export const initialState: State = {
     clients: []
 }
 

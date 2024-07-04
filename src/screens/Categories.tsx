@@ -1,9 +1,9 @@
-import { Image, ScrollView, Text, TextInput, TouchableHighlight, View } from "react-native";
+import { Image, ScrollView, Text, TextInput, TouchableHighlight, TouchableOpacity, View } from "react-native";
 import { styles } from "../styles/screen.Categories";
 import { Picker } from "@react-native-picker/picker";
 import { ReactNode, useCallback, useEffect, useState } from "react";
 import InputEdit from "../components/InputEdit";
-import { useRoute } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { getClientById, updateClient } from "../services/Clients";
 import { Client } from "../types/Client";
 import { connect } from "react-redux";
@@ -28,6 +28,7 @@ import ExcludeModal from "../modals/ExcludeModal";
 import { Product } from "../types/Product";
 import { setProducts } from "../reducers/productsReducer";
 import { getAllProductsByUserId } from "../services/Products";
+import { HeaderCreation } from "../components/HeaderCreation";
 
 
 type Props = {
@@ -49,7 +50,8 @@ const Categories = ({user, categories, products, setProductsAction, setCategorie
     const [category, setCategory] = useState<Category>();
     const [editModal, setEditModal] = useState(false);
     const [excldeModal, setExcludeModal] = useState(false);
-    const [categoriesWithNoProducts, setCategoriesWithNoProducts] = useState<any>([])
+    const [categoriesWithNoProducts, setCategoriesWithNoProducts] = useState<any>([]);
+    const navigation = useNavigation() as any
 
     const getData = async ()=>{
         const newCategories = await findCategories(user.id);
@@ -91,7 +93,13 @@ const Categories = ({user, categories, products, setProductsAction, setCategorie
 
     useEffect(() => {
         setCategoriesList(categories);
-        setFilteredCategories(categories)
+        setFilteredCategories(categories);
+
+        const productCategoryIds = new Set(products.map((product: Product) => product.categoryId));        
+        const categoriesWithNoProducts = categories.filter((category: Category) => 
+            !productCategoryIds.has(category.id)
+        );
+        setCategoriesWithNoProducts(categoriesWithNoProducts);
     }, [categories]);
 
     const search = (value: string)=>{
@@ -116,36 +124,48 @@ const Categories = ({user, categories, products, setProductsAction, setCategorie
         updateCategoryAction(category);
     }
 
+    const handleNavigate = (category: Category)=>{
+        navigation.navigate('products', {category})
+    }
+
     return (
         <View>
             <MessageDisplay />
             <View>
+                <HeaderCreation url="products" title="Suas categorias"/>
                 <SearchInput onChange={search} onSearch={()=>{}} />
+
             </View>
             <HorizontalLine />
             <View style={styles.page}>
                 <Text style={styles.separator} >Suas categorias</Text>
                 <ScrollView style={styles.categories}>
-                    {filteredCategories.map((el, key)=>(
-                        <View style={styles.category} key={key}>
-                            <Text style={{fontSize: 16, flex: 1}}>{el.description}</Text>
-                            <View style={styles.actions}>
-                                <TouchableHighlight style={{padding: 10}} onPress={()=>handleEdit(el.id, el.description)} underlayColor={'transparent'} activeOpacity={.7}>
-                                    <Icon name="pencil" color={COLORS.primary} size={17}/>
-                                </TouchableHighlight>
-                                {categoriesWithNoProducts.some((cat: Category) => cat.id === el.id) ? (
-                                    <TouchableHighlight style={{padding: 10}} onPress={()=>{handleDelete(el.id)}}>
-                                        <Icon name="trash" color={COLORS.primary} size={17}/>
+                    {filteredCategories.map((el, key)=>{
+                        const noProducts = categoriesWithNoProducts.some((cat: Category) => cat.id === el.id)
+                        return (
+                            <TouchableOpacity 
+                                onPress={
+                                noProducts 
+                                ? ()=>{setMessageWithTimer('Categoria não tem produtos', 'error')}
+                                : () => handleNavigate(el) 
+                            }
+                            style={[styles.category, {borderLeftColor: noProducts ?  'white' : COLORS.primary}]} 
+                            key={key}>
+                                <Text style={{fontSize: 16, flex: 1}}>{el.description}</Text>
+                                <View style={styles.actions}>
+                                    <TouchableHighlight style={{padding: 10}} onPress={()=>handleEdit(el.id, el.description)} underlayColor={'transparent'} activeOpacity={.7}>
+                                        <Icon name="pencil" color={COLORS.primary} size={17}/>
                                     </TouchableHighlight>
-                                ) : (
-                                    <TouchableHighlight style={{padding: 10}} onPress={()=>{setMessageWithTimer('Impossível deletar categoria com produtos', 'error')}} underlayColor={'transparent'} activeOpacity={.7}>
-                                        <Icon name="trash" color={COLORS.grayScaleSecondary} size={17}/>
-                                    </TouchableHighlight>
-                                )}
-                            </View>
-                        </View>
-                    ))}
-                    <View style={{marginBottom: 200}}></View>
+                                    {noProducts && (
+                                        <TouchableHighlight style={{padding: 10}} onPress={()=>{handleDelete(el.id)}}>
+                                            <Icon name="trash" color={COLORS.primary} size={17}/>
+                                        </TouchableHighlight>
+                                    )}
+                                </View>
+                            </TouchableOpacity>
+                        )})
+                    }
+                    <View style={{marginBottom: 360}}></View>
                 </ScrollView>
                 {editModal &&
                     <EditModal id={0}  objectType="a categoria" action={handleSave} onClose={()=>{setEditModal(false)}}>

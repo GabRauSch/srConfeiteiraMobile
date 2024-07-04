@@ -233,10 +233,11 @@ const NewOrder = ({ user, clients, products, newOrderAction }: Props) => {
     }, [productsList]);
 
     const onSetDate = (event: any, selectedDate: any) => {
-        setShowTime(true)
+        console.log('pc orque duas vezes esse demonio?', showDate)
         const currentDate = selectedDate || date;
         setShowDate(Platform.OS === 'ios');
         setDate(currentDate);
+        setShowTime(!showTime)
     };
     const onSetTime = (event: any, selectedDate: any)=>{
         const currentDate = selectedDate || date;
@@ -340,7 +341,7 @@ const NewOrder = ({ user, clients, products, newOrderAction }: Props) => {
                     <View style={styles.products}>
                         <Text><Text style={styles.dateDisplay}> Entrega: </Text>{date.toLocaleDateString('pt-BR')} às {time.toLocaleTimeString('pt-BR')}</Text>
                         <TouchableHighlight style={styles.changeInfo}
-                            underlayColor={COLORS.primaryPressed} onPress={() => { setShowDate(true) }}>
+                            underlayColor={COLORS.primaryPressed} onPress={() => { setShowDate(!showDate) }}>
                             <Text style={styles.changeInfoText}>Alterar data e hora</Text>
                         </TouchableHighlight>
                     </View>

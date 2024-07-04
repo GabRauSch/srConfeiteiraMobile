@@ -28,7 +28,7 @@ const InputPicker = ({label, values, selected, onSelect, createOption, dataType 
     useEffect(()=>{
         setSelectedData(selected)
         setFilteredData(values)
-    }, [selected, values])
+    }, [values, selected])
     
     const search = (value: string)=>{
         let filteredData = values.filter((el)=> {
@@ -40,7 +40,7 @@ const InputPicker = ({label, values, selected, onSelect, createOption, dataType 
     }
     return (
         <View style={styles.productInfoItem}>
-            {selectedData && 
+            {selected &&
                 <TouchableOpacity style={styles.inputPicker} activeOpacity={1} onPress={()=>{setPickerModal(true)} }>
                     <Text>{selected.description}</Text>
                     <Icon name='arrow-down' color={COLORS.primary} />

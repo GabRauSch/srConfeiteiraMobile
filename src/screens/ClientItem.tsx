@@ -15,13 +15,15 @@ import { validateClientEdit } from "../util/validation";
 import { handleResponse } from "../services/responseMapping";
 import { Dispatch } from "redux";
 import { setClientInfo } from "../reducers/clientsReducer";
+import { HeaderCreation } from "../components/HeaderCreation";
+import { formatPhoneNumber } from "../util/transform";
 
 type Props = {
     clients: Client[],
     setClientInfoAction: (payload: any)=>void
 }
 
-const ClientItem = ({clients,setClientInfoAction}: Props) => {
+const ClientItem = ({clients, setClientInfoAction}: Props) => {
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
     const [address, setAddress] = useState('')
@@ -43,6 +45,8 @@ const ClientItem = ({clients,setClientInfoAction}: Props) => {
         if (foundClient) {
             setName(foundClient.name);
             setPhone(foundClient.phone);
+            setEmail(foundClient.email);
+            console.log(foundClient);
             setAddress(foundClient.address)
             setTotalRevenue(foundClient.totalOrderValue)
         }
@@ -78,10 +82,12 @@ const ClientItem = ({clients,setClientInfoAction}: Props) => {
         // 
     }
 
+
     return (
         <>
             <MessageDisplay />
             <ScrollView style={styles.page}>
+                <HeaderCreation url="clients" title="Edite o cliente"/>
                 <Text style={styles.save} onPress={handleSave}>Salvar</Text>
                 <View style={styles.profit}>
                     <View style={styles.profitDisplay}>
@@ -93,7 +99,7 @@ const ClientItem = ({clients,setClientInfoAction}: Props) => {
                 </View>
                 <View style={styles.productInfo}>
                     <InputEdit onChange={(value)=>{setDataUpdate(true); setName(value)}} label="Nome" value={name} main={true}/>
-                    <InputEdit onChange={(value)=>{setDataUpdate(true); setPhone(value)}} label="Telefone" value={phone}/>
+                    <InputEdit keyboard={'phone-pad'} onChange={(value)=>{setDataUpdate(true); setPhone(value)}} label="Telefone" value={formatPhoneNumber(phone)}/>
                     <InputEdit optional onChange={(value)=>{setDataUpdate(true); setEmail(value)}} label="Email" value={email}/>
                     <InputEdit optional onChange={(value)=>{setDataUpdate(true); setAddress(value)}} label="Endereço" value={address}/>
                     <CreateButton text={'Novo pedido'} 
