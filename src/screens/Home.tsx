@@ -16,6 +16,11 @@ import { formatDate } from "date-fns";
 import { COLORS } from "../styles/global";
 import { Product } from "../types/Product";
 import { Client } from "../types/Client";
+import useOrders from "../hooks/useOrders";
+import { useProducts } from "../hooks/useProducts";
+import usePayments from "../hooks/usePayments";
+import useClients from "../hooks/useClients";
+import LoadingPage from "../components/LoadingPage";
 
 type overViewData = {
     id: string,
@@ -42,19 +47,20 @@ type Payments= {
 
 type Props = {
     user: User,
-    orders: Order[],
-    payments: OrderPayments[],
-    products: Product[],
-    clients: Client[]
     vision: boolean
 }
 
-const HomeScreen = ({ user, orders, payments, products, clients, vision}: Props) => {
+const HomeScreen = ({ user, vision}: Props) => {
     const [data, setData] = useState<overViewData[]>([]);
     const [dataDisplay, setDataDisplay] = useState<overViewData[]>([]);
     const [loading, setLoading] = useState(true); 
     const [ordersList, setOrdersList] = useState<OrdersFormated[]>([]);
     const [paymentsList, setPaymentsList ] = useState([]);
+
+    const orders = useOrders(user.id);
+    const payments = usePayments(user.id);
+    const products = useProducts(user.id);
+    const clients = useClients(user.id)
 
     useEffect(() => {
         const fetchData = async () => {
@@ -155,21 +161,18 @@ const HomeScreen = ({ user, orders, payments, products, clients, vision}: Props)
     
         return result;
     };
-    
+
+    if (loading) {
+        return (
+            <LoadingPage />
+        );
+      }
 
     const renderItem = ({ item }: { item: overViewData }) => (
         <Card title={item.title} value={formatTransform(item.value, item.format)} color={COLORS[item.displayColor]}>
             <></>
         </Card>
     );
-
-    if (loading) {
-        return (
-            <SafeAreaView style={styles.page}>
-                <Text>Loading...</Text>
-            </SafeAreaView>
-        );
-    }
 
     return (
         <SafeAreaView style={styles.page}>
@@ -207,6 +210,7 @@ const HomeScreen = ({ user, orders, payments, products, clients, vision}: Props)
             <View>
                 <Text style={styles.title}>Resultados do mês</Text>
                 <View style={styles.cardsDisplay}>
+
                     <FlatList
                         data={dataDisplay}
                         renderItem={renderItem}
@@ -246,10 +250,6 @@ const HomeScreen = ({ user, orders, payments, products, clients, vision}: Props)
 
 const mapStateToProps = (state: RootState) => ({
     user: state.userReducer.user,
-    orders: state.ordersReducer.orders,
-    payments: state.paymentsReducer.payments,
-    products: state.productsReducer.products,
-    clients: state.clientsReducer.clients,
     vision: state.visionReducer.vision
 });
 

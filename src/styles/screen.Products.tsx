@@ -7,7 +7,7 @@ export const styles = StyleSheet.create({
         flex: 1
     }, 
     products: {
-        gap: 10,
+        gap: 5,
         padding: 5
     },
     messageNoRegister: {

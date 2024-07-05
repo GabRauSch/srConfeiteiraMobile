@@ -22,11 +22,10 @@ import { formatPhoneNumber } from "../util/transform"
 
 type Props = {
     user: User,
-    clients: Client[],
     newClientAction: (payload: any)=>void
 }
 
-const NewClient = ({user, clients, newClientAction}: Props)=>{
+const NewClient = ({user, newClientAction}: Props)=>{
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
     const {MessageDisplay, setMessageWithTimer} = useMessage();
@@ -43,15 +42,18 @@ const NewClient = ({user, clients, newClientAction}: Props)=>{
             userId: user.id,
             name
         }
-        if(phone) clientData.phone = phone;
+        if(phone) clientData.phone = phone.replace(/[^\d]/g, '');
         if(email) clientData.email = email;
         if(address) clientData.address = address
 
         const validation = validateClient(clientData);
         if(validation) return setMessageWithTimer(validation, 'error')
 
+        
+            
         const creation: any = await createClient(clientData);
         console.log(creation.data)
+        
         if(creation.status !== 200){
             return setMessageWithTimer(creation.data.message, 'error')
         } 
@@ -63,11 +65,12 @@ const NewClient = ({user, clients, newClientAction}: Props)=>{
             totalOrderValue: 0,
             phone: creation.data.phone,
             email: creation.data.email,
-            addresss: creation.data.address,
+            address: creation.data.address,
             nextDeliveryDate: creation.data.nextDeliveryDate
         }
         
-        console.log(clients)
+
+
         newClientAction(newClient);
         navigate.navigate('Clients', {screen: 'clients'})
     }
@@ -118,8 +121,7 @@ const NewClient = ({user, clients, newClientAction}: Props)=>{
 }
 
 const mapStateToProps = (state: RootState)=>({
-    user: state.userReducer.user,
-    clients: state.clientsReducer.clients
+    user: state.userReducer.user
 }) 
 
 const mapDispatchToProps = (dispatch: Dispatch)=>({

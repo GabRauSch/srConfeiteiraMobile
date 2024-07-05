@@ -3,12 +3,14 @@ import { styles } from '../styles/component.ClientItem';
 import { useState } from "react";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { COLORS } from "../styles/global";
-import { remainingTimeFrom } from "../util/transform";
+import { formatPhoneNumber, remainingTimeFrom } from "../util/transform";
 import ExcludeModal from "../modals/ExcludeModal";
 import { deleteClient } from "../services/Clients";
 import { Dispatch } from "redux";
 import { removeClient } from "../reducers/clientsReducer";
 import { connect } from "react-redux";
+import { useNavigation } from "@react-navigation/native";
+import useMessage from "../hooks/useMessage";
 
 type Props = {
     id: number, 
@@ -18,13 +20,15 @@ type Props = {
     totalOrderValue: number, 
     nextDeliveryDate: string,
     onPress: ()=>void,
-    removeClientAction: (payload: any)=>void
+    removeClientAction: (payload: any)=>void,
+    setError: (payload: string)=>void
 };
 
-const ClientItem = ({id, name, phone, orderCount, totalOrderValue, nextDeliveryDate, onPress, removeClientAction }: Props) => {
+const ClientItem = ({id, name, phone, orderCount, totalOrderValue, nextDeliveryDate, onPress, removeClientAction, setError }: Props) => {
     const [modalVisible, setModalVisible] = useState(false);
     const [modalPosition, setModalPosition] = useState({ x: 0, y: 0 });
     const [excludeModal, setExcludeModal] = useState(false);
+    const navigation = useNavigation() as any;
 
     const handleModalOpen = (event: any) => {
         const { pageX, pageY } = event.nativeEvent;
@@ -44,8 +48,19 @@ const ClientItem = ({id, name, phone, orderCount, totalOrderValue, nextDeliveryD
         removeClientAction(id)
     }
 
+    const handleExclude = ()=>{
+        if(orderCount == 0) {
+            setExcludeModal(true); 
+            setModalVisible(false);
+            return
+        }
+
+        setError('Cliente não pode ser excluído pois tem pedidos abertos')
+    }
+
 
     return (
+        <>
         <TouchableOpacity style={{...styles.client, borderColor: nextDeliveryDate === 'Pedido em atraso' ? '#c00' : 'transparent'}} activeOpacity={0.8} onPress={onPress}>
             <View style={styles.clientInfo}>
                 <View>
@@ -53,7 +68,7 @@ const ClientItem = ({id, name, phone, orderCount, totalOrderValue, nextDeliveryD
                     <View style={styles.clientList}>
                         <View style={styles.clientItem}>
                             <Text style={styles.info}>Contato: </Text>
-                            <Text style={styles.listItemText}>{phone}</Text>
+                            <Text style={styles.listItemText}>{formatPhoneNumber(phone)}</Text>
                         </View>
                         <View style={styles.clientItem}>
                             <Text style={styles.info}>Pedidos pendentes: </Text>
@@ -76,10 +91,10 @@ const ClientItem = ({id, name, phone, orderCount, totalOrderValue, nextDeliveryD
                                     <TouchableHighlight style={styles.clientModalText} onPress={()=>{onPress(); setModalVisible(false)}} underlayColor={COLORS.secondary}>
                                         <Text>Editar</Text>
                                     </TouchableHighlight>
-                                    <TouchableHighlight style={styles.clientModalText} onPress={()=>{setModalVisible(false)}} underlayColor={COLORS.secondary}>
+                                    <TouchableHighlight style={styles.clientModalText} onPress={()=>{setModalVisible(false), navigation.navigate('clientOrdersAndProducts', {id})}} underlayColor={COLORS.secondary}>
                                         <Text>Ver Pedidos</Text>
                                     </TouchableHighlight>
-                                    <TouchableHighlight style={styles.clientModalText} onPress={()=>{setExcludeModal(true); setModalVisible(false)}} underlayColor={'#f88'}>
+                                    <TouchableHighlight style={styles.clientModalText} onPress={handleExclude} underlayColor={'#f88'}>
                                         <Text>Excluir</Text>
                                     </TouchableHighlight>
                                 </View>
@@ -102,6 +117,8 @@ const ClientItem = ({id, name, phone, orderCount, totalOrderValue, nextDeliveryD
             <Text style={{...styles.time, color: nextDeliveryDate === 'Pedido em atraso' ? '#c00' : COLORS.secondary}}
             > {nextDeliveryDate} </Text>
         </TouchableOpacity>
+        </>
+
     );
 };
 

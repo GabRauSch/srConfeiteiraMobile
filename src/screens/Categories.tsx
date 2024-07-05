@@ -29,6 +29,8 @@ import { Product } from "../types/Product";
 import { setProducts } from "../reducers/productsReducer";
 import { getAllProductsByUserId } from "../services/Products";
 import { HeaderCreation } from "../components/HeaderCreation";
+import { useCategories } from "../hooks/useCategories";
+import { useProducts } from "../hooks/useProducts";
 
 
 type Props = {
@@ -42,7 +44,7 @@ type Props = {
 }
 
 
-const Categories = ({user, categories, products, setProductsAction, setCategoriesAction, updateCategoryAction, removeCategoryAction}: Props) => {
+const Categories = ({user, updateCategoryAction, removeCategoryAction}: Props) => {
     const [categoriesList, setCategoriesList] = useState<Category[]>([]);
     const [filteredCategories, setFilteredCategories] = useState<Category[]>([])
     const route = useRoute();
@@ -53,54 +55,25 @@ const Categories = ({user, categories, products, setProductsAction, setCategorie
     const [categoriesWithNoProducts, setCategoriesWithNoProducts] = useState<any>([]);
     const navigation = useNavigation() as any
 
+    const categories = useCategories(user.id);
+    const products = useProducts(user.id)
+
     const getData = async ()=>{
-        const newCategories = await findCategories(user.id);
-        if(newCategories.status)
-
-        console.log(newCategories.data)
-        setCategoriesList(newCategories.data);
-        setCategoriesAction(newCategories.data)
-        setFilteredCategories(newCategories.data)
-        
-        if (!products) {
-            const { data: products, status } = await getAllProductsByUserId(user.id);
-        
-            if (status !== 200) return;
-        
-            setProductsAction(products);
-        
-            const productCategoryIds = new Set(products.map((product: Product) => product.categoryId));
-        
-            const categoriesWithNoProducts = categories.filter((category: Category) => 
-                !productCategoryIds.has(category.id)
-            );
-        
-            setCategoriesWithNoProducts(categoriesWithNoProducts);
-        }
-
-        setProductsAction(products);
-        const productCategoryIds = new Set(products.map((product: Product) => product.categoryId));        
+        setCategoriesList(categories);
+        setFilteredCategories(categories)
+                
+        const productCategoryIds = new Set(products.map((product: Product) => product.categoryId));
         const categoriesWithNoProducts = categories.filter((category: Category) => 
             !productCategoryIds.has(category.id)
         );
+    
         setCategoriesWithNoProducts(categoriesWithNoProducts);
-
     }
 
     useEffect(() => {
         getData()
-    }, [user.id]);
+    }, [categories, products]);
 
-    useEffect(() => {
-        setCategoriesList(categories);
-        setFilteredCategories(categories);
-
-        const productCategoryIds = new Set(products.map((product: Product) => product.categoryId));        
-        const categoriesWithNoProducts = categories.filter((category: Category) => 
-            !productCategoryIds.has(category.id)
-        );
-        setCategoriesWithNoProducts(categoriesWithNoProducts);
-    }, [categories]);
 
     const search = (value: string)=>{
         setFilteredCategories(categoriesList.filter((el)=>el.description.toLowerCase().includes(value.toLowerCase())))

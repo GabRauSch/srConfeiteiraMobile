@@ -24,3 +24,8 @@ export const deleteClient = async (id: number)=>{
     const response = await callDeleteEndpoint(`/clients/${id}`);
     return response
 }
+
+export const getClientProducts = async (clientId: number)=>{
+    const response = await callGetEndpoint(`/clients/clientProducts/${clientId}`, []);
+    return response
+}

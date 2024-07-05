@@ -40,7 +40,7 @@ const ProductItem = ({id, name, value, description, image, onPress, removeProduc
 
     return (
         <TouchableOpacity style={styles.productItem} onPress={onPress}>
-            <Icon name="birthday-cake" size={30} color={COLORS.primary} />
+            <Icon name="birthday-cake" size={20} color={COLORS.primary} />
             <View style={styles.productDisplay}>
                 <Text style={styles.productName}>{name}</Text>
                 <Text style={styles.productDescription}>{description}</Text>

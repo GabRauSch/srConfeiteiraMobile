@@ -104,6 +104,8 @@ const ClientItem = ({clients, setClientInfoAction}: Props) => {
                     <InputEdit optional onChange={(value)=>{setDataUpdate(true); setAddress(value)}} label="Endereço" value={address}/>
                     <CreateButton text={'Novo pedido'} 
                         action={()=>handleNavigate('Orders', {screen: 'newOrder', clientId: id})} />
+                    <CreateButton text={'Salvar'} 
+                        action={handleSave} />
                 </View>
             </ScrollView>
         </>

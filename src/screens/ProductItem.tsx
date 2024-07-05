@@ -1,36 +1,34 @@
-import { Image, SafeAreaView, ScrollView, Text, TextInput, TouchableHighlight, TouchableOpacity, View } from "react-native";
-import { styles } from "../styles/screen.ProductItem";
-import { Picker } from "@react-native-picker/picker";
-import { useEffect, useState, useCallback } from "react";
-import InputEdit from "../components/InputEdit";
-import InputPicker from "../components/InputPicker";
-import { useNavigation, useRoute } from "@react-navigation/native";
-import { Product } from "../types/Product";
-import { connect } from "react-redux";
-import { RootState } from "../store";
-import { Dispatch } from "redux";
-import { setProductInfo } from "../reducers/productsReducer";
-import { User } from "../types/User";
-import { getAllProductsByUserId, getProductById, updateProduct } from "../services/Products";
-import { handleResponse } from "../services/responseMapping";
-import useMessage from "../hooks/useMessage";
-import { handleSetNumericValue, handleSetValue } from "../util/numeric";
-import { findCategories } from "../services/Categories";
-import InputNumber from "../components/InputNumber";
-import { validateProductEdit } from "../util/validation";
-import CreateButton from "../components/CreateButton";
-import { Category } from "../types/Category";
-import { COLORS } from "../styles/global";
-import { HeaderCreation } from "../components/HeaderCreation";
+import React, { useState, useEffect } from 'react';
+import { Image, SafeAreaView, ScrollView, Text, TextInput, TouchableHighlight, View } from 'react-native';
+import { styles } from '../styles/screen.ProductItem';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { connect } from 'react-redux';
+import { Dispatch } from 'redux';
+import { RootState } from '../store';
+import { setProductInfo } from '../reducers/productsReducer';
+import { Product } from '../types/Product';
+import { Category } from '../types/Category';
+import { useProducts } from '../hooks/useProducts';
+import { useCategories } from '../hooks/useCategories';
+import InputEdit from '../components/InputEdit';
+import InputPicker from '../components/InputPicker';
+import InputNumber from '../components/InputNumber';
+import CreateButton from '../components/CreateButton';
+import { updateProduct } from '../services/Products';
+import { handleResponse } from '../services/responseMapping';
+import { validateProductEdit } from '../util/validation';
+import { handleSetNumericValue, handleSetValue } from '../util/numeric';
+import { HeaderCreation } from '../components/HeaderCreation';
+import useMessage from '../hooks/useMessage';
+import { COLORS } from '../styles/global';
+import { User } from '../types/User';
 
 type Props = {
     user: User,
-    products: Product[],
-    categories: Category[],
     setProductInfo: (payload: any) => void
 }
 
-const ProductItem = ({ user, products, categories, setProductInfo }: Props) => {
+const ProductItem = ({ user, setProductInfo }: Props) => {
     const bolo = require('../assets/images/bolo.png');
     const route = useRoute();
     const { id } = route.params as any;
@@ -44,51 +42,32 @@ const ProductItem = ({ user, products, categories, setProductInfo }: Props) => {
     const [category, setCategory] = useState<Category>();
     const [categoriesList, setCategoriesList] = useState<Category[]>([]);
     const [newCategory, setNewCategory] = useState<string>('');
-    const navigation = useNavigation() as any
+    const navigation = useNavigation() as any;
 
-    const getData = async () => {
-        let foundProducts = products;
+    const products = useProducts(user.id);
+    const categories = useCategories(user.id);
 
-        if (!products.length) {
-            const { data, status } = await getAllProductsByUserId(user.id);
-            if (status !== 200) return setMessageWithTimer('Não foi possível encontrar os produtos', 'error');
-            foundProducts = data;
-        }
-
-        const foundProduct = foundProducts.find((product: Product) => product.id === id);
+    useEffect(() => {
+        const foundProduct = products.find((product: Product) => product.id === id);
         if (foundProduct) {
             setName(foundProduct.name);
             setDescription(foundProduct.description);
             setProductionCost(foundProduct.productionCost.toFixed(2).replace('.', ','));
             setProductValue(foundProduct.value.toFixed(2).replace('.', ','));
             setProfit(calculateProfit(foundProduct.productionCost, foundProduct.value));
+            setCategory(categories.find((el: any) => el.id === foundProduct?.categoryId));
+            setCategoriesList(categories);
         }
+    }, [id, products, categories]);
 
-        let foundCategories = categories;
-        if (!categories.length) {
-            const { data, status } = await findCategories(user.id);
-            if (status !== 200) return setMessageWithTimer('Não foi possível encontrar as categorias', 'error');
-            foundCategories = data;
-        }
-
-        setCategory(foundCategories.find((el: any) => el.id === foundProduct?.categoryId));
-        setCategoriesList(foundCategories);
+    const validateProduct = (product: any) => {
+        return validateProductEdit(product, categoriesList, products);
     };
-
-    useEffect(() => {
-        getData();
-    }, [user.id]);
-
-    const validateProduct = useCallback((product: any) => {
-        return validateProductEdit(product, categories, products);
-    }, [categories, products]);
 
     const handleSave = async () => {
         if (!dataUpdate) return setMessageWithTimer('Nenhum dado foi alterado', 'error');
 
-        console.log(category)
-
-        const categoryItem = categories.find((el: Category) => el.id === category?.id);
+        const categoryItem = categoriesList.find((el: Category) => el.id === category?.id);
         if (!categoryItem) return setMessageWithTimer('Erro ao encontrar categoria', 'error');
 
         const updateData: any = {
@@ -115,7 +94,6 @@ const ProductItem = ({ user, products, categories, setProductInfo }: Props) => {
 
         const updatedCategory = update.data.category || categoryItem;
         const productInfo = { id, ...updateData, category: updatedCategory.description };
-        console.log(productInfo)
 
         setProductInfo(productInfo);
         setMessageWithTimer('Produto alterado', 'success');
@@ -143,9 +121,9 @@ const ProductItem = ({ user, products, categories, setProductInfo }: Props) => {
         return (((newValue / newCost) - 1) * 100).toFixed(2).replace('.', ',');
     };
 
-    const handleNavigate = (url: string)=>{
-        navigation.navigate(url)
-    }
+    const handleNavigate = (url: string) => {
+        navigation.navigate(url);
+    };
 
     return (
         <>
@@ -241,8 +219,6 @@ const ProductItem = ({ user, products, categories, setProductInfo }: Props) => {
 
 const mapStateToProps = (state: RootState) => ({
     user: state.userReducer.user,
-    products: state.productsReducer.products,
-    categories: state.categoriesReducer.categories,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({

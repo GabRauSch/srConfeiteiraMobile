@@ -27,6 +27,8 @@ import { newOrder } from "../reducers/ordersReducer"
 import { Order } from "../types/Order"
 import { constructNow, format } from "date-fns"
 import { HeaderCreation } from "../components/HeaderCreation"
+import useClients from "../hooks/useClients"
+import { useProducts } from "../hooks/useProducts"
 
 
 type Props = {
@@ -37,7 +39,7 @@ type Props = {
 }
 
 
-const NewOrder = ({ user, clients, products, newOrderAction }: Props) => {
+const NewOrder = ({ user, newOrderAction }: Props) => {
     const { MessageDisplay, setMessageWithTimer } = useMessage();
     const [client, setClient] = useState<any>();
     const [clientsList, setClientList] = useState<any[]>([]);
@@ -58,48 +60,19 @@ const NewOrder = ({ user, clients, products, newOrderAction }: Props) => {
 
     const contentRef = useRef<View>(null);
 
-
-    const getData = async () => {       
-        if(clients.length == 0){
-            const newClients = await getAllClientsByUserId(user.id);
-            if(newClients.data.status !== 200) {
-                setClientList([]);
-                setFilteredClients([])
-            } 
-            const sortedClients = sortClientNames(newClients.data);
-            const clientsMapped = sortedClients.map((client: any) => ({ id: client.id, description: client.name }));
-            setClientList(clientsMapped);
-            setFilteredClients(clientsMapped)
-        }
-
-        
-        setProductsList(sortProducts(products));
-        setFilteredProducts(sortProducts(products))
-        if(products.length ==0){
-            const {data: products} = await getAllProductsByUserId(user.id);
-            setProductsList(sortProducts(products));
-            setFilteredProducts(sortProducts(products))
-        }
-
-    }
+    const clients = useClients(user.id);
+    const products = useProducts(user.id);
 
     useEffect(() => {
-        getData()
-    }, [user.id])
+        const sortedClients = sortClientNames(clients);
+        const clientsMapped = sortedClients.map((client: any) => ({ id: client.id, description: client.name }));
+        setClientList(clientsMapped);
+        setFilteredClients(clientsMapped)
 
-    useEffect(()=>{
-        if(clients.length > 0){
-            const sortedClients = sortClientNames(clients);
-            const clientsMapped = sortedClients.map((client: any) => ({ id: client.id, description: client.name }));
-            setClientList(clientsMapped);
-            setFilteredClients(clientsMapped)
-        }
+        setProductsList(sortProducts(products));
+        setFilteredProducts(sortProducts(products))
+    }, [clients, products])
 
-        if(products.length > 0){
-            setProductsList(sortProducts(products));
-            setFilteredProducts(sortProducts(products))
-        }
-    }, [])
 
     useEffect(()=>{
         sumProducts()
@@ -233,7 +206,6 @@ const NewOrder = ({ user, clients, products, newOrderAction }: Props) => {
     }, [productsList]);
 
     const onSetDate = (event: any, selectedDate: any) => {
-        console.log('pc orque duas vezes esse demonio?', showDate)
         const currentDate = selectedDate || date;
         setShowDate(Platform.OS === 'ios');
         setDate(currentDate);

@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import { COLORS, SHADOW } from "./global";
+import { COLORS, LABEL, SHADOW } from "./global";
 
 export const styles = StyleSheet.create({
     client: {
@@ -76,9 +76,7 @@ export const styles = StyleSheet.create({
         gap: 1,
     },
     separator: {
-        color: COLORS.primary,
-        opacity: 0.5,
-        marginVertical: 10
+        ...LABEL
     },
     info: {
         color: '#999',

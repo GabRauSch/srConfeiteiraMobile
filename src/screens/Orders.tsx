@@ -21,53 +21,42 @@ import { sortOrders } from "../util/sorter";
 import { setUser } from "../reducers/userReducer";
 import * as SecureStore from 'expo-secure-store';
 import { formatDate } from "date-fns";
+import useOrders from "../hooks/useOrders";
+import LoadingPage from "../components/LoadingPage";
 
 type Props = {
     vision: boolean,
     user: User,
-    orders: Order[],
     setOrdersAction: (payload: any)=>void
     setUserAction: (payload: any)=>void
 }
 
-const OrdersScreen = ({vision, user, orders, setOrdersAction, setUserAction}: Props)=>{
+const OrdersScreen = ({vision, user, setOrdersAction, setUserAction}: Props)=>{
     const status = ["Abertos", "Finalizados", "Entregues"]
     const options = ["Todos", ...status, 'mais'];
     const [selectedStatus, setSelectedStatus] = useState<number>(-1); 
     const [activeKey, setActiveKey] = useState(0);
     const [createOptionsDisplay, setCreateOptionsDisplay] = useState(false);
-    const [ordersList, setOrdersList] = useState<Order[]>([]);
+    const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
     const [orderAggregated, setOrderAggregated] = useState<OrderAggregated[]>([]);
     const [days, setDays] = useState<any[]>([]);
     const now = new Date().getTime();
     const [displayMode, setDisplayMode] = useState(false);
+    const [loading, setLoading] = useState(true); 
+
+    const fetchedOrders = useOrders(user.id as number);
+
+    useEffect(() => {
+        setDays(getUniqueDaysFrom(fetchedOrders, 'deliveryDay'));
+        setFilteredOrders(fetchedOrders)
+        setOrderAggregated(aggregateOrdersByProduct(fetchedOrders))
+    }, [fetchedOrders, setOrdersAction]);
 
     useEffect(()=>{
-        const handleGetData = async ()=>{
-            const {data: orders, status} = await getAllOrdersByUserId(user.id as number);
-            const uniqueDays = getUniqueDaysFrom(orders, 'deliveryDay');
-            console.log(uniqueDays)
-            setDays(uniqueDays);
-            setOrdersList(sortOrders(orders));
-            const agg = aggregateOrdersByProduct(orders);
-            setOrderAggregated(agg)
+        setLoading(false);
+    }, [fetchedOrders])
 
-            setOrdersAction(orders);            
-        };
-        handleGetData();
-    }, [user.id])
-
-    useEffect(()=>{
-        setDays(getUniqueDaysFrom(orders, 'deliveryDay'));
-        setOrdersList(sortOrders(orders));
-        setOrderAggregated(aggregateOrdersByProduct(orders))
-    }, [orders])
-    
     const navigate = useNavigation() as any;
-
-    const filteredStatus = selectedStatus 
-        ? statusList.filter(status => status === selectedStatus) 
-        : statusList;
 
     const handleNavigate = (url: string, orderId: number)=>{
         navigate.navigate(url, {id: orderId}) 
@@ -103,12 +92,18 @@ const OrdersScreen = ({vision, user, orders, setOrdersAction, setUserAction}: Pr
     };
 
     const noOrders = !days.some(day => 
-        ordersList.some(order => formateDateFun(order.deliveryDay) === day && (order.status === selectedStatus || selectedStatus === -1))
+        fetchedOrders.some(order => formateDateFun(order.deliveryDay) === day && (order.status === selectedStatus || selectedStatus === -1))
     );
     
+
+    const handleSearch = (search: string)=>{
+        const filteredOrders = fetchedOrders.filter((el)=>el.client.includes(search))
+        setFilteredOrders(filteredOrders)
+    }
+
     return (
         <>
-        <SearchInput onChange={(value)=>{}} onSearch={()=>{}} onToggleVision={()=>setDisplayMode(!displayMode)}/>
+        <SearchInput onChange={handleSearch} onSearch={()=>{}} onToggleVision={()=>setDisplayMode(!displayMode)}/>
         <View>
             <ScrollView horizontal={true} style={styles.options}
                 showsHorizontalScrollIndicator={false}
@@ -127,32 +122,45 @@ const OrdersScreen = ({vision, user, orders, setOrdersAction, setUserAction}: Pr
         </View>
         <HorizontalLine />
         <ScrollView style={styles.page}>
+            {loading &&
+                <LoadingPage />
+            }
+
             {noOrders ? (
                 <Text style={styles.messageNoRegister}>Sem pedidos</Text>
             ) : (
                 days.map((day: any, Dkey)=>{                    
                     return (
 
-                    ordersList.some(order => formateDateFun(order.deliveryDay) === day && (order.status === selectedStatus || selectedStatus === -1) && order.status !==2) && (
+                    filteredOrders.some(order => formateDateFun(order.deliveryDay) === day && (order.status === selectedStatus || selectedStatus === -1) && order.status !==2) && (
                     <React.Fragment key={Dkey}>
                         <Text style={{...styles.separator, 
                             color: day == 'em atraso' ? 'red' : COLORS.primary 
                         }}>Entrega {day}:</Text>
-                        <ScrollView horizontal style={styles.ordersDisplay}>
-                            
+                        <View style={styles.ordersDisplay}>
                             {displayMode ? (
-                                orderAggregated.filter(order=>formateDateFun(order.deliveryDate) == day).map((agg, Akey)=>(
-                                    <TouchableOpacity style={styles.order} key={Akey}>
-                                        <View style={[styles.labelOrder, agg.status != 1 ? styles.openOrder : styles.closedOrder]}></View>
-                                        <Text style={styles.name}>{agg.name}</Text>
-                                        <View style={styles.unitsDisplay}>
-                                            <View style={styles.listItem}>
-                                                <Text style={styles.listItemText}>{agg.amount} unidades</Text>
-                                            </View>
-                                        </View>
-                                    </TouchableOpacity>  
-                                ))) : (
-                                    ordersList.filter(order=> formateDateFun(order.deliveryDay) == day)
+                                <View style={{width:'100%'}}>
+                                    {
+                                        orderAggregated.filter(order=>formateDateFun(order.deliveryDate) == day).map((agg, Akey)=>(
+                                            <TouchableOpacity style={styles.orderAgg} key={Akey}>
+                                                <View style={[styles.labelOrder, agg.status != 1 ? styles.openOrder : styles.closedOrder]}></View>
+                                                <Text style={styles.name}>{agg.name}</Text>
+                                                <View style={styles.unitsDisplay}>
+                                                    <View style={styles.listItem}>
+                                                        <Text style={styles.listItemText}>{agg.amount} unidades</Text>
+                                                    </View>
+                                                    <View>
+                                                        <Text style={styles.listItemText}>{formatDate(agg.deliveryDate, 'dd/MM/yyyy')}</Text>
+                                                    </View>
+                                                </View>
+                                            </TouchableOpacity>  
+                                        ))
+                                    }
+                                </View>
+                            ) : (
+                                <ScrollView horizontal>
+                                    {
+                                        filteredOrders.filter(order=> formateDateFun(order.deliveryDay) == day)
                                         .map((item, key)=>{ 
                                             return (item.status == selectedStatus || (selectedStatus == -1 && item.status !==2)) && (
                                                 <TouchableOpacity 
@@ -161,7 +169,7 @@ const OrdersScreen = ({vision, user, orders, setOrdersAction, setUserAction}: Pr
                                                 >
                                                     <View style={[styles.labelOrder, item.status != 0 ?  styles.closedOrder : styles.openOrder]}></View>
                                                     <Text  style={{...styles.name, color: new Date(item.deliveryDay).getTime() < now ? '#c00' : 'black'}}>
-                                                        {item.client} {item.orderNumber}
+                                                        {item.client}
                                                     </Text>
                                                     <View style={styles.orderList}>
                                                         {item.products.slice(0,3).map((product, Pkey)=>(
@@ -177,8 +185,11 @@ const OrdersScreen = ({vision, user, orders, setOrdersAction, setUserAction}: Pr
                                                 </TouchableOpacity>
                                             )
                                         })
-                                    )}
-                        </ScrollView>
+                                    }
+                                </ScrollView>
+                                    
+                            )}
+                        </View>
                     </React.Fragment>
                     )
                     )
@@ -192,7 +203,6 @@ const OrdersScreen = ({vision, user, orders, setOrdersAction, setUserAction}: Pr
 const mapStateToProps = (state: RootState) => ({
     vision: state.visionReducer.vision,
     user: state.userReducer.user,
-    orders: state.ordersReducer.orders
   });
   
 const mapDispatchToProps = (dispatch: Dispatch)=>({

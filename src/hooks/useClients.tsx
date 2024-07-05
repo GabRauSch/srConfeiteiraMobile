@@ -10,20 +10,26 @@ const useClients = (userId: number) => {
     const clients = useSelector((state: RootState) => state.clientsReducer.clients);
 
     useEffect(() => {
-        if (clients.length === 0) {
-            const fetchClients = async () => {
-                const response = await getAllClientsByUserId(userId);
-                if (response.status === 200) {
-                    const sortedClients = sortClients(response.data);
-                    dispatch(setClients(sortedClients));
-                } else {
-                    console.error('Failed to fetch clients');
-                }
-            };
-
-            if (userId) {
-                fetchClients();
+        const fetchClients = async () => {
+            try {
+                if (clients.length === 0) {
+                    const response = await getAllClientsByUserId(userId);
+                    console.log('clients', response.status)
+                    if (response.status === 200) {
+                        console.log('clientes do caralho')
+                        const sortedClients = sortClients(response.data);
+                        dispatch(setClients(sortedClients));
+                    } else {
+                        console.error('Failed to fetch clients');
+                    }
+                };
+            } catch (error) {
+                
             }
+        }
+
+        if (userId) {
+            fetchClients();
         }
     }, [userId, dispatch, clients]);
 

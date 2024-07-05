@@ -23,11 +23,10 @@ import { newCategory } from "../reducers/categoriesReducer"
 
 type Props = {
     user: User,
-    clients: Client[],
     newCategoryAction: (payload: any)=>void
 }
 
-const NewCategory = ({user, clients, newCategoryAction}: Props)=>{
+const NewCategory = ({user, newCategoryAction}: Props)=>{
     const [description, setDescription] = useState('');
     const {MessageDisplay, setMessageWithTimer} = useMessage();
     const navigate = useNavigation() as any
@@ -39,7 +38,6 @@ const NewCategory = ({user, clients, newCategoryAction}: Props)=>{
         if(creation.status !== 200){
             return setMessageWithTimer(creation.data.message, 'error')
         } 
-        console.log(creation.data)
         newCategoryAction({id: creation.data.id, description: creation.data.description});
         navigate.goBack()
     }
@@ -70,8 +68,7 @@ const NewCategory = ({user, clients, newCategoryAction}: Props)=>{
 }
 
 const mapStateToProps = (state: RootState)=>({
-    user: state.userReducer.user,
-    clients: state.clientsReducer.clients
+    user: state.userReducer.user
 }) 
 
 const mapDispatchToProps = (dispatch: Dispatch)=>({

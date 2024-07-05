@@ -14,6 +14,16 @@ export const styles = StyleSheet.create({
         marginRight: 5,
         marginVertical: 15
     },  
+    orderAgg: {
+        ...SHADOW,
+        borderColor: '#c00',
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        position: 'relative',
+        padding: 10,
+        margin: 2,
+        marginRight: 5,
+    },
     options: {
         flexDirection: 'row',
     },

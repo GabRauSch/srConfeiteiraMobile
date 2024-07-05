@@ -15,6 +15,8 @@ import { HorizontalLine } from '../components/HorizontalLine';
 import useClients from '../hooks/useClients'; // Adjust the import based on your file structure
 import { Dispatch } from 'redux';
 import { setClients } from '../reducers/clientsReducer';
+import LoadingPage from '../components/LoadingPage';
+import useMessage from '../hooks/useMessage';
 
 type Props = {
     user: User,
@@ -24,17 +26,21 @@ type Props = {
 
 const ClientsScreen = ({ user, clients, setClientsAction }: Props) => {
     const [modalVisible, setModalVisible] = useState(false);
+    const [loading, setLoading] = useState(true); 
     const navigate = useNavigation() as any;
     const [clientsList, setClientsList] = useState<Client[]>([]);
-    const options = ['Todos', 'Com pedidos'];
+    const options = ['Todos', 'Com pedidos', 'Sem pedidos'];
     const [activeKey, setActiveKey] = useState(0);
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    const { MessageDisplay, setMessageWithTimer } = useMessage();
+
 
     const fetchedClients = useClients(user.id);
 
     useEffect(() => {
         const sortedClients = sortClients(fetchedClients);
         setClientsList(sortedClients);
+        setLoading(false);
     }, [fetchedClients]);
 
     const toggleModal = () => {
@@ -63,8 +69,12 @@ const ClientsScreen = ({ user, clients, setClientsAction }: Props) => {
         // Logic for completing search
     };
 
+    const filteredClientsWithOrders = clientsList.filter(client => client.orderCount > 0);
+    const filteredClientsWithoutOrders = clientsList.filter(client => client.orderCount === 0);
+
     return (
         <>
+            <MessageDisplay />
             <TouchableWithoutFeedback onPress={closeModal}>
                 <View style={styles.modalBackground} />
             </TouchableWithoutFeedback>
@@ -82,12 +92,16 @@ const ClientsScreen = ({ user, clients, setClientsAction }: Props) => {
                 </ScrollView>
             </View>
             <HorizontalLine />
+            {loading &&
+                <LoadingPage />
+            }
+
             <ScrollView style={styles.scroll}>
                 <View style={styles.scrollView}>
-                    {clientsList.length > 0 ? (
-                        clientsList
-                            .filter((el) => el.orderCount >= activeKey)
-                            .map((client: Client, key) => (
+                    {activeKey !== 2 && filteredClientsWithOrders.length > 0 && (
+                        <>
+                            <Text style={styles.separator}>Com Pedidos</Text>
+                            {filteredClientsWithOrders.map((client: Client, key) => (
                                 <ClientItem
                                     key={key}
                                     id={client.id}
@@ -97,9 +111,31 @@ const ClientsScreen = ({ user, clients, setClientsAction }: Props) => {
                                     totalOrderValue={client.totalOrderValue}
                                     nextDeliveryDate={remainingTimeFrom(client.nextDeliveryDate)}
                                     onPress={() => handleNavigate('client', client.id)}
+                                    setError={(error)=>setMessageWithTimer(error, 'error')}
                                 />
-                            ))
-                    ) : (
+                            ))}
+                        </>
+                    )}
+                    <HorizontalLine />
+                    {activeKey !== 1 && filteredClientsWithoutOrders.length > 0 && (
+                        <>
+                            <Text style={styles.separator}>Sem Pedidos</Text>
+                            {filteredClientsWithoutOrders.map((client: Client, key) => (
+                                <ClientItem
+                                    key={key}
+                                    id={client.id}
+                                    name={client.name}
+                                    phone={client.phone}
+                                    orderCount={client.orderCount}
+                                    totalOrderValue={client.totalOrderValue}
+                                    nextDeliveryDate={remainingTimeFrom(client.nextDeliveryDate)}
+                                    onPress={() => handleNavigate('client', client.id)}
+                                    setError={(error)=>setMessageWithTimer(error, 'error')}
+                                />
+                            ))}
+                        </>
+                    )}
+                    {filteredClientsWithOrders.length === 0 && filteredClientsWithoutOrders.length === 0 && (
                         <Text style={styles.messageNoRegister}>Nenhum cliente encontrado</Text>
                     )}
                 </View>

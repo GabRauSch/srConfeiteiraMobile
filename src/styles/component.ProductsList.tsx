@@ -10,7 +10,7 @@ export const styles = StyleSheet.create({
         shadowOpacity: 0.6, 
         shadowRadius: 4,
         elevation: 2,
-        padding: 15,
+        padding: 5,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center'

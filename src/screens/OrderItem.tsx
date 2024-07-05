@@ -28,10 +28,11 @@ import { formatDate } from "date-fns";
 import { setOrderInfo } from "../reducers/ordersReducer";
 import { Order } from "../types/Order";
 import { Dispatch } from "redux";
+import { useProducts } from "../hooks/useProducts";
+import { createAndSharePdf } from "../util/converter";
 
 type Props = {
     user: User,
-    products: Product[],
     setOrderAction: (data: Partial<Order>)=>void
 }
 
@@ -44,7 +45,7 @@ type OrderData = {
     orderNumber: number
 }
 
-const OrderItem = ({user, products, setOrderAction}: Props) => {
+const OrderItem = ({user, setOrderAction}: Props) => {
     const [status, setStatus] = useState<any>([]);
     const [orderItems, setOrderItems] = useState<OrderItems[]>([]);
     const [orderData, setOrderData] = useState<OrderData>();
@@ -63,58 +64,41 @@ const OrderItem = ({user, products, setOrderAction}: Props) => {
     
     const contentRef = useRef<View>(null);
 
+    const fetchedProducts = useProducts(user.id)
 
     useEffect(() => {
         const handleGetData = async () => {
             try {
                 const {data, status} = await getByOrderId(id);
-                
-                if(status !== 200) return setMessageWithTimer('erro ao buscar dados', 'error')
-                console.log('backend', data)
-
+                if(status !== 200) return setMessageWithTimer('erro ao buscar dados', 'error');
                 setOrderData(data);
                 setOrderItems(data.items);
                 calculateTotal(data.items)
-                
+    
                 const statusArray = data.items.map((el: any) => el.finished);
                 setStatus(statusArray);
                 
                 const concluded = statusArray.filter((status: any) => status).length
                 const percentage = concluded / statusArray.length;
                 setPercentage(percentage);
-
-                if(!products || products.length ==0){
-                    const {data: products, status} = await getAllProductsByUserId(user.id);
-                    
-                    const filteredProducts = products.filter((product: any) => {
-                        const isInOrder = data.items.some((orderItem: any) => orderItem.productId === product.id);
-            
-                        const isSelected = selectedProducts.some(selectedProduct => selectedProduct.id === product.id);
-            
-                        return !isInOrder && !isSelected;
-                    });
-
-                    setProductsList(sortProducts(products));
-                    setFilteredProducts(sortProducts(filteredProducts))
-                } else {
-                    const filteredProducts = products.filter(product => {
-                        const isInOrder = orderItems.some(orderItem => orderItem.productId === product.id);
-            
-                        const isSelected = selectedProducts.some(selectedProduct => selectedProduct.id === product.id);
-            
-                        return !isInOrder && !isSelected;
-                    });
-
-                    setProductsList(sortProducts(products));
-                    setFilteredProducts(sortProducts(filteredProducts))
-                }
+    
+                const filteredProducts = fetchedProducts.filter((product: any) => {
+                    const isInOrder = data.items.some((orderItem: any) => orderItem.productId === product.id);
+        
+                    const isSelected = selectedProducts.some(selectedProduct => selectedProduct.id === product.id);
+        
+                    return !isInOrder && !isSelected;
+                });
+    
+                setProductsList(sortProducts(fetchedProducts));
+                setFilteredProducts(sortProducts(filteredProducts))
             } catch (error) {
-                console.error("Failed to fetch order data:", error);
+                console.log('erro')
             }
-        }
 
-        handleGetData();
-    }, [])
+        }
+        handleGetData()
+    }, [fetchedProducts, setOrderAction]);
     
     const handleNavigate = (url: string, id: number)=>{
         navigate.navigate(url, {id})
@@ -142,7 +126,7 @@ const OrderItem = ({user, products, setOrderAction}: Props) => {
     };
 
     const handleBudget = ()=>{
-
+        createAndSharePdf()
     }
     const handleDeliverOrder = ()=>{
         if(percentage !== 1) return setMessageWithTimer('Conclua todos os itens do pedido', 'error');
@@ -405,7 +389,6 @@ const OrderItem = ({user, products, setOrderAction}: Props) => {
 
 const mapStateToProps = (state: RootState) => ({
     user: state.userReducer.user,
-    products: state.productsReducer.products
 })
 
 const mapDispatchToProps = (dispatch: Dispatch)=>({

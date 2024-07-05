@@ -22,17 +22,18 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import { COLORS } from "../styles/global"
 import { HeaderCreation } from "../components/HeaderCreation"
 import { Category } from "../types/Category"
+import { useProducts } from "../hooks/useProducts"
+import { useCategories } from "../hooks/useCategories"
+import { sortCategories } from "../util/sorter"
 
 
 type Props = {
     user: User,
-    products: Product[],
-    categories: Category[]
     newProductAction: (payload: any)=>void,
     setCategoriesAction: (payload: any)=>void
 }
 
-const NewProduct = ({user, products, categories, newProductAction, setCategoriesAction}: Props)=>{
+const NewProduct = ({user, newProductAction, setCategoriesAction}: Props)=>{
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [productValue, setProductValue] = useState('0,00');
@@ -43,45 +44,14 @@ const NewProduct = ({user, products, categories, newProductAction, setCategories
     const {MessageDisplay, setMessageWithTimer} = useMessage();
     const navigation = useNavigation() as any
 
-
-    const handleFindCategories = async ()=>{
-        const categories = await findCategories(user.id);
-        if(categories.status !== 200) return setMessageWithTimer('erro ao buscar categorias', 'error');
-
-        const sortedCategories = categories.data.sort((a:any, b: any) => {
-            const nameA = a.description.toLowerCase();
-            const nameB = b.description.toLowerCase();
-            if (nameA < nameB) return -1;
-            if (nameA > nameB) return 1;
-            
-            return 0;
-        })
-        
-        setCategory(categories.data[0].id)
-        setCategoriesList(sortedCategories)
-        setCategoriesAction(sortedCategories)
-    }
+    const products = useProducts(user.id);
+    const categories = useCategories(user.id);
 
     useEffect(()=>{
-        handleFindCategories()
-    }, [user.id])
 
-    useEffect(()=>{
-        if(categories.length == 0) {
-            handleFindCategories()
-        } 
-        const sortedCategories = categories.sort((a:any, b: any) => {
-            const nameA = a.description.toLowerCase();
-            const nameB = b.description.toLowerCase();
-            if (nameA < nameB) return -1;
-            if (nameA > nameB) return 1;
-            
-            return 0;
-        })
-        console.log(sortedCategories)
         setCategory(categories[0])
-        setCategoriesList(sortedCategories)
-    }, [categories])
+        setCategoriesList(sortCategories(categories))
+    }, [products, categories])
 
     const validateProduct = (product: any)=>{
         return validateProductCreate(product, categories, products)
@@ -169,9 +139,7 @@ const NewProduct = ({user, products, categories, newProductAction, setCategories
 }
 
 const mapStateToProps = (state: RootState)=>({
-    user: state.userReducer.user,
-    products: state.productsReducer.products,
-    categories: state.categoriesReducer.categories
+    user: state.userReducer.user
 }) 
 
 const mapDispatchToProps = (dispatch: Dispatch)=>({

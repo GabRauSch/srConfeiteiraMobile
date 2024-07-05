@@ -4,6 +4,7 @@ import ClientsScreen  from "../screens/Clients";
 import ClientItem  from "../screens/ClientItem";
 import InputEdit from "../components/InputEdit";
 import NewClient from "../screens/NewClient";
+import ClientOrdersAndProducts from "../screens/ClientOrdersAndProducts";
 
 const Stack = createStackNavigator();
 
@@ -28,6 +29,11 @@ export default ()=>(
         <Stack.Screen name="newClient">
             {()=>(
                 <NewClient/>
+            )}
+        </Stack.Screen>
+        <Stack.Screen name="clientOrdersAndProducts">
+            {()=>(
+                <ClientOrdersAndProducts/>
             )}
         </Stack.Screen>
     </Stack.Navigator>
