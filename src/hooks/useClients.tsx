@@ -14,14 +14,10 @@ const useClients = (userId: number) => {
             try {
                 if (clients.length === 0) {
                     const response = await getAllClientsByUserId(userId);
-                    console.log('clients', response.status)
                     if (response.status === 200) {
-                        console.log('clientes do caralho')
                         const sortedClients = sortClients(response.data);
                         dispatch(setClients(sortedClients));
-                    } else {
-                        console.error('Failed to fetch clients');
-                    }
+                    } 
                 };
             } catch (error) {
                 

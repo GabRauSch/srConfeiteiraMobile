@@ -7,7 +7,7 @@ export const styles = StyleSheet.create({
         borderRadius: 10,
         padding: 10,
         width: 'auto',
-        zIndex: 9999
+        zIndex: 9989
     },
     inverted: {
         borderWidth: 2,

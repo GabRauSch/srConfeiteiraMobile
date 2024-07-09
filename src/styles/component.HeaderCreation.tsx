@@ -4,6 +4,6 @@ export const styles = StyleSheet.create({
     home: {
         position: 'absolute',
         padding:10,
-        zIndex: 999
+        zIndex: 998
     },
 })

@@ -46,7 +46,7 @@ const OrderProduct = ({id, name, value, quantity, finished, orderItemId, handleC
                 <Text style={styles.orderTitle}>{name}</Text>
                 <Text>R${(value * quantity).toFixed(2).replace('.', ',')}</Text>
                 <RoundCheckBox active={finished} onCheck={() => handleCheck(orderItemId)} />
-                <TouchableOpacity onPress={handleEditModal} style={{padding: 15, alignItems: 'flex-end'}}>
+                <TouchableOpacity onPress={handleEditModal} style={{alignItems: 'flex-end'}}>
                     <Icon name="ellipsis-v" size={20} color={'#555'}/>
                 </TouchableOpacity>
             </View>

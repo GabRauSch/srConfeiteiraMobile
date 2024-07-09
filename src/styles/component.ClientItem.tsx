@@ -17,14 +17,14 @@ export const styles = StyleSheet.create({
     modal: {
         position: 'relative',
         height: '100%',
-        zIndex: 999
+        zIndex: 998
     },
     
     clientModal: {
         position: 'absolute',
         width: 100,
         backgroundColor: '#fff',
-        zIndex: 999,
+        zIndex: 998,
         ...SHADOW,
         borderRadius: 5,
         overflow: 'hidden'

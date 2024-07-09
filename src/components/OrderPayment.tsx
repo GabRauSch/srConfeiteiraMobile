@@ -78,7 +78,6 @@ const OrderPayment = ({user, products}: Props) => {
                 setOrderData(orderData);
                 setShowChoosePayment(orderData.selectedPayment == null)
                 if(data.selectedPayment) setSelectedPaymentType(data.selectedPayment)
-                console.log('paymentId', data.payments)
                 setPayments(data.payments);
                 setAllowExclusion(!!data.payments.filter((el: any)=>el.paidValue !== null))
 
@@ -225,7 +224,6 @@ const OrderPayment = ({user, products}: Props) => {
             return payment.paymentId === updateModal.paymentId ? { ...payment, paymentValue: newValue, dueDate: updateModal.dueDate } : payment;
         }
         );
-        console.log(updatedPayments)
         setPayments(updatedPayments);
     };
 

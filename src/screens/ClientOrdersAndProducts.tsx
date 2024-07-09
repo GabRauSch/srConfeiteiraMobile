@@ -21,7 +21,7 @@ import { User } from "../types/User";
 import { findCategories, updateCateogoryById } from "../services/Categories";
 import { HorizontalLine } from "../components/HorizontalLine";
 import SearchInput from "../components/SearchInput";
-import { COLORS } from "../styles/global";
+import { COLORS, LABEL } from "../styles/global";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import EditModal from "../modals/EditModal";
 import ExcludeModal from "../modals/ExcludeModal";
@@ -35,6 +35,8 @@ import LoadingPage from "../components/LoadingPage";
 import useOrders from "../hooks/useOrders";
 import { Order } from "../types/Order";
 import useClients from "../hooks/useClients";
+import { sortOrders } from "../util/sorter";
+import { formatDate } from "date-fns";
 
 
 type Props = {
@@ -43,7 +45,10 @@ type Props = {
 
 type ClientProduct = {
     id: number,
-    name: string
+    name: string,
+    deliveryDate: Date,
+    value: number,
+    quantity: number
 }
 
 const ClientOrdersAndProducts = ({user}: Props) => {
@@ -52,7 +57,8 @@ const ClientOrdersAndProducts = ({user}: Props) => {
     const [client, setClient] = useState<Client>()
     const [loading, setLoading] = useState(true)
     const route = useRoute() as any;
-    const {id: clientId} = route.params as any
+    const {id: clientId} = route.params as any;
+    const [uniqueDays, setUniqueDays] = useState<any[]>([])
 
     const orders = useOrders(user.id);
     const clients = useClients(user.id);
@@ -60,13 +66,20 @@ const ClientOrdersAndProducts = ({user}: Props) => {
     useEffect(()=>{
         
         try {
-            console.log(clients, clientId)
             setOrdersList(orders)
             const getData = async ()=>{
                 const clientProducts = await getClientProducts(clientId);
                 if(clientProducts.status !== 200) return 
                 
-               setProducts(clientProducts.data)
+                const uniqueDates = new Set();
+                clientProducts.data.map((el: any)=>{
+                    uniqueDates.add(formatDate(el.deliveryDate, 'dd/MM/yyyy'))
+                })
+
+                setUniqueDays(Array.from(uniqueDates).reverse());
+
+                console.log(Array.from(uniqueDates))
+                setProducts(sortOrders(clientProducts.data))
 
                 const foundClient = clients.find((el)=> el.id == clientId);
                 console.log(foundClient)
@@ -88,23 +101,30 @@ const ClientOrdersAndProducts = ({user}: Props) => {
     }
 
     return (
-        <View style={{padding: 10}}>
+        <View style={{padding:20}}>
             <View>
-                <HeaderCreation url="clients" title={`Produtos pedidos por ${client?.name}`}/>
+                <HeaderCreation url="clients" title={`Pedidos por ${client?.name}`}/>
             </View>
             <HorizontalLine />
             <View style={styles.page}>
-                <Text style={styles.separator}>Produtos</Text>
                 <ScrollView style={styles.categories}>
-                    {products.map((el, key)=>{
-                        return (
-                            <View
-                                style={styles.category} 
-                                key={key}>
-                                <Text style={{fontSize: 16, flex: 1}}>{el.name}</Text>
-                            </View>
-                        )})
-                    }
+                    {uniqueDays.map((day, key)=>(
+                        <View key={key}>
+                        <Text style={{...LABEL}}>{day}</Text>
+                            {products.filter((product)=>formatDate(product.deliveryDate, 'dd/MM/yyyy') == day).map((el, key)=>{
+                                return (
+                                    <View
+                                        style={styles.category} 
+                                        key={key}>
+                                        <Text style={{fontSize: 16, flex: 6}}>{el.name}</Text>
+                                        <Text style={{fontSize: 16, flex: 1}}>{el.quantity}</Text>
+                                        <Text style={{fontSize: 16, flex: 2}}>R${el.value}</Text>
+                                        <Text style={{fontSize: 16, flex: 2}}>R${el.value * el.quantity}</Text>
+                                    </View>
+                                )
+                            })}
+                        </View>
+                    ))}
                     <View style={{marginBottom: 360}}></View>
                 </ScrollView>
             </View>

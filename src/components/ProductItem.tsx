@@ -48,7 +48,7 @@ const ProductItem = ({id, name, value, description, image, onPress, removeProduc
             <Text style={styles.value}>
                 R${value.toFixed(2).replace('.', ',')} 
             </Text>
-            <TouchableOpacity style={{zIndex: 99999, padding: 10, width: 45, alignItems: 'flex-end'}} 
+            <TouchableOpacity style={{zIndex: 99899, padding: 10, width: 45, alignItems: 'flex-end'}} 
                 onPress={(e) => handleModalOpen(e)}>
                 <Icon name="ellipsis-v" size={15} color="black" />
             </TouchableOpacity>

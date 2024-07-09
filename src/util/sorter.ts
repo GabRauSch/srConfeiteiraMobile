@@ -26,8 +26,6 @@ export const sortCategories = (categories: Category[])=>{
 }
 
 export const sortClients = (clients: any[]) => {
-    console.log(clients); 
-
     if (clients.length === 0) return [];
 
     return clients.sort((a: any, b: any) => {

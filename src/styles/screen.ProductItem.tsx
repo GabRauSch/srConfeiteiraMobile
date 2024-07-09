@@ -66,14 +66,14 @@ export const styles = StyleSheet.create({
     modal: {
         position: 'relative',
         height: '100%',
-        zIndex: 999,
+        zIndex: 998,
         backgroundColor: 'rgba(0,0,0,0.5)',
         justifyContent: 'center',
         alignItems: 'center'
     },
     productModal: {
         backgroundColor: '#fff',
-        zIndex: 999,
+        zIndex: 998,
         ...SHADOW,
         borderRadius: 5,
         overflow: 'hidden',

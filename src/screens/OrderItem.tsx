@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Modal, ScrollView, Text, TouchableHighlight, TouchableNativeFeedback, TouchableOpacity, View } from "react-native";
+import { Button, Modal, ScrollView, Text, TouchableHighlight, TouchableNativeFeedback, TouchableOpacity, View } from "react-native";
 import { styles } from "../styles/screen.OrderItem";
 import { HorizontalLine } from "../components/HorizontalLine";
 import Icon from "react-native-vector-icons/FontAwesome";
 import RoundCheckBox from "../components/RoundCheckBox";
 import { ProgressBar } from "react-native-paper";
-import { COLORS } from "../styles/global";
+import { COLORS, LABEL, SHADOW } from "../styles/global";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { OrderItems } from "../types/OrderItem";
 import { addProductToOrder, finishOrder, getByOrderId, updateOrCreateOrderItems } from "../services/OrderItems";
@@ -23,23 +23,35 @@ import NumberSetter from "../components/NumberSetter";
 import EditModal from "../modals/EditModal";
 import OrderProduct from "../components/OrderProduct";
 import useMessage from "../hooks/useMessage";
-import { mapOrderStatus } from "../util/mappers";
+import { mapOrderStatus, mapStatusToText, OrderStatus, Status } from "../util/mappers";
 import { formatDate } from "date-fns";
 import { setOrderInfo } from "../reducers/ordersReducer";
 import { Order } from "../types/Order";
 import { Dispatch } from "redux";
 import { useProducts } from "../hooks/useProducts";
-import { createAndSharePdf } from "../util/converter";
+import { createAndSharePdf } from "../util/budgetGenerator";
+import { HeaderCreation } from "../components/HeaderCreation";
+import InputNumber from "../components/InputNumber";
+import InputEdit from "../components/InputEdit";
+import CreateButton from "../components/CreateButton";
+import { handleSetNumericValue } from "../util/numeric";
+import { updateComplements } from "../services/OrderComplements";
 
 type Props = {
     user: User,
     setOrderAction: (data: Partial<Order>)=>void
 }
 
+type Complement = {
+    complementDescription: string,
+    valueType: 0 | 1,
+    value: number,
+    multiplier: -1 | 1,
+}
 type OrderData = {
     id: number,
     orderId: number,
-    orderStatus: 0 | 1 | 2,
+    orderStatus: OrderStatus,
     clientName: string,
     deliveryDate: Date,
     orderNumber: number
@@ -50,6 +62,7 @@ const OrderItem = ({user, setOrderAction}: Props) => {
     const [orderItems, setOrderItems] = useState<OrderItems[]>([]);
     const [orderData, setOrderData] = useState<OrderData>();
     const [totalValue, setTotalValue] = useState(0);
+    const [valueBeforeComplements, setValueBeforeComplemenets] = useState(0)
     const [percentage, setPercentage] = useState(0);
     const route = useRoute();
     const { id } = route.params as any;
@@ -61,6 +74,12 @@ const OrderItem = ({user, setOrderAction}: Props) => {
     const [productsList, setProductsList] = useState<any[]>([]);
     const [scrollViewHeight, setScrollViewHeight] = useState(0);
     const { MessageDisplay, setMessageWithTimer } = useMessage();
+    const [complementModal, setComplementModal] = useState(false);
+    const [newComplementValue, setNewComplementValue] = useState('0,00');
+    const [newComplementDescription, setNewComplementDescription] = useState('')
+    const [newComplementMultiplier, setNewComplementMultiplier] = useState<-1 | 1>(1)
+    const [newComplementType, setNewComplementType] = useState<0 | 1>(1);
+    const [complements, setComplements] = useState<Complement[]>([]);
     
     const contentRef = useRef<View>(null);
 
@@ -71,6 +90,7 @@ const OrderItem = ({user, setOrderAction}: Props) => {
             try {
                 const {data, status} = await getByOrderId(id);
                 if(status !== 200) return setMessageWithTimer('erro ao buscar dados', 'error');
+                console.log(data)
                 setOrderData(data);
                 setOrderItems(data.items);
                 calculateTotal(data.items)
@@ -106,14 +126,14 @@ const OrderItem = ({user, setOrderAction}: Props) => {
 
     const handleCheck = (itemId: number) => {
         if(!orderData) return setMessageWithTimer('erro ao buscar os dados', 'error')
-        if(orderData.orderStatus == 2) return setMessageWithTimer('pedido já foi entregue', 'error')
+        if(orderData.orderStatus == mapOrderStatus('delivered')) return setMessageWithTimer('pedido já foi entregue', 'error')
         const updatedOrderItems = orderItems.map(item =>{
            return item.orderItemId === itemId ? { ...item, finished: !item.finished } : item
         });
         
         const pendent = updatedOrderItems.filter((el)=>!el.finished).length;
          
-        setOrderData({...orderData, orderStatus: pendent ? 0 : 1})
+        setOrderData({...orderData, orderStatus: pendent ? mapOrderStatus('open') : mapOrderStatus('finished')})
 
         setOrderItems(updatedOrderItems);
         
@@ -126,12 +146,12 @@ const OrderItem = ({user, setOrderAction}: Props) => {
     };
 
     const handleBudget = ()=>{
-        createAndSharePdf()
+        createAndSharePdf(orderItems, [])
     }
     const handleDeliverOrder = ()=>{
         if(percentage !== 1) return setMessageWithTimer('Conclua todos os itens do pedido', 'error');
         if(orderData) {
-            const orderStatus = orderData.orderStatus == 1 ? 2 : 1;
+            const orderStatus = orderData.orderStatus == mapOrderStatus('finished') ? mapOrderStatus('delivered') : mapOrderStatus('finished');
             setOrderData({...orderData, orderStatus})
         }
     }
@@ -203,7 +223,8 @@ const OrderItem = ({user, setOrderAction}: Props) => {
             finished: false
         }
         
-        setTotalValue(totalValue + (orderItem.value * orderItem.quantity))
+
+        setValueBeforeComplemenets(totalValue + (orderItem.value * orderItem.quantity))
 
         const filteredSelected = selectedProducts.filter((el)=>{
             return el.id !== orderItem.productId
@@ -212,28 +233,53 @@ const OrderItem = ({user, setOrderAction}: Props) => {
         setSelectedProducts(filteredSelected)
         setOrderItems(updatedOrderItems);
         
-        calculateTotal(updatedOrderItems)
+        calculateTotal(updatedOrderItems, complements)
     }
 
-    const calculateTotal = (updatedOrderItems: OrderItems[])=>{
+    const calculateTotal = (updatedOrderItems: OrderItems[], updatedComplements: any[]=[])=>{
+        console.log('called', updatedComplements)
         if(updatedOrderItems.length == 0) {
             setStatus([]);
             setPercentage(0);
+            setValueBeforeComplemenets(0)
             setTotalValue(0);
             return
         }
+
         const statusArray = updatedOrderItems.map(item => item.finished);
         setStatus(statusArray);
         
         const concluded = statusArray.filter(status => status).length;
         const percentage = concluded / statusArray.length;
         setPercentage(percentage);
-        const totalValue = updatedOrderItems.map((el)=>el.value * el.quantity).reduce((a: any, b: any)=>a+b)
-        setTotalValue(totalValue)
+        const productsValue = updatedOrderItems.map((el)=>el.value * el.quantity).reduce((a: any, b: any)=>a+b)
+        setValueBeforeComplemenets(productsValue)
+
+        const discountPercentage = updatedComplements.filter((el)=>el.valueType == 0 && el.multiplier == -1).reduce((accumulator, complement) => {
+            const decimalValue = complement.value / 100;            
+            const discountFactor = 1 - decimalValue;
+
+            return accumulator * discountFactor;
+        }, 1);
+        const finalDiscountPercentage = (1 - discountPercentage) * 100;
+        const discountValue = updatedComplements.filter((el)=>el.valueType == 1 && el.multiplier == -1).reduce((a, b)=>a + (b.multiplier * b.value), 0);
+        const taxPecentage = updatedComplements.filter((el)=>el.valueType == 0 && el.multiplier == 1).reduce((accumulator, complement) => {
+            const decimalValue = complement.value / 100;            
+            const discountFactor = 1 - decimalValue;
+            return accumulator * discountFactor;
+        }, 1);
+
+        const finalTaxPercentage = (1 - taxPecentage) * 100;
+        const taxValue = updatedComplements.filter((el)=>el.valueType == 1 && el.multiplier == 1).reduce((a, b)=>a + (b.multiplier * b.value), 0);
+        const finalValue = productsValue - (productsValue * finalDiscountPercentage /100) + (productsValue * finalTaxPercentage /100) + taxValue + discountValue
+
+        console.log(finalValue);
+        setTotalValue(finalValue);
     }
+
     const removeOrderItem = (id: number)=>{
         const updatedOrderItems = orderItems.filter((el)=>el.productId !== id);
-        console.log(updatedOrderItems)
+
         setOrderItems(updatedOrderItems);
         calculateTotal(updatedOrderItems)
     }
@@ -243,14 +289,14 @@ const OrderItem = ({user, setOrderAction}: Props) => {
         const updatedOrderItems = orderItems.map((el)=>(
             {productId: el.productId, quantity: el.quantity, finished: Boolean(el.finished),  value: el.value}
         ))
-
         const updateData = {orderItems: updatedOrderItems, order: {
             orderStatus: orderData.orderStatus
         }}
-        console.log(updateData)
+        
+
+        const response = await updateComplements(orderData.id, complements)
+
         const update = await updateOrCreateOrderItems(orderData.orderId, updateData);
-        
-        
         if(update.status !== 200) return setMessageWithTimer('Erro ao atualizar', 'error')
             
         const dispatchProducts = orderItems.map((el)=>({
@@ -261,22 +307,53 @@ const OrderItem = ({user, setOrderAction}: Props) => {
             value: totalValue,
             status: orderData.orderStatus,
             products: dispatchProducts,
+            complements: complements
         })
 
         return setMessageWithTimer('Alterado com sucesso', 'success')
     }
 
+    const handleNewComplement = (multiplier: 1 | -1)=>{
+        setNewComplementMultiplier(multiplier)
+        setComplementModal(true);
+    }
+    const handleCreateNewComplement = async ()=>{
+        if(!newComplementDescription) {
+            setComplementModal(true)
+            return setMessageWithTimer('Adicione uma descrição à taxa', 'error')
+        }
+        const newComplement: Complement = {
+            complementDescription: newComplementDescription,
+            valueType: newComplementType,
+            value: parseFloat(newComplementValue.replace(',', '.')),
+            multiplier: newComplementMultiplier
+        }
+
+        const sorted = [...complements, newComplement].sort((a, b) => {
+            if (a.valueType !== b.valueType) {
+                return a.valueType === 1 ? 1 : -1;
+            } else {
+                return a.multiplier === 1 ? -1 : 1;
+            }
+        })
+
+
+        setComplements(sorted)
+        setComplementModal(false)
+        calculateTotal(orderItems, sorted)
+    }
     return (
         <>
             <MessageDisplay />
             <ScrollView style={styles.page}>
+                <HeaderCreation url="orders" title={`Pedido nº ${orderData?.orderNumber}`}/>
                 <Text style={styles.save} onPress={handleSave}>Salvar</Text>
                 <View style={styles.orderInfo}>
                     <Text style={styles.orderNumber}>Nº {orderData?.orderNumber}</Text>
-                    <Text style={{ ...styles.orderInfoStatus, color: COLORS.primary }}>Status: {mapOrderStatus(orderData?.orderStatus)}</Text>
+                    <Text style={{ ...styles.orderInfoStatus, color: COLORS.primary }}>Status: {mapStatusToText(orderData?.orderStatus as OrderStatus)}</Text>
                     <Text style={styles.orderInfoText}>Cliente: {orderData?.clientName}</Text>
                     <Text>Progresso: {Math.round(percentage * 100)}% ({status.filter((status: any) => status).length}/{status.length})</Text>
-                    <Text>Valor total: R${totalValue.toFixed(2).replace('.', ',')}</Text>
+                    <Text>Valor produtos: R${valueBeforeComplements.toFixed(2).replace('.', ',')}</Text>
                     {orderData?.deliveryDate && (
                         <Text>Data de entrega: {formatDate(orderData.deliveryDate as Date, 'dd/MM/yyyy HH:mm')}</Text>
                     )}
@@ -289,7 +366,7 @@ const OrderItem = ({user, setOrderAction}: Props) => {
 
                         <TouchableHighlight style={[styles.finishOrder, 
                                 {backgroundColor: percentage !== 1 ?  COLORS.grayScaleSecondary : COLORS.primary ,
-                                opacity: orderData?.orderStatus == 2 ?  0.6 : 1 
+                                opacity: orderData?.orderStatus == mapOrderStatus('delivered') ?  0.6 : 1 
 
                                 }]}
                             underlayColor={COLORS.primaryPressed} onPress={() => { handleDeliverOrder() }}>
@@ -340,10 +417,84 @@ const OrderItem = ({user, setOrderAction}: Props) => {
                         </View>
                     </View>
                 ))}
+                <Text style={{marginTop: 10, ...LABEL}}>Descontos e Taxas</Text>
+                {complements.map((el, key)=>(
+                    <View key={key} style={{flexDirection: 'row',justifyContent: 'space-between', paddingHorizontal: 10, ...SHADOW, backgroundColor: 'white', margin: 5, padding: 5, borderRadius: 5}}>
+                        <Text style={{flex: 1}}>{el.complementDescription}</Text>
+                        <View style={{flexDirection: 'row', flex: 1, justifyContent: 'center'}}>
+                            <Text>{el.valueType ? 'R$' : ''}</Text>
+                            <Text>{el.multiplier * el.value}</Text>
+                            <Text>{el.valueType ? '' : '%'}</Text>
+                        </View>
+                        <Icon name="remove" size={20} color={COLORS.primary}/>
+                    </View>
+                ))}
+                <View>
+                    <Text>Total final: R${totalValue}</Text>
+                </View>
                 <TouchableHighlight style={styles.newProduct}
                         underlayColor={COLORS.primaryPressed} onPress={() => { handleNewProduct() }}>
                     <Text style={styles.newProductText}>Adicionar produto</Text>
                 </TouchableHighlight>
+                <View style={styles.addComplement}>
+                    <TouchableHighlight style={styles.complement}
+                            underlayColor={COLORS.primaryPressed} onPress={() => { handleNewComplement(-1) }}>
+                        <Text style={styles.newProductText}>Adicionar desconto</Text>
+                    </TouchableHighlight>
+                    <TouchableHighlight style={styles.complement}
+                            underlayColor={COLORS.primaryPressed} onPress={() => { handleNewComplement(1) }}>
+                        <Text style={styles.newProductText}>Adicionar taxa</Text>
+                    </TouchableHighlight>
+                </View>
+                <View style={{marginTop: 20}}>
+                    <CreateButton text="Salvar" action={handleSave} />
+                </View>
+                <View style={{marginBottom: 100}}></View>
+                {(complementModal) && (
+                    <Modal
+                    transparent={true}
+                    visible={complementModal}
+                    onRequestClose={() => setComplementModal(false)}
+                >
+                    <TouchableOpacity style={styles.modal} onPress={() =>{setComplementModal(false)}} activeOpacity={1}>
+                        <View style={{width: '80%', backgroundColor: 'white', padding: 20, gap: 10, borderRadius: 5, zIndex: 998}}>
+                            <Text>Descrição do {newComplementMultiplier == -1 ? 'desconto' : 'taxa'}</Text>
+                            <TextInput 
+                                style={{borderWidth: 1, borderRadius: 5, padding: 5}} 
+                                value={newComplementDescription} placeholder={newComplementMultiplier == -1 ? 'Ex: desconto de aniversário' : 'Ex: taxa de entrega'} 
+                                onChangeText={(value: string)=>{setNewComplementDescription(value)}} />
+
+                            <View style={{flexDirection: 'row', gap: 10}}>
+                                <Text 
+                                    onPress={()=>setNewComplementType(1)} 
+                                    style={{padding: 5, borderRadius: 5, borderWidth: 1, flex: 1, textAlign: 'center', 
+                                        backgroundColor: !newComplementType ? 'white' : COLORS.primary, color: !newComplementType ? COLORS.primary : 'white'}}
+                                >
+                                        R$
+                                </Text>
+                                <Text 
+                                    onPress={()=>setNewComplementType(0)} 
+                                    style={{padding: 5, borderRadius: 5, borderWidth: 1, flex: 1, textAlign: 'center', 
+                                        backgroundColor: newComplementType ? 'white' : COLORS.primary, color: newComplementType ? COLORS.primary : 'white'}}
+                                >
+                                    %
+                                </Text>
+                            </View>
+                            <View style={{borderWidth: 1, borderRadius: 5, padding: 5, flexDirection: 'row', alignItems: 'center'}}>
+                                <Text style={{marginRight: 10}}>{newComplementType ? 'R$' : ''}</Text>
+                                <TextInput 
+                                    style={{flex: 1}}
+                                    value={newComplementValue} onChangeText={(value)=>{setNewComplementValue(handleSetNumericValue(value))}}   
+                                />
+                                <Text style={{marginRight: 10}}>{!newComplementType && '%'}</Text>
+
+                            </View>
+                            <CreateButton action={handleCreateNewComplement} text="Criar desconto" />
+                        </View>
+                        <Text style={styles.closeModal}>Fechar</Text>
+                    </TouchableOpacity>
+                </Modal>
+                )}
                 {(productModal) && (
                     <Modal
                         transparent={true}

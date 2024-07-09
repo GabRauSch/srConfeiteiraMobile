@@ -18,11 +18,12 @@ export const HeaderCreation = ({url, title}: Props)=>{
     }
 
     return (
-        <View style={{flexDirection: 'row'}}>
+        <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 20, position: 'relative'}}>
             <TouchableOpacity style={styles.home} onPress={() => handleNavigate(url)} activeOpacity={.9}>
                 <Icon name="arrow-left" color={COLORS.primary} size={15} />
             </TouchableOpacity>
-            <Text style={{color: COLORS.primary, textAlign: 'center', flex: 1, marginBottom: 40, fontSize: 20}}>{title}</Text>
+            <Text style={{color: COLORS.primary, textAlign: 'center', 
+                textAlignVertical: 'center', flex: 1, fontSize: 18}}>{title}</Text>
         </View>
     )
 }

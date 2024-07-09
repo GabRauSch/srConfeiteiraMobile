@@ -38,6 +38,7 @@ const ClientsScreen = ({ user, clients, setClientsAction }: Props) => {
     const fetchedClients = useClients(user.id);
 
     useEffect(() => {
+        console.log('inferno', fetchedClients)
         const sortedClients = sortClients(fetchedClients);
         setClientsList(sortedClients);
         setLoading(false);
@@ -69,7 +70,7 @@ const ClientsScreen = ({ user, clients, setClientsAction }: Props) => {
         // Logic for completing search
     };
 
-    const filteredClientsWithOrders = clientsList.filter(client => client.orderCount > 0);
+    const filteredClientsWithOrders = clientsList.filter(client => client.nextDeliveryDate);
     const filteredClientsWithoutOrders = clientsList.filter(client => client.orderCount === 0);
 
     return (

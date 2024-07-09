@@ -21,7 +21,7 @@ export const styles = StyleSheet.create({
     home: {
         position: 'absolute',
         padding:10,
-        zIndex: 999
+        zIndex: 998
     },
     activationButtons: {
         flexDirection: 'row',
@@ -46,7 +46,7 @@ export const styles = StyleSheet.create({
         textAlign: 'center'
     },
     closeModal: {
-        zIndex: 999,
+        zIndex: 998,
         color: 'white',
         fontSize: 18,
         textAlign: 'center',
@@ -136,14 +136,14 @@ export const styles = StyleSheet.create({
     modal: {
         position: 'relative',
         height: '100%',
-        zIndex: 999,
+        zIndex: 998,
         backgroundColor: 'rgba(0,0,0,0.5)',
         justifyContent: 'center',
         alignItems: 'center'
     },
     productModal: {
         backgroundColor: '#fff',
-        zIndex: 999,
+        zIndex: 998,
         ...SHADOW,
         borderRadius: 5,
         overflow: 'hidden',

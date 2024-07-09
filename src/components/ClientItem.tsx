@@ -44,7 +44,6 @@ const ClientItem = ({id, name, phone, orderCount, totalOrderValue, nextDeliveryD
         const deletion = await deleteClient(id);
         if(deletion.status !== 200) return 
 
-        console.log(deletion.data);
         removeClientAction(id)
     }
 

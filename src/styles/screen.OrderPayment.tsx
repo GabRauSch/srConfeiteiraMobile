@@ -173,13 +173,13 @@ export const styles = StyleSheet.create({
     modal: {
         position: 'relative',
         height: '100%',
-        zIndex: 999,
+        zIndex: 998,
         backgroundColor: 'rgba(0,0,0,0.5)',
         justifyContent: 'center',
         alignItems: 'center'
     },
     closeModal: {
-        zIndex: 999,
+        zIndex: 998,
         color: 'white',
         fontSize: 18,
         textAlign: 'center',
@@ -215,7 +215,7 @@ export const styles = StyleSheet.create({
     },
     productModal: {
         backgroundColor: '#fff',
-        zIndex: 999,
+        zIndex: 998,
         ...SHADOW,
         borderRadius: 5,
         overflow: 'hidden',
@@ -250,7 +250,7 @@ export const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 4,
         elevation: 5,
-        zIndex: 999
+        zIndex: 998
     },
     modalText: {
         fontSize: 15,

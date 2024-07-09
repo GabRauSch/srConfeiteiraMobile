@@ -15,6 +15,11 @@ export const styles = StyleSheet.create({
         right: 10,
         top: 10
     },
+    addComplement: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        gap: 10,
+    },
     editInstallments: {
         textAlign: 'center',
         backgroundColor: COLORS.secondary,
@@ -50,11 +55,18 @@ export const styles = StyleSheet.create({
         width: 'auto',
         borderRadius: 5,
         padding: 5,
-        margin: 2,
-        marginVertical: 20,
-        marginBottom: 30
+        marginVertical: 10,
     },
-    
+    complement: {
+        textAlign: 'center',
+        ...SHADOW,
+        backgroundColor: COLORS.primary,
+        width: 'auto',
+        borderRadius: 5,
+        padding: 5,
+        flex: 1,
+        margin: 2
+    },
     newProductText: {
         textAlign: 'center',
         color: 'white'
@@ -132,13 +144,13 @@ export const styles = StyleSheet.create({
     modal: {
         position: 'relative',
         height: '100%',
-        zIndex: 999,
+        zIndex: 990,
         backgroundColor: 'rgba(0,0,0,0.5)',
         justifyContent: 'center',
         alignItems: 'center'
     },    
     closeModal: {
-        zIndex: 999,
+        zIndex: 998,
         color: 'white',
         fontSize: 18,
         textAlign: 'center',
@@ -174,7 +186,7 @@ export const styles = StyleSheet.create({
     },
     productModal: {
         backgroundColor: '#fff',
-        zIndex: 999,
+        zIndex: 998,
         ...SHADOW,
         borderRadius: 5,
         overflow: 'hidden',

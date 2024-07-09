@@ -17,7 +17,7 @@ export const useProducts = (userId: number | null) => {
     
                 const { data, status } = await getAllProductsByUserId(userId);
                 if (status !== 200) {
-                    console.error('Failed to fetch products');
+                    console.log('Failed to fetch products');
                     return;
                 }
     

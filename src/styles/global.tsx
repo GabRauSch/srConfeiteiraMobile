@@ -19,12 +19,12 @@ export const SHADOW = {
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.6, 
     shadowRadius: 4,
-    elevation: 3, 
+    elevation: 1, 
 }
 export const MODAL = {
     position: 'relative',
     height: '100%',
-    zIndex: 999
+    zIndex: 998
 }
 
 

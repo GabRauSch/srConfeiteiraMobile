@@ -14,7 +14,6 @@ export const handleSetNumericValue = (value: string) => {
 
 
 export const handleSetValue = (value: string)=>{
-    console.log(value)
     let newValue = 0;
     if(!value || value.length == 0) return 0;
     if(!value.split(',')[1]) return 0

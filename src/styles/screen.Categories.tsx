@@ -48,7 +48,7 @@ export const styles = StyleSheet.create({
         ...SHADOW,
         backgroundColor: 'white',
         padding: 10,
-        margin: 3,
+        margin: 5,
         borderRadius: 5,
         flexDirection: 'row',
         justifyContent: 'space-between',

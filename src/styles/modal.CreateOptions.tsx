@@ -5,7 +5,7 @@ export const styles = StyleSheet.create({
     modal: {
         position: 'relative',
         height: '100%',
-        zIndex: 999
+        zIndex: 998
     },
     cardList: {
         position: 'absolute',
@@ -19,7 +19,7 @@ export const styles = StyleSheet.create({
         shadowOpacity: 0.6, 
         shadowRadius: 4,
         elevation: 3, 
-        zIndex: 999,
+        zIndex: 998,
         overflow: 'hidden'
     },
     modalItem: {

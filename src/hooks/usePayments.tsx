@@ -22,11 +22,11 @@ const usePayments = (userId: number) => {
             if (response.status === 200) {
                 dispatch(setPayment(response.data));
             } else {
-                console.error('Failed to fetch payments');
+                console.log('Failed to fetch payments');
             }
         }
       } catch (error) {
-        console.error('Error fetching orders:', error);
+        console.log('Error fetching orders:', error);
       }
     };
     if (userId) {

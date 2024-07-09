@@ -21,11 +21,11 @@ const useOrders = (userId: number) => {
                 const orders = sortOrders(response.data);
                 dispatch(setOrders(orders));
             } else {
-                console.error('Failed to fetch clients');
+                console.log('Failed to fetch clients');
             }
         }
       } catch (error) {
-        console.error('Error fetching orders:', error);
+        console.log('Error fetching orders:', error);
       }
     };
     if (userId) {

@@ -46,7 +46,6 @@ const ClientItem = ({clients, setClientInfoAction}: Props) => {
             setName(foundClient.name);
             setPhone(foundClient.phone);
             setEmail(foundClient.email);
-            console.log(foundClient);
             setAddress(foundClient.address)
             setTotalRevenue(foundClient.totalOrderValue)
         }
@@ -61,15 +60,15 @@ const ClientItem = ({clients, setClientInfoAction}: Props) => {
             name, phone
         }
         if(email) updateData.email = email;
+        if(address) updateData.address = address
 
         const validation = validateClient(updateData);
         if(validation) return setMessageWithTimer(validation, 'error');
 
-        console.log(validation)
         const updated = await updateClient(id, updateData);
+        console.log(updated.data)
         if(updated.status !== 200) {
             const response = handleResponse(updated.data);
-            console.log(updated.data)
             return setMessageWithTimer(response.message, response.type)
         }
 
@@ -102,8 +101,7 @@ const ClientItem = ({clients, setClientInfoAction}: Props) => {
                     <InputEdit keyboard={'phone-pad'} onChange={(value)=>{setDataUpdate(true); setPhone(value)}} label="Telefone" value={formatPhoneNumber(phone)}/>
                     <InputEdit optional onChange={(value)=>{setDataUpdate(true); setEmail(value)}} label="Email" value={email}/>
                     <InputEdit optional onChange={(value)=>{setDataUpdate(true); setAddress(value)}} label="Endereço" value={address}/>
-                    <CreateButton text={'Novo pedido'} 
-                        action={()=>handleNavigate('Orders', {screen: 'newOrder', clientId: id})} />
+                    {/* <CreateButton text={'Novo pedido'} action={()=>handleNavigate('Orders', {screen: 'newOrder', clientId: id})} /> */}
                     <CreateButton text={'Salvar'} 
                         action={handleSave} />
                 </View>

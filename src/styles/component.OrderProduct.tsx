@@ -66,7 +66,6 @@ export const styles = StyleSheet.create({
         fontWeight: 'bold'
     },
     orderInfo: {
-        marginVertical: 10,
         gap: 10,
         padding: 10,
         ...SHADOW,
@@ -81,7 +80,8 @@ export const styles = StyleSheet.create({
         marginVertical: 10
     },
     order: {
-        paddingHorizontal: 5,
+        padding: 5,
+        paddingHorizontal: 10,
         backgroundColor: 'white',
         borderRadius: 10,
         flexDirection: 'row',
@@ -98,13 +98,13 @@ export const styles = StyleSheet.create({
     modal: {
         position: 'relative',
         height: '100%',
-        zIndex: 999,
+        zIndex: 998,
         backgroundColor: 'rgba(0,0,0,0.5)',
         justifyContent: 'center',
         alignItems: 'center'
     },    
     closeModal: {
-        zIndex: 999,
+        zIndex: 998,
         color: 'white',
         fontSize: 18,
         textAlign: 'center',
@@ -140,7 +140,7 @@ export const styles = StyleSheet.create({
     },
     productModal: {
         backgroundColor: '#fff',
-        zIndex: 999,
+        zIndex: 998,
         ...SHADOW,
         borderRadius: 5,
         overflow: 'hidden',

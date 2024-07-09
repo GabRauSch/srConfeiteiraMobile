@@ -10,7 +10,7 @@ export const styles = StyleSheet.create({
         elevation: 1,
         top: 10,
         shadowColor: 'transparent',
-        zIndex: 9999999,
+        zIndex: 9989999,
         
     },
     card: {
