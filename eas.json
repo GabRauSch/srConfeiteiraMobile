@@ -5,19 +5,23 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "image": "node:16-alpine"
     },
     "preview": {
       "distribution": "internal",
       "android": {
         "buildType": "apk"
-      }
+      },
+      "image": "node:16-alpine" 
     },
     "homolog": {
-      "distribution": "store"
+      "distribution": "store",
+      "image": "node:16-alpine" 
     },
     "production": {
-      "distribution": "store"
+      "distribution": "store",
+      "image": "node:16-alpine" 
     }
   },
   "submit": {
