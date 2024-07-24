@@ -13,12 +13,15 @@
         "buildType": "apk"
       }
     },
-    "production": {}
+    "production": {
+      "image": "default"
+    },
+    "homolog": {
+      "image": "default"
+    }
   },
   "submit": {
-    "production": {}
-  },
-  "release": {
-    "image": "default"
+    "production": {},
+    "homolog": {}
   }
 }
