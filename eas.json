@@ -13,6 +13,9 @@
         "buildType": "apk"
       }
     },
+    "homolog": {
+      "distribution": "store"
+    },
     "production": {
       "distribution": "store"
     }
