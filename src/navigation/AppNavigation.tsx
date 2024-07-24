@@ -1,7 +1,7 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import HomeScreen from '../screens/Home';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { Text } from 'react-native';
+import { SafeAreaView, Text, View } from 'react-native';
 import Header from '../components/Header';
 import {COLORS} from '../styles/global'
 import ProductsStack from './ProductsStack';

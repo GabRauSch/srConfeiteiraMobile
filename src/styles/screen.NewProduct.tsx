@@ -22,6 +22,25 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 10
     },
+    complementText: {
+        color: 'white',
+        textAlign: 'center'
+    },
+    complement: {
+        textAlign: 'center',
+        ...SHADOW,
+        backgroundColor: COLORS.primary,
+        width: 'auto',
+        borderRadius: 5,
+        padding: 5,
+        flex: 1,
+        margin: 2
+    },
+    addComplement: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        gap: 10,
+    },
     productValue: {
         textAlignVertical: 'center',
         color: '#777'
@@ -153,7 +172,8 @@ export const styles = StyleSheet.create({
         padding: 10,
     },
     createButton: {
-        marginBottom: 50
+        marginBottom: 50,
+        gap: 10,
     },
     
     inputArea: {

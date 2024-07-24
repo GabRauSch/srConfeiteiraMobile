@@ -8,6 +8,7 @@ export type User = {
     phone: string,
     userPermission: number,
     subscriptionLevel: SubscriptionLevel,
-    paymentDate: Date,
-    dueDate: Date
+    paymentDate: Date | string,
+    refferalCode: string,
+    dueDate: Date | string,
 }

@@ -4,8 +4,6 @@ import { getAllOrdersByUserId } from '../services/Orders';
 import { Order } from '../types/Order';
 import { setOrders } from '../reducers/ordersReducer';
 import { sortClients, sortOrders } from '../util/sorter';
-import { setClients } from '../reducers/clientsReducer';
-import Orders from '../screens/Orders';
 import { RootState } from '../store';
 
 const useOrders = (userId: number) => {

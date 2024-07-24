@@ -127,7 +127,6 @@ const ProductItem = ({ user, setProductInfo }: Props) => {
 
     return (
         <>
-            <HeaderCreation url="products" title="Edite o produto"/>
             <SafeAreaView>
 
                 <MessageDisplay />
@@ -144,6 +143,7 @@ const ProductItem = ({ user, setProductInfo }: Props) => {
                     </View>
                 </View>
                 <ScrollView style={styles.page} contentContainerStyle={{ paddingBottom: 100 }}>
+                    <HeaderCreation url="products" title="Edite o produto"/>
                     <View style={styles.imageDisplay}>
                         <Image source={bolo} style={styles.itemImage} />
                     </View>

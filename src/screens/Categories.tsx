@@ -14,7 +14,6 @@ import useMessage from "../hooks/useMessage";
 import { validateClientEdit } from "../util/validation";
 import { handleResponse } from "../services/responseMapping";
 import { Dispatch } from "redux";
-import { setClientInfo } from "../reducers/clientsReducer";
 import { removeCategory, setCategories, updateCategory } from "../reducers/categoriesReducer";
 import { Category } from "../types/Category";
 import { User } from "../types/User";

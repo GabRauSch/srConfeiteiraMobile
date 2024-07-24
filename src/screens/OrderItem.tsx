@@ -35,26 +35,23 @@ import InputNumber from "../components/InputNumber";
 import InputEdit from "../components/InputEdit";
 import CreateButton from "../components/CreateButton";
 import { handleSetNumericValue } from "../util/numeric";
-import { updateComplements } from "../services/OrderComplements";
+import { getComplementsByOrderId, updateComplements } from "../services/OrderComplements";
+import { Complement } from "../types/OrderComplements";
+import { calculateOrderValue } from "../util/calculate";
+import ExcludeModal from "../modals/ExcludeModal";
 
 type Props = {
     user: User,
     setOrderAction: (data: Partial<Order>)=>void
 }
-
-type Complement = {
-    complementDescription: string,
-    valueType: 0 | 1,
-    value: number,
-    multiplier: -1 | 1,
-}
-type OrderData = {
+export type OrderData = {
     id: number,
     orderId: number,
     orderStatus: OrderStatus,
     clientName: string,
     deliveryDate: Date,
-    orderNumber: number
+    orderNumber: number,
+    note: string
 }
 
 const OrderItem = ({user, setOrderAction}: Props) => {
@@ -80,7 +77,9 @@ const OrderItem = ({user, setOrderAction}: Props) => {
     const [newComplementMultiplier, setNewComplementMultiplier] = useState<-1 | 1>(1)
     const [newComplementType, setNewComplementType] = useState<0 | 1>(1);
     const [complements, setComplements] = useState<Complement[]>([]);
-    
+    const [note, setNote] = useState('');
+    const [confirmCloseModal, setConfirmCloseModal] = useState(false);
+
     const contentRef = useRef<View>(null);
 
     const fetchedProducts = useProducts(user.id)
@@ -88,12 +87,19 @@ const OrderItem = ({user, setOrderAction}: Props) => {
     useEffect(() => {
         const handleGetData = async () => {
             try {
+                console.log('handle get Data: -------------')
                 const {data, status} = await getByOrderId(id);
                 if(status !== 200) return setMessageWithTimer('erro ao buscar dados', 'error');
-                console.log(data)
+                
+                const {data: complementsData, status: cStatus} = await getComplementsByOrderId(id);
+                console.log(complementsData)
+                if(cStatus !== 200) return setMessageWithTimer('erro ao buscar dados de desconto', 'error');
+
+                setComplements(complementsData)
                 setOrderData(data);
                 setOrderItems(data.items);
-                calculateTotal(data.items)
+                calculateTotal(data.items, complementsData);
+                setNote(data.note)
     
                 const statusArray = data.items.map((el: any) => el.finished);
                 setStatus(statusArray);
@@ -146,15 +152,21 @@ const OrderItem = ({user, setOrderAction}: Props) => {
     };
 
     const handleBudget = ()=>{
-        createAndSharePdf(orderItems, [])
+        createAndSharePdf(orderItems, complements, orderData as OrderData, user)
     }
-    const handleDeliverOrder = ()=>{
-        if(percentage !== 1) return setMessageWithTimer('Conclua todos os itens do pedido', 'error');
-        if(orderData) {
-            const orderStatus = orderData.orderStatus == mapOrderStatus('finished') ? mapOrderStatus('delivered') : mapOrderStatus('finished');
-            setOrderData({...orderData, orderStatus})
+    const handleDeliverOrder = (oldStatus: OrderStatus) => {
+        if (oldStatus === mapOrderStatus('budget') && orderData) {
+            return setOrderData({ ...orderData, orderStatus: mapOrderStatus('open')});
+        } else if (percentage !== 1 && orderData?.orderStatus === mapOrderStatus('open')) {
+            setMessageWithTimer('Conclua todos os itens do pedido', 'error');
+        } else if (orderData) {
+            const orderStatus =
+                orderData.orderStatus === mapOrderStatus('finished')
+                    ? mapOrderStatus('delivered')
+                    : mapOrderStatus('finished');
+            setOrderData({ ...orderData, orderStatus });
         }
-    }
+    };
     const handleNewProduct = ()=>{
         search('');
         setProductModal(true)
@@ -255,25 +267,8 @@ const OrderItem = ({user, setOrderAction}: Props) => {
         const productsValue = updatedOrderItems.map((el)=>el.value * el.quantity).reduce((a: any, b: any)=>a+b)
         setValueBeforeComplemenets(productsValue)
 
-        const discountPercentage = updatedComplements.filter((el)=>el.valueType == 0 && el.multiplier == -1).reduce((accumulator, complement) => {
-            const decimalValue = complement.value / 100;            
-            const discountFactor = 1 - decimalValue;
+        const finalValue = calculateOrderValue(productsValue, updatedComplements)
 
-            return accumulator * discountFactor;
-        }, 1);
-        const finalDiscountPercentage = (1 - discountPercentage) * 100;
-        const discountValue = updatedComplements.filter((el)=>el.valueType == 1 && el.multiplier == -1).reduce((a, b)=>a + (b.multiplier * b.value), 0);
-        const taxPecentage = updatedComplements.filter((el)=>el.valueType == 0 && el.multiplier == 1).reduce((accumulator, complement) => {
-            const decimalValue = complement.value / 100;            
-            const discountFactor = 1 - decimalValue;
-            return accumulator * discountFactor;
-        }, 1);
-
-        const finalTaxPercentage = (1 - taxPecentage) * 100;
-        const taxValue = updatedComplements.filter((el)=>el.valueType == 1 && el.multiplier == 1).reduce((a, b)=>a + (b.multiplier * b.value), 0);
-        const finalValue = productsValue - (productsValue * finalDiscountPercentage /100) + (productsValue * finalTaxPercentage /100) + taxValue + discountValue
-
-        console.log(finalValue);
         setTotalValue(finalValue);
     }
 
@@ -289,25 +284,32 @@ const OrderItem = ({user, setOrderAction}: Props) => {
         const updatedOrderItems = orderItems.map((el)=>(
             {productId: el.productId, quantity: el.quantity, finished: Boolean(el.finished),  value: el.value}
         ))
-        const updateData = {orderItems: updatedOrderItems, order: {
-            orderStatus: orderData.orderStatus
+        const updateData: any = {orderItems: updatedOrderItems, order: {
+            orderStatus: orderData.orderStatus,
         }}
-        
-
-        const response = await updateComplements(orderData.id, complements)
+        if (note) updateData.order.note = note
+    
 
         const update = await updateOrCreateOrderItems(orderData.orderId, updateData);
-        if(update.status !== 200) return setMessageWithTimer('Erro ao atualizar', 'error')
+        console.log(update)
+        if(update.status !== 200) {
+            console.log(update)
+            return setMessageWithTimer('Erro ao atualizar', 'error')
+        }
+
+        const complementsUpdate = await updateComplements(orderData.id, complements);
+        console.log('--- updated ordercomplements response', complementsUpdate)
             
         const dispatchProducts = orderItems.map((el)=>({
             id: el.productId, quantity: el.quantity, name: el.productName, finished: el.finished, value: el.value
         }))
+
         setOrderAction({
             orderId: orderData.orderId,
             value: totalValue,
             status: orderData.orderStatus,
             products: dispatchProducts,
-            complements: complements
+            orderComplements: complements
         })
 
         return setMessageWithTimer('Alterado com sucesso', 'success')
@@ -326,14 +328,14 @@ const OrderItem = ({user, setOrderAction}: Props) => {
             complementDescription: newComplementDescription,
             valueType: newComplementType,
             value: parseFloat(newComplementValue.replace(',', '.')),
-            multiplier: newComplementMultiplier
+            complementMultiplier: newComplementMultiplier
         }
 
         const sorted = [...complements, newComplement].sort((a, b) => {
             if (a.valueType !== b.valueType) {
                 return a.valueType === 1 ? 1 : -1;
             } else {
-                return a.multiplier === 1 ? -1 : 1;
+                return a.complementMultiplier === 1 ? -1 : 1;
             }
         })
 
@@ -341,6 +343,11 @@ const OrderItem = ({user, setOrderAction}: Props) => {
         setComplements(sorted)
         setComplementModal(false)
         calculateTotal(orderItems, sorted)
+    }
+
+    const handleCloseOrder = ()=>{
+        if(orderData)
+            setOrderData({ ...orderData, orderStatus: mapOrderStatus('closed') })
     }
     return (
         <>
@@ -358,20 +365,27 @@ const OrderItem = ({user, setOrderAction}: Props) => {
                         <Text>Data de entrega: {formatDate(orderData.deliveryDate as Date, 'dd/MM/yyyy HH:mm')}</Text>
                     )}
                     <ProgressBar progress={percentage} color={COLORS.primary} style={{ borderRadius: 10, height: 7 }} />
+
                     <View style={styles.finishOrderArea}>
-                        <TouchableHighlight style={styles.finishOrder}
+                        <TouchableHighlight style={styles.sendBudget}
                             underlayColor={COLORS.primaryPressed} onPress={() => { handleBudget() }}>
                             <Text style={[styles.newProductText, {color: '#000'}]}>Enviar orçamento</Text>
                         </TouchableHighlight>
+                    </View>
+                    <View style={styles.finishOrderArea}>
+                        <TouchableHighlight style={[styles.finishOrder, {backgroundColor: '#f66'}]}
+                            underlayColor={COLORS.primaryPressed} onPress={() => { setConfirmCloseModal(true) }}>
+                            <Text style={[styles.newProductText, {color: '#000'}]}>Cancelar pedido</Text>
+                        </TouchableHighlight>
 
                         <TouchableHighlight style={[styles.finishOrder, 
-                                {backgroundColor: percentage !== 1 ?  COLORS.grayScaleSecondary : COLORS.primary ,
+                                {backgroundColor: (percentage !== 1 && orderData?.orderStatus == mapOrderStatus('open'))?  COLORS.grayScaleSecondary : COLORS.primary ,
                                 opacity: orderData?.orderStatus == mapOrderStatus('delivered') ?  0.6 : 1 
 
                                 }]}
-                            underlayColor={COLORS.primaryPressed} onPress={() => { handleDeliverOrder() }}>
+                            underlayColor={COLORS.primaryPressed} onPress={() => { handleDeliverOrder((orderData as OrderData).orderStatus) }}>
                             <Text style={styles.newProductText}>
-                                Pedido entregue
+                                {orderData?.orderStatus == mapOrderStatus('budget') ? 'Confirmar pedido' : 'Pedido entregue'}
                             </Text>
                         </TouchableHighlight>
                     </View>
@@ -381,12 +395,23 @@ const OrderItem = ({user, setOrderAction}: Props) => {
                     </TouchableOpacity>
                 </View>
                 <HorizontalLine />
+                {confirmCloseModal && (
+                    <ExcludeModal  
+                        name={`pedido Nº ${orderData?.orderNumber}`} 
+                        onClose={()=>setConfirmCloseModal(false)} id={1} 
+                        confirmExclude={handleCloseOrder} 
+                        objectType="pedido"
+                        type="cancelamento" 
+                    />
+                )}
+
                 {selectedProducts.length > 0 && (
                     <View style={styles.newProducts}>
                     <Text style={styles.separator}>Edite os produtos:</Text>
                         {selectedProducts.map((el: any, key: number) => (
                             <View key={key}>
                                 <ProductListItem name={el.name} 
+                                    key={key}
                                     price={el.value} 
                                     removeItem={()=>removeProduct(el.id)} 
                                     setProductQuantity={(quantity: number)=>handleSetQuantity(el.id, quantity)}
@@ -396,41 +421,53 @@ const OrderItem = ({user, setOrderAction}: Props) => {
                         ))}
                     </View>
                 )}
-                {['Pendentes', 'Concluídos'].map((section, key) => (
-                    <View key={key}>
-                        <Text style={styles.separator}>{section} ↆ</Text>
-                        <View style={styles.orders} >
-                            {orderItems.filter((product: any) => product.finished == (key == 1)).map((item: any, key: number) => (
-                                <OrderProduct
-                                    key={key}
-                                    id={item.productId}
-                                    quantity={item.quantity}
-                                    finished={item.finished}
-                                    orderItemId={item.orderItemId}
-                                    name={item.productName}
-                                    handleCheck={handleCheck}
-                                    handleQuantity={handleSetOrderItemQuantity}
-                                    value={item.value}
-                                    removeOrderItem={removeOrderItem}
-                                />
+                {['Pendentes', 'Concluídos'].map((section, key) => {
+                    const currentFilter = orderItems.filter((product: any) => product.finished == (key == 1))
+                    return currentFilter.length > 0 ? (
+                        <View key={key}>
+                            <Text style={styles.separator}>{section} ↆ</Text>
+                            <View style={styles.orders} >
+                                {currentFilter.map((item: any, keyC: number) => (
+                                    <OrderProduct
+                                        key={keyC + '\''}
+                                        id={item.productId}
+                                        quantity={item.quantity}
+                                        finished={item.finished}
+                                        orderItemId={item.orderItemId}
+                                        name={item.productName}
+                                        handleCheck={handleCheck}
+                                        handleQuantity={handleSetOrderItemQuantity}
+                                        value={item.value}
+                                        removeOrderItem={removeOrderItem}
+                                    />
+                                ))}
+                            </View>
+                        </View>
+                    ) : null
+                })}
+                {complements.length > 0 && 
+                    (
+                        <>
+                            <Text style={{marginTop: 10, ...LABEL}}>Descontos e Taxas</Text>
+                            {complements.map((el, key)=>(
+                                <View key={key} style={{flexDirection: 'row',justifyContent: 'space-between', paddingHorizontal: 10, ...SHADOW, backgroundColor: 'white', margin: 5, padding: 5, borderRadius: 5}}>
+                                    <Text style={{flex: 1}}>{el.complementDescription}</Text>
+                                    <View style={{flexDirection: 'row', flex: 1, justifyContent: 'center'}}>
+                                        <Text>{el.valueType ? 'R$' : ''}</Text>
+                                        <Text>{el.complementMultiplier * el.value}</Text>
+                                        <Text>{el.valueType ? '' : '%'}</Text>
+                                    </View>
+                                    <Icon name="remove" size={20} color={COLORS.primary}/>
+                                </View>
                             ))}
-                        </View>
-                    </View>
-                ))}
-                <Text style={{marginTop: 10, ...LABEL}}>Descontos e Taxas</Text>
-                {complements.map((el, key)=>(
-                    <View key={key} style={{flexDirection: 'row',justifyContent: 'space-between', paddingHorizontal: 10, ...SHADOW, backgroundColor: 'white', margin: 5, padding: 5, borderRadius: 5}}>
-                        <Text style={{flex: 1}}>{el.complementDescription}</Text>
-                        <View style={{flexDirection: 'row', flex: 1, justifyContent: 'center'}}>
-                            <Text>{el.valueType ? 'R$' : ''}</Text>
-                            <Text>{el.multiplier * el.value}</Text>
-                            <Text>{el.valueType ? '' : '%'}</Text>
-                        </View>
-                        <Icon name="remove" size={20} color={COLORS.primary}/>
-                    </View>
-                ))}
+                        </>
+
+                    )
+                }
+                <InputEdit label="Nota:" onChange={setNote} value={note} italic />
+
                 <View>
-                    <Text>Total final: R${totalValue}</Text>
+                    <Text style={{fontSize: 22, padding: 10, textAlign: 'right'}}>Total final: R${totalValue}</Text>
                 </View>
                 <TouchableHighlight style={styles.newProduct}
                         underlayColor={COLORS.primaryPressed} onPress={() => { handleNewProduct() }}>
@@ -489,7 +526,7 @@ const OrderItem = ({user, setOrderAction}: Props) => {
                                 <Text style={{marginRight: 10}}>{!newComplementType && '%'}</Text>
 
                             </View>
-                            <CreateButton action={handleCreateNewComplement} text="Criar desconto" />
+                            <CreateButton action={handleCreateNewComplement} text={`Criar ${newComplementMultiplier == -1 ? 'desconto' : 'taxa'}`} />
                         </View>
                         <Text style={styles.closeModal}>Fechar</Text>
                     </TouchableOpacity>

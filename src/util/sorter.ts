@@ -49,8 +49,9 @@ export const sortClients = (clients: any[]) => {
 
 export const sortClientNames = (clients: any[])=>{
     if(clients.length == 0) return []
+    const sorted = [...clients]
 
-    return clients.sort((a: any, b: any) => {      
+    return sorted.sort((a: any, b: any) => {      
         const nameA = a.name.toLowerCase();
         const nameB = b.name.toLowerCase();
         if (nameA < nameB) return -1;

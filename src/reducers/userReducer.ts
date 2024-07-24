@@ -15,7 +15,7 @@ export const setUser = (payload: any) => ({
     payload
 });
 
-export const loggedOut: User = {id: 0, planId: 0, name: 'Convidado', email: '', phone: '', userPermission: 0, subscriptionLevel: -1, paymentDate: new Date(), dueDate: new Date()} 
+export const loggedOut: User = {id: 0, planId: 0, name: 'Convidado', email: '', phone: '', refferalCode: '', userPermission: 0, subscriptionLevel: -1, paymentDate: '', dueDate: ''} 
 
 const initialState: State = {
     user: loggedOut
@@ -28,7 +28,6 @@ const reducer = (state: State = initialState, action: Action): State => {
                     ...state,
                     user: action.payload
                 };
-            break;
         default: break;
     }
     return state;

@@ -32,7 +32,7 @@ const Header = ({vision, toogleVision}: Props) => {
         <SafeAreaView style={styles.safeArea}> 
             <View style={styles.header}>
                 <View style={styles.logoContainer}>
-                    {/* <Image source={logo} style={{ width: 50, height: 50 }} /> */}
+                    {/* <Image source={require('../assets/images/logo.png')} style={{width: 100, height: 100}} /> */}
                 </View>
                 <Text style={styles.headerTitle}>SR Confeiteira</Text>
                 <View style={styles.profile}>

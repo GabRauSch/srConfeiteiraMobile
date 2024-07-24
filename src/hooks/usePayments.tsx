@@ -1,14 +1,8 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getAllOrdersByUserId } from '../services/Orders';
-import { Order } from '../types/Order';
-import { setOrders } from '../reducers/ordersReducer';
-import { sortClients, sortOrders } from '../util/sorter';
-import { setClients } from '../reducers/clientsReducer';
-import Orders from '../screens/Orders';
 import { RootState } from '../store';
 import { setPayment } from '../reducers/paymentsReducer';
-import { getByOrderId, getByUserId } from '../services/OrderPayments';
+import { getByUserId } from '../services/OrderPayments';
 
 const usePayments = (userId: number) => {
     const dispatch = useDispatch();

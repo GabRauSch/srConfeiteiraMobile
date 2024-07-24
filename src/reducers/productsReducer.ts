@@ -36,6 +36,7 @@ const initialState: State = {
 }
 
 const reducer = (state: State = initialState, action: Action): State => {
+
     switch (action.type) {
         case 'SET_PRODUCT_INFO':
             const {id, ...rest} = action.payload;

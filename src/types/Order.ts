@@ -1,4 +1,5 @@
 import { OrderStatus } from "../util/mappers";
+import { Complement } from "./OrderComplements";
 
 export type Order = {
     orderId: number,
@@ -9,5 +10,7 @@ export type Order = {
     value: number,
     status: OrderStatus,
     products: {id: number, name: string, quantity: number, finished: boolean}[],
-    delay: boolean
+    orderComplements: Complement[]
+    delay: boolean,
+    note: string
 }

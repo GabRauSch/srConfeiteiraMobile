@@ -10,6 +10,7 @@ const useClients = (userId: number) => {
     const clients = useSelector((state: RootState) => state.clientsReducer.clients);
 
     useEffect(() => {
+        console.log('-- use clients')
         const fetchClients = async () => {
             try {
                 if (clients.length === 0) {
@@ -27,7 +28,7 @@ const useClients = (userId: number) => {
         if (userId) {
             fetchClients();
         }
-    }, [userId, dispatch, clients]);
+    }, [userId]);
 
     return clients;
 };

@@ -1,4 +1,4 @@
-import { Text, View } from "react-native"
+import { Alert, Text, View } from "react-native"
 import {styles} from '../styles/component.Subscription'
 import { COLORS, SUBSCRIPTIONCOLORS } from "../styles/global"
 import { SubscriptionLevel, subscriptions } from "../types/Subscription"
@@ -6,15 +6,23 @@ import { getRemainingDays, remainingTimeFrom } from "../util/transform"
 import { connect } from "react-redux"
 import { RootState } from "../store"
 import { useEffect } from "react"
-import { User } from "../types/User"
+import { User } from "../types/User";
+import * as Clipboard from 'expo-clipboard';
+import useMessage from "../hooks/useMessage"
+
+
+
 
 type Props = {
-    user: User
+    user: User,
+    onMessage: (message: string, type: 'error'|'success')=>void
 }
 
-const Subscription = ({user}: Props)=>{
+const Subscription = ({user, onMessage}: Props)=>{
     const planId = user.planId;
     const color = SUBSCRIPTIONCOLORS[subscriptions[planId]];
+    const remainingDays = getRemainingDays(user.dueDate)
+    
     
     const getBackground = ()=>{
         if(planId == 0) return 'black';
@@ -23,8 +31,15 @@ const Subscription = ({user}: Props)=>{
         if(planId == 3) return '#9070E0'
     }
 
+    const handleCopyCode = async ()=>{
+        onMessage('Código copiado para a área de transferência', 'success')
+        await Clipboard.setStringAsync(`Olá, utilize meu código ${user.refferalCode} para ganhar 10% de desconto no seu primeiro pagamento no App SRConfeiteira! Você pode utilizá-lo na hora do pagamento ou na hora de realizar o Login!`)
+    }
+
     return(
+        <>
         <View style={styles.subcription}>
+
             <Text style={styles.subcriptionTitle}>Seu plano:</Text>
             {user.paymentDate ? (
                 <Text>Pago</Text>
@@ -37,14 +52,17 @@ const Subscription = ({user}: Props)=>{
             <View style={[styles.goldenSubscription, {backgroundColor: getBackground()}]}>
                 <View style={[styles.subcriptionCard, {borderColor: color}]}>
                     <Text style={[styles.subscriptionName, {color: color}]}>{subscriptions[planId].toUpperCase()}</Text>
-                    <Text style={[styles.subcriptionTime, {color: color}]}>{getRemainingDays(user.dueDate)} restantes</Text>
+                    <Text style={[styles.subcriptionTime, {color: color}]}>pagamento em {(remainingDays && remainingDays < 0)  ? `atraso` : `${remainingDays} dias`}</Text>
                 </View>
             </View>
             <View style={styles.subscriptionConfig}>
+                <Text style={[styles.subscriptionText, {textDecorationLine: 'underline'}]} onPress={handleCopyCode}>Copiar código</Text>
                 <Text style={styles.subscriptionText}>Alterar plano</Text>
                 <Text style={{...styles.subscriptionText, color: COLORS.primary}}>Detalhes do plano</Text>
             </View>
         </View>
+        </>
+
     )
 }
 

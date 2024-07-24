@@ -83,7 +83,7 @@ const Profile = ({ user, setUserAction }: Props) => {
                     <InputEdit onChange={() => { }} label="Email" value={email} lockEdit={true} />
                     <InputEdit onChange={setPhone} label="Telefone" value={phone} />
                 </View>
-                <Subscription/>
+                <Subscription onMessage={(message: string, type: 'error'|'success')=>setMessageWithTimer(message, type)}/>
                 <View style={styles.editArea}>
                     <View style={styles.editItem}>
                         <Icon name="history" size={iconSize} color={COLORS.primary} />

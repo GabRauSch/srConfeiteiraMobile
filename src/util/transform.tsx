@@ -159,22 +159,21 @@ export const getExtendedDate = (date: Date)=>{
     return `${day} de ${month} de ${year}`;
 }
 
-export const getRemainingDays = (time: Date)=>{
-    if(!time) return '';
+export const getRemainingDays = (time: Date | string)=>{
+    if(!time) return null;
 
     const order = new Date(time)
     
     const now = new Date();
     const diff = order.getTime() - now.getTime();
     
-    if (diff <= 0) return 'Pedido em atraso';
 
     const seconds = Math.floor(diff / 1000);
     const minutes = Math.floor(seconds / 60);
     const hours = Math.floor(minutes / 60);
     const days = Math.floor(hours / 24);
 
-    return `${days} dias`; 
+    return days == 0 ? 1 : days; 
 }
 
 

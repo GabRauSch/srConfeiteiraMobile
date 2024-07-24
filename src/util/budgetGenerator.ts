@@ -4,12 +4,37 @@ import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { OrderItems } from '../types/OrderItem';
 import { Order } from '../types/Order';
+import { Complement } from '../types/OrderComplements';
+import { format } from 'date-fns';
+import { mapOrderStatus } from './mappers';
+import { OrderData } from '../screens/OrderItem';
+import { User } from '../types/User';
 
+export const calculatePercentage = (complements: Complement[], type: 0 | 1, multiplier: 1  | -1) => {
+    const percentage = complements
+        .filter(el => el.valueType === type && el.complementMultiplier === multiplier)
+        .reduce((acc, { value }) => acc * (1 - value / 100), 1);
+    return (1 - percentage) * 100;
+};
 
+export const calculateValue = (complements: Complement[], type: 0 | 1, multiplier: 1  | -1) => {
+    return complements
+        .filter(el => el.valueType === type && el.complementMultiplier === multiplier)
+        .reduce((acc, { value }) => acc + value * multiplier, 0);
+};
 
-
-
-export const createAndSharePdf = async (itens: OrderItems[], complements: any[]) => {
+export const createAndSharePdf = async (itens: OrderItems[], complements: any[], orderData: OrderData, userData: User) => {
+    const value = itens.reduce((a: number, b: any)=>(a + (b.value * b.quantity)), 0);
+    const finalDiscountPercentage = calculatePercentage(complements, 0, -1);
+    const discountValue = calculateValue(complements, 1, -1);
+    const finalTaxPercentage = calculatePercentage(complements, 0, 1);
+    const taxValue = calculateValue(complements, 1, 1);
+    const finalTaxes = (value * finalTaxPercentage /100) + taxValue;
+    const finalDiscounts = (value * finalDiscountPercentage /100) + discountValue;
+    console.log(finalDiscounts)
+    const finalValue = value - (value * finalDiscountPercentage /100) + (value * finalTaxPercentage /100) + taxValue + discountValue
+    const taxes = complements.filter((c)=>c.complementMultiplier == 1);
+    const discounts = complements.filter((c)=>c.complementMultiplier == -1)
     const html = `
     <!DOCTYPE html>
 <html lang="en">
@@ -58,7 +83,6 @@ export const createAndSharePdf = async (itens: OrderItems[], complements: any[])
             padding: 12px;
         }
         td {
-            padding: 12px;
             border: 1px solid #555;
             text-align: left;
         }
@@ -67,6 +91,7 @@ export const createAndSharePdf = async (itens: OrderItems[], complements: any[])
         }
         .secondary td {
             text-align: center;
+            padding: 5px;
         }
         .secondary:nth-child(even) {
             background-color: #eee;
@@ -75,14 +100,26 @@ export const createAndSharePdf = async (itens: OrderItems[], complements: any[])
             background-color: white;
             font-weight: bold;
         }
+        .total-row td{
+            padding: 5px;
+        }
         .total-row td:nth-child(1) {
             text-align: right;
         }
         .total-row td:nth-child(2) {
             text-align: center;
         }
+        .decrease-row td{
+            color: #c55;
+            text-align: center;
+            padding: 5px;
+        }
+        .decrease-row td:nth-child(1){
+            text-align: right;
+        }
         .increase-row td{
             text-align: center;
+            padding: 5px;
         }
         .increase-row td:nth-child(1){
             text-align: right;
@@ -95,13 +132,21 @@ export const createAndSharePdf = async (itens: OrderItems[], complements: any[])
             display: flex;
             justify-content: flex-end;
         }
+        p{
+            font-style: italic
+        }   
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>Orçamento</h1>
+        <h1>${userData.name}</h1>
+        <h1>${orderData.orderStatus > mapOrderStatus('budget') ? 'Pedido' : 'Orçamento'} nº ${orderData.orderNumber}</h1>
     </div>
     <div class="table-container">
+        <div class="budget-data">
+            <div class="date">Cliente: ${orderData.clientName}</div>
+            <div class="date">Data: ${format(orderData.deliveryDate, 'dd/MM/yyyy')}</div>
+        </div>
         <table>
             <thead>
                 <tr>
@@ -116,39 +161,48 @@ export const createAndSharePdf = async (itens: OrderItems[], complements: any[])
                     `<tr class="secondary">
                         <td>${el.productName}</td>
                         <td>${el.quantity}</td>
-                        <td>R$${el.value}</td>
-                        <td>R$${el.value * el.quantity}</td>
+                        <td>R$${(el.value).toFixed(2).replace('.',',')}</td>
+                        <td>R$${(el.value * el.quantity).toFixed(2).replace('.',',')}</td>
                     </tr>
                     `
                 ))}
             </tbody>
             <tfoot>
-                ${complements.filter((c)=>c.valueType == 1).map((el)=>(
+                <tr class="total-row">
+                    <td colspan="3">Subtotal</td>
+                    <td>R$${value.toFixed(2).replace('.',',')}</td>
+                </tr>
+                ${taxes.map((el)=>(
                     `<tr class="increase-row">
-                        <td colspan="3">${el.description}</td>
-                        <td>${el.value}</td>
+                        <td colspan="3">${el.complementDescription}</td>
+                        <td>R$${el.value.toFixed(2).replace('.',',')}</td>
                     </tr>`
                 ))}
-                <tr class="total-row">
-                    <td colspan="3">Total Acréscimos</td>
-                    <td>R$${complements.reduce((a, b)=>a + b.value, 0)}</td>
-                </tr>
-                ${complements.filter((c)=>c.valueType == 0).map((el)=>(
-                    `<tr class="increase-row">
-                        <td colspan="3">${el.description}</td>
-                        <td>${el.value}</td>
+                ${finalTaxes > 0 ? `
+                    <tr class="total-row">
+                        <td colspan="3">Total Acréscimos</td>
+                        <td>R$${finalTaxes.toFixed(2).replace('.',',')}</td>
+                    </tr>
+                `:'' }
+                ${discounts.map((el)=>(
+                    `<tr class="decrease-row">
+                        <td colspan="3">${el.complementDescription}</td>
+                        <td>${el.valueType == 0 ? '' : 'R$'}${el.value.toFixed(2).replace('.',',')}${el.valueType == 0 ? '%' : ''}</td>
                     </tr>`
                 ))}
-                <tr class="total-row">
-                    <td colspan="3">Total Desconto</td>
-                    <td>R$${complements.reduce((a, b)=>a + b.value,0)}</td>
-                </tr>
+                ${finalDiscounts < 0 ?
+                    `<tr class="total-row">
+                        <td colspan="3">Total Desconto</td>
+                        <td>-R$${Math.abs(finalDiscounts).toFixed(2).replace('.', ',')}</td>
+                    </tr>`
+                : ''}
                 <tr class="total-row">
                     <td colspan="3">Total</td>
-                    <td>R$${itens.reduce((a, b)=>a + (b.value * b.quantity), 0)}</td>
+                    <td>R$${finalValue.toFixed(2).replace('.',',')}</td>
                 </tr>
             </tfoot>
         </table>
+        <p>Nota: ${orderData.note}</p>
     </div>
 </body>
 </html>

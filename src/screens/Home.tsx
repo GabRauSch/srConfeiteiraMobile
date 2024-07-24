@@ -21,6 +21,7 @@ import { useProducts } from "../hooks/useProducts";
 import usePayments from "../hooks/usePayments";
 import useClients from "../hooks/useClients";
 import LoadingPage from "../components/LoadingPage";
+import { mapOrderStatus } from "../util/mappers";
 
 type overViewData = {
     id: string,
@@ -146,9 +147,9 @@ const HomeScreen = ({ user, vision}: Props) => {
     
             formattedOrders[day].count++;
     
-            if (order.status === 0) {
+            if (order.status <= mapOrderStatus('open')) {
                 formattedOrders[day].pending++;
-            } else if (order.status === 1) {
+            } else if (order.status >= mapOrderStatus('finished')) {
                 formattedOrders[day].completed++;
             }
         });
@@ -182,11 +183,11 @@ const HomeScreen = ({ user, vision}: Props) => {
                 {ordersList.length > 0 ? (
                     ordersList.map((el, key) => {
                         const orderComponents: any[] = [];
-    
-                        for (let i = 0; i < 6; i++) {
+
+                        for (let i = 0; i < Math.min(4, el.completed); i++) {
                             orderComponents.push(<View style={[styles.order, styles.finished]} key={`finished-${i}`} />);
                         }
-                        for (let i = 0; i < 6; i++) {
+                        for (let i = 0; i < Math.min(4, el.pending); i++) {
                             orderComponents.push(<View style={[styles.order, styles.pendent]} key={`pending-${i}`} />);
                         }
     
@@ -234,7 +235,7 @@ const HomeScreen = ({ user, vision}: Props) => {
                             <View key={key} style={[styles.orderPayment, {borderLeftWidth: el.dueDate < new Date() ? 0 : 5}]}>
                                 <Text style={{textAlign: 'center', flex: 2}}>{el.name}</Text>
                                 <Text style={{textAlign: 'center', flex: 1}}>{formatDate(el.dueDate, 'dd/MM/yy')}</Text>
-                                {/* <Text style={{textAlign: 'center', flex: 1}}>R${el.value.toFixed(2).replace('.',',')}</Text> */}
+                                <Text style={{textAlign: 'center', flex: 1}}>R${el.value.toFixed(2).replace('.',',')}</Text>
                             </View>
                         ))
                     ) : (

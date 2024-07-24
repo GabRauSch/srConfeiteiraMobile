@@ -10,10 +10,11 @@ type Props = {
     lockEdit?: boolean,
     beforeHolder?: string,
     optional?: boolean,
-    keyboard?: KeyboardType
+    keyboard?: KeyboardType,
+    italic?: boolean
 }  
 
-const InputEdit = ({label, value, main, lockEdit,onChange, beforeHolder, optional, keyboard='default'}: Props)=>{
+const InputEdit = ({label, value, main, lockEdit,onChange, beforeHolder, optional, keyboard='default', italic}: Props)=>{
 
     const handleMessage = ()=>{
         if (lockEdit) console.log('erro')
@@ -34,7 +35,10 @@ const InputEdit = ({label, value, main, lockEdit,onChange, beforeHolder, optiona
                     <Text style={styles.beforeHolder}>{beforeHolder}</Text>
                 }
                 <TextInput editable={!lockEdit} onChangeText={(value)=>{onChange(value)}}
-                    style={[styles.productInput, main ? styles.name : null, lockEdit ? styles.notEditable : null ]}
+                    style={[styles.productInput, 
+                        main ? styles.name : null, lockEdit ? styles.notEditable : null,
+                        {fontStyle: italic ? 'italic' : 'normal'}
+                    ]}
                     value={value} keyboardType={keyboard}
                 >
                 </TextInput>

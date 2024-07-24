@@ -36,7 +36,7 @@ const MoreScreen = ()=>{
                     </TouchableOpacity>
                 </View>
                 <HorizontalLine />
-                <Subscription/>            
+                <Subscription onMessage={(message: string, type: 'error' | 'success')=>setMessageWithTimer(message, type)}/>            
                 <HorizontalLine />
                 <View>
                     <View  style={styles.editItem}>

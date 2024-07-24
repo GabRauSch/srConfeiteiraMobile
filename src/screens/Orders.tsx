@@ -8,28 +8,23 @@ import { formatDate as formateDateFun, getTimeStringFromDate, getUniqueCategorie
 import { OrderAggregated } from "../types/OrderAgreggated";
 import { RootState } from "../store";
 import { Dispatch } from "redux";
-import { toggleVision } from "../reducers/visionReducer";
 import { connect } from 'react-redux';
 import { User } from "../types/User";
 import { setOrders } from "../reducers/ordersReducer";
-import { getAllOrdersByUserId } from "../services/Orders";
-import { Product } from "../types/Product";
 import { COLORS } from "../styles/global";
 import SearchInput from "../components/SearchInput";
 import OptionItem from "../components/OptionItem";
-import { sortOrders } from "../util/sorter";
 import { setUser } from "../reducers/userReducer";
-import * as SecureStore from 'expo-secure-store';
 import { formatDate } from "date-fns";
 import useOrders from "../hooks/useOrders";
 import LoadingPage from "../components/LoadingPage";
-import { mapOrderStatus, mapStatusToText, orderStatus, OrderStatus, orderStatusValues, statusText } from "../util/mappers";
+import { mapOrderStatus, statusText } from "../util/mappers";
 
 type Props = {
     vision: boolean,
     user: User,
-    setOrdersAction: (payload: any)=>void
-    setUserAction: (payload: any)=>void
+    setOrdersAction: (payload: Order[])=>void
+    setUserAction: (payload: User)=>void
 }
 
 const OrdersScreen = ({vision, user, setOrdersAction, setUserAction}: Props)=>{
@@ -56,7 +51,7 @@ const OrdersScreen = ({vision, user, setOrdersAction, setUserAction}: Props)=>{
         
         setNoOrders(noOrders)
         setDays(uniqueDays);
-        setFilteredOrders(fetchedOrders)
+        setFilteredOrders(fetchedOrders);
         setOrderAggregated(aggregateOrdersByProduct(fetchedOrders))
     }, [fetchedOrders, setOrdersAction]);
 
@@ -74,7 +69,7 @@ const OrdersScreen = ({vision, user, setOrdersAction, setUserAction}: Props)=>{
     }
 
     const aggregateOrdersByProduct = (orders: Order[]): OrderAggregated[] => {
-        const aggregated = orders.reduce((acc, order) => {
+        const aggregated = orders.filter((order)=>order.status > 1).reduce((acc, order) => {
             order.products.forEach(product => {
                 const key = `${product.name}-${new Date(order.deliveryDay).toISOString().split('T')[0]}`;
                 
@@ -82,12 +77,12 @@ const OrdersScreen = ({vision, user, setOrdersAction, setUserAction}: Props)=>{
                     acc[key] = {
                         id: product.id,
                         name: product.name,
-                        amount: product.quantity * order.value,
+                        amount: product.quantity,
                         deliveryDate: order.deliveryDay,
                         status: order.status
                     };
                 } else {
-                    acc[key].amount += product.quantity * order.value;
+                    acc[key].amount += product.quantity;
                 }
             });
             
@@ -116,7 +111,6 @@ const OrdersScreen = ({vision, user, setOrdersAction, setUserAction}: Props)=>{
                         option={option.description}
                         handleActive={() => {
                             handleCategorySelect(option);
-                            console.log(option, selectedStatus)
                         }}
                         active={option.id == selectedStatus.id}
                     />
@@ -133,11 +127,10 @@ const OrdersScreen = ({vision, user, setOrdersAction, setUserAction}: Props)=>{
                 <Text style={styles.messageNoRegister}>Sem pedidos</Text>
             ) : (
                 days.map((day: any, Dkey)=>{    
-                    console.log(day)    
                     return (
                         filteredOrders.some(order => {
-                            return formateDateFun(order.deliveryDay) === day && (order.status === selectedStatus.id || selectedStatus.id === -1) && order.status !== mapOrderStatus('delivered')                        
-                    }) && (
+                            return formateDateFun(order.deliveryDay) === day && (order.status === selectedStatus.id || (selectedStatus.id === -1 && order.status !== mapOrderStatus('delivered')))                        
+                    }) ? (
                     <React.Fragment key={Dkey}>
                         <Text style={{...styles.separator, 
                             color: day == 'em atraso' ? 'red' : COLORS.primary 
@@ -152,7 +145,7 @@ const OrdersScreen = ({vision, user, setOrdersAction, setUserAction}: Props)=>{
                                                 <Text style={styles.name}>{agg.name}</Text>
                                                 <View style={styles.unitsDisplay}>
                                                     <View style={styles.listItem}>
-                                                        <Text style={styles.listItemText}>{agg.amount} unidades</Text>
+                                                        <Text style={styles.listItemText}>{agg.amount} unidade{agg.amount > 1 ? 's' : ''}</Text>
                                                     </View>
                                                     <View>
                                                         <Text style={styles.listItemText}>{formatDate(agg.deliveryDate, 'dd/MM/yyyy')}</Text>
@@ -166,19 +159,23 @@ const OrdersScreen = ({vision, user, setOrdersAction, setUserAction}: Props)=>{
                                 <ScrollView horizontal>
                                     {
                                         filteredOrders.filter(order=>{
-                                            console.log('cu cuc cucuc cucucucucucucuc1', order, day)
                                             return  formateDateFun(order.deliveryDay) == day
                                         })
                                             .map((item, key)=>{ 
-                                                console.log('order', item)
                                             return (item.status == selectedStatus.id || selectedStatus.id == -1) && (
                                                 <TouchableOpacity 
-                                                    style={{...styles.order, borderTopWidth: new Date(item.deliveryDay).getTime() < now ? 10 : 0}} key={key} 
+                                                    key={key + '\''}
+                                                    style={{...styles.order, borderTopWidth: new Date(item.deliveryDay).getTime() < now ? 10 : 0}}
                                                     onPress={()=>handleNavigate('order', item.orderId)}
                                                 >
                                                     <View style={[styles.labelOrder, item.status != mapOrderStatus('open') ?  styles.closedOrder : styles.openOrder]}></View>
-                                                    <Text  style={{...styles.name, color: new Date(item.deliveryDay).getTime() < now ? '#c00' : 'black'}}>
+                                                    <Text  
+                                                        style={{...styles.name, color: new Date(item.deliveryDay).getTime() < now ? '#c00' : 'black',
+                                                    }}>
                                                         {item.client}
+                                                            {item.status == mapOrderStatus('budget') ?
+                                                                <Text style={{fontSize: 14, fontWeight: 'bold', color: '#ca0'}}> - Orçamento</Text> 
+                                                            : <></>}
                                                     </Text>
                                                     <View style={styles.orderList}>
                                                         {item.products.slice(0,3).map((product, Pkey)=>(
@@ -200,7 +197,7 @@ const OrdersScreen = ({vision, user, setOrdersAction, setUserAction}: Props)=>{
                             )}
                         </View>
                     </React.Fragment>
-                    )
+                    ) : null
                     )
                 })
             )}

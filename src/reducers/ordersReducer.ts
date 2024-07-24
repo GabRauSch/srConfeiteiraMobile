@@ -1,5 +1,4 @@
 import { Order } from "../types/Order";
-import { User } from "../types/User";
 
 interface State {
     orders: Order[]
@@ -35,6 +34,7 @@ const initialState: State = {
 }
 
 const reducer = (state: State = initialState, action: Action): State => {
+
     switch (action.type) {
         case 'SET_ORDER_INFO':
             const {orderId, ...rest} = action.payload;
@@ -61,7 +61,9 @@ const reducer = (state: State = initialState, action: Action): State => {
             }
 
         case 'NEW_ORDER': 
-            const newOrders = [...state.orders, action.payload]
+            console.log('--- new order action dispatch---');
+
+            const newOrders = [...state.orders]
             const newState = {
                 ...state,
                 orders: newOrders

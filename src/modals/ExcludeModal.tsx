@@ -12,13 +12,14 @@ import { connect } from "react-redux";
 type Props = {
     id: number,
     name: string,
+    type?: string,
     objectType: string,
     warning?: string, 
     onClose: ()=>void,
     confirmExclude: ()=>void
 };
 
-const ExcludeModal = ({ id, name, objectType, warning, onClose, confirmExclude}: Props) => {
+const ExcludeModal = ({ id, name, type, objectType, warning, onClose, confirmExclude}: Props) => {
     const navigate = useNavigation() as any;
 
     return (
@@ -29,7 +30,7 @@ const ExcludeModal = ({ id, name, objectType, warning, onClose, confirmExclude}:
             <TouchableWithoutFeedback onPress={onClose}>
                 <View style={styles.modalBackground}>
                     <View style={styles.modalContent}>
-                        <Text style={styles.modalText}>Confirmar exclusão do {objectType}:</Text>
+                        <Text style={styles.modalText}>Confirmar {type ? type : 'exclusão'} do {objectType}:</Text>
                         <Text style={styles.modalItemName}>{name}</Text>
                         <View style={styles.buttons}>
                             <TouchableHighlight 

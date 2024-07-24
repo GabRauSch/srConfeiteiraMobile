@@ -13,8 +13,8 @@ export const styles = StyleSheet.create({
   },
   welcome: {
     color: '#a78384',
-    marginBottom: 100,
     fontSize: 24,
+    marginVertical: 40
   },
   input: {
     width: '80%',
@@ -43,7 +43,7 @@ export const styles = StyleSheet.create({
     fontSize: 18,
   },
   loginText:{
-    marginTop: 35,
+    marginVertical: 20,
     fontSize: 14,
     textDecorationLine: 'underline',
     fontWeight: '600',

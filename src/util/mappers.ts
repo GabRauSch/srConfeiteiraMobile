@@ -15,7 +15,7 @@ export const mapStatusToText = (satusNumber: OrderStatus)=>{
     
     return statusText[satusNumber]
 }
-export const mapOrderStatus = (status: Status)=>{
+export const mapOrderStatus = (status: Status): any=>{
     const foundStatus = orderStatus.find((el: any)=>{
         return el.status == status
     })

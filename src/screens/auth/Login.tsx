@@ -14,9 +14,6 @@ import { connect } from 'react-redux';
 import { User } from '../../types/User';
 import { setUser } from '../../reducers/userReducer';
 import Icon from 'react-native-vector-icons/FontAwesome';
-
-
-// test env
 import * as Device from 'expo-device';
 import { COLORS } from '../../styles/global';
 
@@ -46,6 +43,7 @@ const Login = ({setUserAction}: Props) => {
 const handleLogin = async () => {
     if (!email) return setMessageWithTimer('Digite um email para continuar', 'error');
     if (!password) return setMessageWithTimer('Digite uma senha para continuar', 'error');
+    console.log(email, password)
   
     try {
         const response = await login({ email, password });
@@ -55,6 +53,7 @@ const handleLogin = async () => {
           await SecureStore.setItem('authToken', data.data.token);
           const {id: userId} = decodeToken(data.data.token);
           const userInfo = await retrieveUserData(userId);
+          console.log(userInfo.data)
           setUserAction(userInfo.data)
           
           if(!userInfo.data){
@@ -80,6 +79,7 @@ const handleLogin = async () => {
         <MessageDisplay />
       </SafeAreaView>
       <View style={styles.container}>
+        <Image source={require('../../assets/images/logo.png')} style={{width: 100, height: 100}} />
         <Text style={styles.welcome}>Faça o login!</Text>
         <TextInput
           

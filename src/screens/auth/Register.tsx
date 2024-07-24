@@ -21,7 +21,8 @@ const Register = ()=> {
   const route = useRoute() as any;
   const [passwordSecure, setPasswordSecure] = useState(true)
   const [confirmSecure, setConfirmSecure] = useState(true)
-
+  const [refferalCode, setRefferalCode] = useState('');
+  const [showRefferalCode, setShowRefferalCode] = useState(false)
 
   useEffect(()=>{
     const emailRoute = route.params?.email
@@ -59,6 +60,7 @@ const redirectToLogin = () => {
         <MessageDisplay />
       </SafeAreaView>
     <View style={styles.container}>
+      <Image source={require('../../assets/images/logo.png')} style={{width: 100, height: 100}} />
       <Text style={styles.welcome}>Realize o cadastro!</Text>
       <TextInput
         style={styles.input}
@@ -101,7 +103,19 @@ const redirectToLogin = () => {
           <Icon name={confirmSecure ? "eye-slash" : "eye"} size={20} color={COLORS.primary} />
         </TouchableOpacity>
       </View>
-      {/* {errorMessage !== '' && <ErrorMessage text={errorMessage}></ErrorMessage>} */}
+      {showRefferalCode ?
+      <>
+        <View style={styles.input}>
+          <TextInput
+            placeholder="Código de confeiteira"
+            placeholderTextColor={'#a78384'}
+            autoCapitalize="none"
+            value={refferalCode}
+            onChangeText={(text) => setRefferalCode(text)}
+          />
+        </View>
+      </>: <Text style={styles.loginText} onPress={()=>setShowRefferalCode(true)}>Possui um código?</Text>
+      }
       <TouchableOpacity style={styles.button} onPress={handleRegister}>
         <Text style={styles.buttonText}>Cadastrar</Text>
       </TouchableOpacity>

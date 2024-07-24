@@ -94,6 +94,16 @@ export const styles = StyleSheet.create({
         textAlign: 'center',
         alignSelf: 'flex-end'
     }, 
+    sendBudget: {
+        color: '#fff', 
+        fontWeight: 'bold', 
+        backgroundColor: COLORS.secondary,
+        borderRadius: 5,
+        padding: 5,
+        width: '100%',
+        textAlign: 'center',
+        alignSelf: 'flex-end'
+    },
     finishOrderArea: {
         flexDirection: 'row',
         justifyContent: 'space-around',

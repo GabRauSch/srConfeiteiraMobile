@@ -1,7 +1,7 @@
-import { ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native"
+import { ScrollView, View } from "react-native"
 import {styles} from '../styles/screen.NewProduct'
 import InputEdit from "../components/InputEdit"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import CreateButton from "../components/CreateButton"
 import useMessage from "../hooks/useMessage"
 import { RootState } from "../store"
@@ -13,9 +13,6 @@ import { validateClientCreate, validateProductCreate } from "../util/validation"
 import { createClient } from "../services/Clients"
 import { Client } from "../types/Client"
 import { newClient } from "../reducers/clientsReducer"
-import Icon from "react-native-vector-icons/FontAwesome";
-import { COLORS } from "../styles/global"
-import { HorizontalLine } from "../components/HorizontalLine"
 import { HeaderCreation } from "../components/HeaderCreation"
 import { formatPhoneNumber } from "../util/transform"
 
