@@ -3,7 +3,7 @@ import * as FileSystem from 'expo-file-system'
 import { RefreshControlComponent } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 
-const backendAdress = 'http://192.168.15.154:3001'
+const backendAdress = 'https://app.srconfeiteira.com.br'
 
 const isFileUriValid = async (uri: string) => {
     try {

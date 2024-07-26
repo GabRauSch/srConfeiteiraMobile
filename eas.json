@@ -1,5 +1,4 @@
 {
-  "image": "node:16-alpine",
   "cli": {
     "version": ">= 10.0.2"
   },
